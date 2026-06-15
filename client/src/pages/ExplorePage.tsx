@@ -21,7 +21,7 @@ export default function ExplorePage() {
     staleTime: 5 * 60_000,
   });
 
-  const allPackages = apiPackages ?? PACKAGES;
+  const allPackages: Package[] = Array.isArray(apiPackages) ? apiPackages : PACKAGES;
 
   const filtered = useMemo(() => {
     return allPackages.filter((p) => {

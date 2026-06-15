@@ -16,7 +16,7 @@ export default function WishlistPage() {
     staleTime: 5 * 60_000,
   });
 
-  const allPackages = apiPackages ?? PACKAGES;
+  const allPackages: Package[] = Array.isArray(apiPackages) ? apiPackages : PACKAGES;
   const saved = allPackages.filter((p) => savedIds.includes(p.slug ?? p.id));
 
   return (

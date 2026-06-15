@@ -41,7 +41,7 @@ export default function HeroSection() {
   });
 
   const allLocations = useMemo(() => {
-    const pkgs = apiPackages ?? PACKAGES;
+    const pkgs = Array.isArray(apiPackages) ? apiPackages : PACKAGES;
     const seen = new Set<string>();
     const items: { destination: string; location: string }[] = [];
     pkgs.forEach((p) => {
