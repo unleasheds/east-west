@@ -6,6 +6,7 @@ RUN npm ci
 
 COPY . .
 ENV VITE_BASE=/
+# Build with latest source
 RUN npm run build
 RUN npm run build
 
