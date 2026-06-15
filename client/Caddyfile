@@ -1,6 +1,10 @@
 :{$PORT} {
-	root * /srv
 	encode gzip
+
+	@www header Host www.eastwesthalaltravel.com
+	redir @www https://eastwesthalaltravel.com{uri} permanent
+
+	root * /srv
 	try_files {path} /index.html
 	file_server
 }
