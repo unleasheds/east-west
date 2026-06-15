@@ -57,7 +57,7 @@ export default function Header() {
 
           {/* Logo */}
           <Link to="/" className="flex shrink-0 items-center gap-2">
-            <img src="/east-west/favicon.png" alt="EastWest" className="h-9 w-9 object-contain" />
+            <img src="/favicon.png" alt="EastWest" className="h-9 w-9 object-contain" />
             <div className="hidden sm:block leading-tight">
               <p className="text-[15px] font-black text-ink">EastWest</p>
               <p className="text-[10px] font-semibold text-muted">Halal Travel</p>

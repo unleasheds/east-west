@@ -76,7 +76,7 @@ export default function Footer() {
           {/* Brand */}
           <div>
             <div className="flex items-center gap-2">
-              <img src="/east-west/favicon.png" alt="EastWest" className="h-9 w-9 object-contain" />
+              <img src="/favicon.png" alt="EastWest" className="h-9 w-9 object-contain" />
               <div>
                 <p className="text-[15px] font-black text-ink">EastWest</p>
                 <p className="text-[10px] font-semibold text-muted">Halal Travel</p>
@@ -100,7 +100,7 @@ export default function Footer() {
             {/* MIT Badge */}
             <div className="mt-5">
               <img
-                src="/east-west/mit-badge.png"
+                src="/mit-badge.png"
                 alt="Maldives Islamic Tourism — Est. 2025"
                 className="h-32 w-auto object-contain"
               />
