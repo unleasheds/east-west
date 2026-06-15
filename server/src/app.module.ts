@@ -29,7 +29,7 @@ import { AppSetting } from './settings/entities/app-setting.entity';
         const base = {
           type: 'postgres' as const,
           entities: [Package, Trip, User, Wishlist, AppSetting],
-          synchronize: config.get<string>('NODE_ENV') !== 'production',
+          synchronize: true,
           logging: config.get<string>('NODE_ENV') === 'development',
           ssl: databaseUrl ? { rejectUnauthorized: false } : false,
         };
