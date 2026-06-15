@@ -18,7 +18,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID ?? ''}>
       <QueryClientProvider client={queryClient}>
-        <BrowserRouter basename="/east-west">
+        <BrowserRouter basename="/">
           <App />
         </BrowserRouter>
       </QueryClientProvider>
