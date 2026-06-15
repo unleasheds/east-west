@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Search, MapPin, Calendar, Users, MessageCircle } from 'lucide-react';
+import { Search, MapPin, Calendar, Users, MessageCircle, User, ShieldCheck } from 'lucide-react';
 import { useStore } from '../../store/useStore';
 import { WHATSAPP_NUMBER } from '../../data/packages';
 
@@ -9,7 +9,7 @@ const QUICK_PICKS = ['Maldives', 'Malaysia', 'Himmafushi', 'Ukulhas', 'Kuala Lum
 export default function Header() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { search, setSearch } = useStore();
+  const { search, setSearch, user } = useStore();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const [local, setLocal] = useState(search);
@@ -56,8 +56,8 @@ export default function Header() {
         <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-3 md:px-8 md:py-4">
 
           {/* Logo */}
-          <Link to="/" className="flex shrink-0 items-center gap-2.5">
-            <img src="/ew-icon.svg" alt="EastWest Halal Travel" className="h-9 w-9 rounded-xl" />
+          <Link to="/" className="flex shrink-0 items-center gap-2">
+            <img src="/east-west/favicon.png" alt="EastWest" className="h-9 w-9 object-contain" />
             <div className="hidden sm:block leading-tight">
               <p className="text-[15px] font-black text-ink">EastWest</p>
               <p className="text-[10px] font-semibold text-muted">Halal Travel</p>
@@ -206,6 +206,36 @@ export default function Header() {
             <MessageCircle className="h-4 w-4" />
             <span className="hidden sm:inline">WhatsApp</span>
           </a>
+
+          {/* Admin link */}
+          {user?.isAdmin && (
+            <Link
+              to="/admin"
+              className="flex shrink-0 items-center gap-1.5 rounded-full border border-ink bg-ink px-3 py-2 text-xs font-bold text-white transition hover:opacity-80"
+            >
+              <ShieldCheck className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">Admin</span>
+            </Link>
+          )}
+
+          {/* User avatar / sign-in button */}
+          <Link
+            to="/profile"
+            className="flex shrink-0 items-center justify-center rounded-full border border-border bg-white shadow-sm transition hover:shadow-card"
+            style={{ width: 38, height: 38 }}
+            aria-label="Profile"
+          >
+            {user?.avatar ? (
+              <img
+                src={user.avatar}
+                alt={user.name}
+                className="h-full w-full rounded-full object-cover"
+                referrerPolicy="no-referrer"
+              />
+            ) : (
+              <User className="h-4.5 w-4.5 text-muted" />
+            )}
+          </Link>
         </div>
       </header>
 

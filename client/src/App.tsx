@@ -9,6 +9,7 @@ import WishlistPage from './pages/WishlistPage';
 import TripsPage from './pages/TripsPage';
 import InboxPage from './pages/InboxPage';
 import ProfilePage from './pages/ProfilePage';
+import AdminPage from './pages/AdminPage';
 
 export default function App() {
   return (
@@ -23,6 +24,7 @@ export default function App() {
           <Route path="/trips"       element={<TripsPage />} />
           <Route path="/inbox"       element={<InboxPage />} />
           <Route path="/profile"     element={<ProfilePage />} />
+          <Route path="/admin"       element={<AdminPage />} />
         </Routes>
       </main>
 

@@ -13,7 +13,7 @@ function StarRating({ value }: { value: number }) {
   return (
     <span className="flex items-center gap-0.5 text-xs">
       <Star className="h-3 w-3 fill-gold stroke-gold" />
-      <span className="font-bold text-ink">{value.toFixed(1)}</span>
+      <span className="font-bold text-ink">{Number(value).toFixed(1)}</span>
     </span>
   );
 }
@@ -21,7 +21,8 @@ function StarRating({ value }: { value: number }) {
 export default function PackageCard({ pkg }: Props) {
   const navigate = useNavigate();
   const { isSaved, toggleSave } = useStore();
-  const saved = isSaved(pkg.id);
+  const pkgKey = pkg.slug ?? pkg.id;   // slug for API data; id for static fallback
+  const saved = isSaved(pkgKey);
 
   // ── Carousel state ─────────────────────────────────────────────────────────
   const [imgIdx, setImgIdx] = useState(0);
@@ -62,7 +63,7 @@ export default function PackageCard({ pkg }: Props) {
       >
         {/* Image strip */}
         <button
-          onClick={() => navigate(`/package/${pkg.id}`)}
+          onClick={() => navigate(`/package/${pkgKey}`)}
           className="block w-full select-none"
           aria-label={`View ${pkg.title}`}
           draggable={false}
@@ -136,7 +137,7 @@ export default function PackageCard({ pkg }: Props) {
 
         {/* ── Heart / save button ── */}
         <button
-          onClick={(e) => { e.stopPropagation(); toggleSave(pkg.id); }}
+          onClick={(e) => { e.stopPropagation(); toggleSave(pkgKey); }}
           aria-label={saved ? 'Remove from wishlist' : 'Save to wishlist'}
           className="absolute right-3 top-3 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 shadow backdrop-blur-sm transition-all duration-150 hover:scale-110 active:scale-95"
         >
@@ -176,7 +177,7 @@ export default function PackageCard({ pkg }: Props) {
       {/* ── Card info ──────────────────────────────────────────────────────── */}
       <div
         className="mt-3 px-0.5"
-        onClick={() => navigate(`/package/${pkg.id}`)}
+        onClick={() => navigate(`/package/${pkgKey}`)}
       >
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">

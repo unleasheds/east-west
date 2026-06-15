@@ -1,7 +1,10 @@
 import { useMemo } from 'react';
 import { Search } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
 import { useStore } from '../store/useStore';
 import { PACKAGES } from '../data/packages';
+import { packagesApi } from '../lib/api';
+import { Package } from '../types';
 import HeroSection from '../components/sections/HeroSection';
 import CategoryChips from '../components/ui/CategoryChips';
 import PackageCard from '../components/ui/PackageCard';
@@ -11,8 +14,17 @@ export default function ExplorePage() {
   const { activeCategory, search } = useStore();
   const query = search.destination.toLowerCase();
 
+  // Fetch from API; fall back to static data while loading or on error
+  const { data: apiPackages, isLoading } = useQuery<Package[]>({
+    queryKey: ['packages'],
+    queryFn: () => packagesApi.getAll(),
+    staleTime: 5 * 60_000,
+  });
+
+  const allPackages = apiPackages ?? PACKAGES;
+
   const filtered = useMemo(() => {
-    return PACKAGES.filter((p) => {
+    return allPackages.filter((p) => {
       const matchCat = activeCategory === 'All' || p.type === activeCategory || p.destination === activeCategory;
       const matchQuery =
         !query ||
@@ -22,14 +34,14 @@ export default function ExplorePage() {
           .includes(query);
       return matchCat && matchQuery;
     });
-  }, [activeCategory, query]);
+  }, [allPackages, activeCategory, query]);
 
   return (
     <div className="page-enter">
       <HeroSection />
       <CategoryChips />
 
-      <div className="mx-auto max-w-7xl px-4 py-8 md:px-8">
+      <div id="packages-grid" className="mx-auto max-w-7xl px-4 py-8 md:px-8">
         {/* Results header */}
         <div className="mb-6 flex items-end justify-between">
           <div>
@@ -55,7 +67,19 @@ export default function ExplorePage() {
         </div>
 
         {/* Package grid — Airbnb listing grid */}
-        {filtered.length > 0 ? (
+        {isLoading ? (
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="animate-pulse rounded-3xl bg-white shadow-card">
+                <div className="h-56 rounded-t-3xl bg-soft" />
+                <div className="p-4 space-y-3">
+                  <div className="h-4 bg-soft rounded-full w-3/4" />
+                  <div className="h-3 bg-soft rounded-full w-1/2" />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : filtered.length > 0 ? (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {filtered.map((pkg) => (
               <PackageCard key={pkg.id} pkg={pkg} />

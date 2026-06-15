@@ -1,26 +1,45 @@
 import { Link } from 'react-router-dom';
+import { UtensilsCrossed, Moon, Users, MessageCircle } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 
-const TRUST_ITEMS = [
+interface TrustItem {
+  Icon: LucideIcon;
+  iconBg: string;
+  iconColor: string;
+  title: string;
+  body: string;
+  stat: string;
+}
+
+const TRUST_ITEMS: TrustItem[] = [
   {
-    icon: '🍽️',
+    Icon: UtensilsCrossed,
+    iconBg: 'bg-halal-light',
+    iconColor: 'text-halal',
     title: 'Halal food guidance',
     body: 'We tell you exactly what to eat and where — before you even land.',
     stat: '100% halal',
   },
   {
-    icon: '🕌',
+    Icon: Moon,
+    iconBg: 'bg-brand-light',
+    iconColor: 'text-brand',
     title: 'Prayer-friendly planning',
     body: 'Hotels, routes and tour timing chosen with Muslim travellers in mind.',
     stat: 'Qibla ready',
   },
   {
-    icon: '🚤',
+    Icon: Users,
+    iconBg: 'bg-soft',
+    iconColor: 'text-ink',
     title: 'Private family tours',
     body: 'No random groups — comfortable tours tailored to your family.',
     stat: 'Private only',
   },
   {
-    icon: '💬',
+    Icon: MessageCircle,
+    iconBg: 'bg-halal-light',
+    iconColor: 'text-halal',
     title: 'WhatsApp-first support',
     body: 'Fast quotes, easy questions and simple booking confirmation.',
     stat: '< 2 hr reply',
@@ -95,7 +114,9 @@ export default function TrustSection() {
               <div className="absolute inset-x-0 top-0 h-0.5 origin-left scale-x-0 rounded-full gradient-brand transition-transform duration-300 group-hover:scale-x-100" />
 
               <div className="flex items-start justify-between">
-                <span className="text-3xl">{item.icon}</span>
+                <span className={`flex h-10 w-10 items-center justify-center rounded-xl ${item.iconBg} ${item.iconColor}`}>
+                  <item.Icon className="h-5 w-5" strokeWidth={1.8} />
+                </span>
                 <span className="rounded-full bg-soft px-2.5 py-1 text-[10px] font-bold text-muted">
                   {item.stat}
                 </span>

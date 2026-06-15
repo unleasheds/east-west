@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useStore } from '../store/useStore';
 import { TripRequest } from '../types';
 import { WHATSAPP_NUMBER } from '../data/packages';
+import { tripsApi } from '../lib/api';
 
 const STATUS_STYLES: Record<TripRequest['status'], string> = {
   pending:   'bg-brand-light text-brand',
@@ -132,7 +133,7 @@ function TripDetailPanel({ trip, onClose }: { trip: TripRequest; onClose: () => 
 }
 
 export default function TripsPage() {
-  const { trips, addTrip, showToast } = useStore();
+  const { trips, addTrip, showToast, user } = useStore();
   const [selected, setSelected] = useState<TripRequest | null>(null);
   const [form, setForm] = useState({
     destination: '',
@@ -142,9 +143,15 @@ export default function TripsPage() {
     needs: '',
   });
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     addTrip(form);
+    // Persist to server (best-effort — don't block UX on failure)
+    try {
+      await tripsApi.create({ ...form, userId: user?.id });
+    } catch {
+      // silently ignore — trip is still saved locally
+    }
     const msg = encodeURIComponent(
       `Hi EastWest Halal Travel, I want a halal travel plan.\n\nDestination: ${form.destination}\nDates: ${form.dates}\nTravellers: ${form.travellers}\nBudget: ${form.budget}\nSpecial needs: ${form.needs}`
     );

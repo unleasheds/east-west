@@ -1,154 +1,311 @@
 import { Injectable } from '@nestjs/common';
-import { PackagesService } from '../packages/packages.service';
-import { PackageType } from '../packages/entities/package.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Package } from '../packages/entities/package.entity';
+import { SettingsService } from '../settings/settings.service';
 
+/** Idempotent: inserts a package only if its slug doesn't yet exist. */
+@Injectable()
+export class SeedService {
+  constructor(
+    @InjectRepository(Package)
+    private readonly repo: Repository<Package>,
+    private readonly settings: SettingsService,
+  ) {}
+
+  async seed() {
+    // Seed default settings first
+    await this.settings.seedDefaults();
+
+    let inserted = 0;
+    let updated = 0;
+    for (const data of SEED_PACKAGES) {
+      const exists = await this.repo.findOne({ where: { slug: data.slug } });
+      if (!exists) {
+        await this.repo.save(this.repo.create(data));
+        inserted++;
+      } else {
+        await this.repo.save({ ...exists, ...data });
+        updated++;
+      }
+    }
+    return { total: SEED_PACKAGES.length, inserted, updated };
+  }
+}
+
+// ─── Real EastWest Halal Travel packages ────────────────────────────────────
 const SEED_PACKAGES = [
+
+  // 1. Kuala Lumpur Family Tour ───────────────────────────────────────────────
   {
-    title: 'Maldives Family Escape',
-    type: PackageType.FAMILY,
-    destination: 'Maldives',
-    location: 'Ukulhas · Fulidhoo',
-    duration: '3 nights',
-    price: 'From $499',
-    priceValue: 499,
+    slug: 'kuala-lumpur-family',
+    title: '7 Days 6 Nights Kuala Lumpur Halal Family Tour',
+    type: 'Family',
+    destination: 'Malaysia',
+    location: 'Kuala Lumpur · Putrajaya · Genting',
+    duration: '7 Days / 6 Nights',
+    price: 'From $1,190',
+    priceValue: 1190,
+    childPrice: 'Free',
     description:
-      'Hotel stay, speedboat transfer, halal food guidance and a family-friendly island tour — all arranged for you.',
+      "Experience the perfect blend of culture, comfort, and family-friendly adventure with our Kuala Lumpur Halal Family Tour. Specially designed for Muslim travellers, this package offers a relaxing and enriching journey through Malaysia's most iconic destinations while ensuring halal-friendly services and Shariah-compliant experiences throughout your stay.",
+    images: [
+      'https://pub-a90bf5f1ce6f4b4cab5143b848c2b539.r2.dev/packages/kuala-lumpur-family/1.jpg',
+      'https://pub-a90bf5f1ce6f4b4cab5143b848c2b539.r2.dev/packages/kuala-lumpur-family/2.jpg',
+      'https://pub-a90bf5f1ce6f4b4cab5143b848c2b539.r2.dev/packages/kuala-lumpur-family/3.jpg',
+      'https://pub-a90bf5f1ce6f4b4cab5143b848c2b539.r2.dev/packages/kuala-lumpur-family/4.jpg',
+    ],
     imageGradient:
-      'radial-gradient(circle at 15% 100%, #f3d29d 0 26%, transparent 27%), linear-gradient(135deg, #8fcfce, #65b7bd)',
-    highlights: ['Hotel stay', 'Speedboat transfer', 'Halal food guide', 'Family island tour'],
+      'radial-gradient(circle at 15% 100%, #c8e6c9 0 26%, transparent 27%), linear-gradient(135deg, #66bb6a, #388e3c)',
+    highlights: [
+      "Explore Kuala Lumpur's Iconic Landmarks",
+      'Discover the Beauty of Putrajaya',
+      'Genting Highlands Adventure',
+      'Nature & Wildlife Experience (Zoo, Bird Park, Butterfly Garden)',
+      'Ultimate Shopping Experience',
+      'Private Transportation for All Tours',
+      'Comfortable 6-Night Stay With Daily Breakfast',
+    ],
+    itinerary: [
+      { day: 1, title: 'Arrival | Kuala Lumpur', activities: ['Airport pickup by our representative', 'Transfer to hotel', 'Check-in and relax', 'Overnight stay in Kuala Lumpur'] },
+      { day: 2, title: 'Kuala Lumpur City Tour', activities: ['Breakfast at hotel', 'Visit KLCC (Petronas Twin Towers area)', 'Visit BBCC (Bukit Bintang City Centre)', 'Return to hotel', 'Overnight stay'] },
+      { day: 3, title: 'Putrajaya Tour', activities: ['Breakfast at hotel', 'Visit Putra Mosque', 'Visit Iron Mosque', 'Visit Botanical Garden', 'Shopping at IOI City Mall', 'Return to hotel', 'Overnight stay'] },
+      { day: 4, title: 'Genting Highlands Tour', activities: ['Breakfast at hotel', 'Ride Awana Cable Car to Genting Highlands', 'Visit Genting Theme Park', 'Shopping at Genting Premium Outlets (GPO)', 'Return to hotel', 'Overnight stay'] },
+      { day: 5, title: 'Animal & Nature Tour', activities: ['Breakfast at hotel', 'Visit National Zoo', 'Visit KL Bird Park', 'Visit Butterfly Garden', 'Return to hotel', 'Overnight stay'] },
+      { day: 6, title: 'City Center & Shopping', activities: ['Breakfast at hotel', 'Free & easy: Shopping and leisure in the city center', 'Return to hotel', 'Overnight stay'] },
+      { day: 7, title: 'Departure', activities: ['Breakfast at hotel', 'Check-out', 'Transfer to airport for departure'] },
+    ],
+    included: [
+      'Accommodation in family-friendly hotel (6 nights)',
+      'Daily breakfast at hotel',
+      'Private airport transfers (arrival & departure)',
+      'Kuala Lumpur city tour',
+      'Putrajaya city tour',
+      'Genting Highlands tour with cable car ride',
+      'Visits to selected attractions (Zoo, Bird Park, Butterfly Garden)',
+      'Shopping stops as per itinerary',
+      'Private transportation throughout the tour',
+      'Driver & fuel charges',
+    ],
+    excluded: [
+      'International airfare',
+      'Travel insurance',
+      'Lunch and dinner unless stated',
+      'Personal expenses (laundry, phone calls, tips, etc.)',
+      'Entrance fees not mentioned under "Cost Includes"',
+      'Optional activities and tours',
+      'Early check-in or late check-out at hotels',
+    ],
     rating: 4.9,
-    reviewCount: 48,
+    reviewCount: 38,
     isHalalCertified: true,
   },
+
+  // 2. Himmafushi 7 Days ────────────────────────────────────────────────────
   {
-    title: 'Private Sandbank Tour',
-    type: PackageType.PRIVATE,
+    slug: 'himmafushi-7d',
+    title: 'Himmafushi Island Tour – 6 Nights / 7 Days',
+    type: 'Island',
     destination: 'Maldives',
-    location: 'Maldives day tour',
-    duration: 'Half day',
-    price: 'From $180',
-    priceValue: 180,
+    location: 'Himmafushi Island, Maldives',
+    duration: '7 Days / 6 Nights',
+    price: 'From $679',
+    priceValue: 679,
     description:
-      'Private boat, BBQ option, family-friendly timing and professional photography included.',
+      '100% Halal-Friendly | Full-Board Local Island Holiday. Experience a serene and faith-conscious escape on Himmafushi Island, offering a perfect blend of marine adventures, relaxation, and authentic Maldivian island life.',
+    images: [
+      'https://pub-a90bf5f1ce6f4b4cab5143b848c2b539.r2.dev/packages/himmafushi-7d/1.jpg',
+      'https://pub-a90bf5f1ce6f4b4cab5143b848c2b539.r2.dev/packages/himmafushi-7d/2.jpg',
+      'https://pub-a90bf5f1ce6f4b4cab5143b848c2b539.r2.dev/packages/himmafushi-7d/3.jpg',
+      'https://pub-a90bf5f1ce6f4b4cab5143b848c2b539.r2.dev/packages/himmafushi-7d/4.jpg',
+    ],
     imageGradient:
-      'radial-gradient(circle at 15% 100%, #e9c994 0 26%, transparent 27%), linear-gradient(135deg, #b8d3ee, #89b7d7)',
-    highlights: ['Private boat', 'BBQ option', 'Photography', 'Flexible timing'],
+      'radial-gradient(circle at 15% 100%, #b2ebf2 0 26%, transparent 27%), linear-gradient(135deg, #26c6da, #0097a7)',
+    highlights: [
+      'No bikini beach – modest and faith-conscious environment',
+      'Snorkeling with stingrays and vibrant coral gardens',
+      'Relaxing sandbank excursion with stunning lagoon views',
+      'Traditional sunset fishing experience',
+      'Special local beach dinner with authentic Maldivian cuisine',
+    ],
+    itinerary: [
+      { day: 1, title: 'Arrival & Island Welcome', activities: ['Arrival at Velana International Airport (Malé)', 'Speedboat transfer to Himmafushi Island', 'Check-in to guesthouse', 'Lunch at the guesthouse (Halal)', 'Free time for beach relaxation and island walk', 'Dinner at the guesthouse (Halal)', 'Overnight stay in Himmafushi'] },
+      { day: 2, title: 'Stingray Snorkeling', activities: ['Breakfast at the guesthouse', 'Morning Stingray Snorkeling Excursion', 'Snorkeling with stingrays in crystal-clear waters', 'Snorkeling equipment provided', 'Lunch at the guesthouse', 'Free afternoon for rest, prayer, and beach time', 'Dinner at the guesthouse (Halal)', 'Overnight stay'] },
+      { day: 3, title: 'Sandbank Excursion', activities: ['Breakfast at the guesthouse', 'Sandbank Trip with white sands and turquoise lagoon views', 'Photo opportunities and relaxation', 'Lunch at the guesthouse', 'Leisure time at the beach', 'Dinner at the guesthouse (Halal)', 'Overnight stay'] },
+      { day: 4, title: 'Coral Garden Snorkeling', activities: ['Breakfast at the guesthouse', 'Coral Garden Snorkeling Excursion', 'Explore colorful corals and tropical marine life', 'Lunch at the guesthouse', 'Free afternoon at leisure', 'Dinner at the guesthouse (Halal)', 'Overnight stay'] },
+      { day: 5, title: 'Sunset Fishing Experience', activities: ['Breakfast at the guesthouse', 'Free morning for beach relaxation', 'Lunch at the guesthouse', 'Late afternoon Sunset Fishing Excursion', 'Traditional Maldivian hand-line fishing experience', 'Dinner at the guesthouse (Halal)', 'Overnight stay'] },
+      { day: 6, title: 'Leisure Day & Local Beach Dinner', activities: ['Breakfast at the guesthouse', 'Free day for island exploration and souvenir shopping', 'Lunch at the guesthouse', 'Evening Special Local Beach Dinner', 'Authentic Maldivian cuisine in a peaceful beachfront setting', 'Overnight stay'] },
+      { day: 7, title: 'Departure', activities: ['Breakfast at the guesthouse', 'Check-out', 'Speedboat transfer back to Malé', 'End of tour services'] },
+    ],
+    included: [
+      '6 Nights accommodation in a Double Room',
+      'Full-Board Meal Plan (Breakfast, Lunch & Dinner – Halal)',
+      'Round-trip Speedboat Transfers (Malé ↔ Himmafushi ↔ Malé)',
+      'Stingray Snorkeling Excursion',
+      'Sandbank Trip',
+      'Coral Garden Snorkeling',
+      'Sunset Fishing Experience',
+      'One Special Local Beach Dinner',
+      'Snorkeling equipment during excursions',
+      'On-ground assistance and coordination',
+    ],
+    excluded: [],
+    rating: 4.9,
+    reviewCount: 24,
+    isHalalCertified: true,
+  },
+
+  // 3. Himmafushi 4 Days ─────────────────────────────────────────────────────
+  {
+    slug: 'himmafushi-4d',
+    title: 'Himmafushi 3 Nights / 4 Days',
+    type: 'Island',
+    destination: 'Maldives',
+    location: 'Himmafushi Island, Maldives',
+    duration: '4 Days / 3 Nights',
+    price: 'From $387',
+    priceValue: 387,
+    childPrice: 'From $193.50',
+    description:
+      "Enjoy a peaceful Halal-friendly island escape in Himmafushi. This short yet immersive getaway combines relaxation, marine adventures, and authentic Maldivian culture, making it ideal for couples and Muslim families seeking a meaningful island experience with full Halal comfort.",
+    images: [
+      'https://pub-a90bf5f1ce6f4b4cab5143b848c2b539.r2.dev/packages/himmafushi-7d/2.jpg',
+      'https://pub-a90bf5f1ce6f4b4cab5143b848c2b539.r2.dev/packages/himmafushi-7d/1.jpg',
+      'https://pub-a90bf5f1ce6f4b4cab5143b848c2b539.r2.dev/packages/himmafushi-7d/3.jpg',
+      'https://pub-a90bf5f1ce6f4b4cab5143b848c2b539.r2.dev/packages/himmafushi-7d/4.jpg',
+    ],
+    imageGradient:
+      'radial-gradient(circle at 15% 100%, #b3e5fc 0 26%, transparent 27%), linear-gradient(135deg, #4fc3f7, #0288d1)',
+    highlights: [
+      'Authentic local island dinner with traditional Maldivian cuisine',
+      'Stingray snorkeling in crystal-clear waters',
+      'Mosque visit and cultural island atmosphere',
+    ],
+    itinerary: [
+      { day: 1, title: 'Arrival & Island Welcome', activities: ['Arrival at Velana International Airport (Malé)', 'Speedboat transfer to Himmafushi Island', 'Check-in to guesthouse', 'Welcome drink and leisure time at the beach', 'Lunch at the guesthouse (Halal)', 'Explore the local island, mosque visit, and sunset views', 'Dinner at the guesthouse (Halal)', 'Overnight stay'] },
+      { day: 2, title: 'Stingray Snorkeling Experience', activities: ['Breakfast at the guesthouse', 'Morning Stingray Snorkeling Excursion', 'Swim with stingrays in crystal-clear waters', 'Snorkeling equipment provided', 'Lunch at the guesthouse', 'Free time for beach relaxation, island walks, or prayer', 'Dinner at the guesthouse (Halal)', 'Overnight stay'] },
+      { day: 3, title: 'Sandbank Adventure & Local Dinner', activities: ['Breakfast at the guesthouse', 'Excursion to a pristine Sandbank', 'Enjoy white sand, turquoise lagoon, and photo time', 'Lunch at the guesthouse', 'Afternoon at leisure', 'Special Local Island Dinner with traditional Maldivian cuisine', 'Overnight stay'] },
+      { day: 4, title: 'Departure', activities: ['Breakfast at the guesthouse', 'Check-out', 'Speedboat transfer back to Malé', 'End of services'] },
+    ],
+    included: [
+      '3 Nights accommodation in a Double Room',
+      'Full-Board Meal Plan (Breakfast, Lunch & Dinner – Halal)',
+      'Round-trip Speedboat Transfers (Malé ↔ Himmafushi ↔ Malé)',
+      'Stingray Snorkeling Excursion',
+      'Sandbank Trip',
+      'One Special Local Island Dinner',
+      'Snorkeling equipment during excursions',
+      'On-ground assistance and coordination',
+    ],
+    excluded: [],
     rating: 4.8,
+    reviewCount: 17,
+    isHalalCertified: true,
+  },
+
+  // 4. Ukulhas 7 Days ────────────────────────────────────────────────────────
+  {
+    slug: 'ukulhas-7d',
+    title: 'Ukulhas Island 6 Nights / 7 Days',
+    type: 'Island',
+    destination: 'Maldives',
+    location: 'Ukulhas Island, Maldives',
+    duration: '7 Days / 6 Nights',
+    price: 'From $680',
+    priceValue: 680,
+    childPrice: 'From $340',
+    description:
+      'Enjoy a relaxing Halal-friendly island escape in Ukulhas, Maldives, featuring crystal-clear waters, rich marine life, and authentic local culture. This tour includes full-board meals, comfortable guesthouse accommodation, exciting excursions such as manta ray snorkeling, sandbank visits, island hopping, and shark feeding, along with a memorable local beach dinner.',
+    images: [
+      'https://pub-a90bf5f1ce6f4b4cab5143b848c2b539.r2.dev/packages/himmafushi-7d/1.jpg',
+      'https://pub-a90bf5f1ce6f4b4cab5143b848c2b539.r2.dev/packages/himmafushi-7d/2.jpg',
+      'https://pub-a90bf5f1ce6f4b4cab5143b848c2b539.r2.dev/packages/himmafushi-7d/3.jpg',
+      'https://pub-a90bf5f1ce6f4b4cab5143b848c2b539.r2.dev/packages/himmafushi-7d/4.jpg',
+    ],
+    imageGradient:
+      'radial-gradient(circle at 15% 100%, #e8f5e9 0 26%, transparent 27%), linear-gradient(135deg, #66bb6a, #2e7d32)',
+    highlights: [
+      'Manta Rays Snorkeling',
+      'Sandbank Visit (swimming, photos, relaxation)',
+      'Shark Feeding Experience',
+      'Island Hopping Tour',
+      'Special Local Beach Dinner',
+      'Full-Board Halal Meals',
+    ],
+    itinerary: [
+      { day: 1, title: 'Arrival – Malé', activities: ['Arrival at Velana International Airport (Malé)', 'Speedboat transfer to Ukulhas Island (~1 hr 30 min)', 'Welcome and check-in at guesthouse', 'Lunch at guesthouse', 'Free time to relax at the beach or explore the island', 'Dinner at guesthouse (Halal)', 'Overnight stay in Ukulhas'] },
+      { day: 2, title: 'Manta Ray Snorkeling', activities: ['Breakfast at guesthouse', 'Manta Ray Snorkeling Excursion', 'Return to island', 'Lunch at guesthouse', 'Free afternoon / sunset beach walk', 'Dinner at guesthouse (Halal)', 'Overnight stay'] },
+      { day: 3, title: 'Sandbank Excursion', activities: ['Breakfast at guesthouse', 'Sandbank Trip with white sands and turquoise lagoon', 'Swimming, photos, and relaxation', 'Lunch at guesthouse', 'Leisure time at beach', 'Dinner at guesthouse (Halal)', 'Overnight stay'] },
+      { day: 4, title: 'Island Hopping Tour', activities: ['Breakfast at guesthouse', 'Island Hopping Tour exploring nearby islands', 'Lunch at guesthouse', 'Free afternoon at leisure', 'Dinner at guesthouse (Halal)', 'Overnight stay'] },
+      { day: 5, title: 'Shark Feeding Experience', activities: ['Breakfast at guesthouse', 'Shark Feeding Excursion', 'Thrilling marine encounter in safe conditions', 'Lunch at guesthouse', 'Free evening / sunset beach walk', 'Dinner at guesthouse (Halal)', 'Overnight stay'] },
+      { day: 6, title: 'Leisure Day & Special Beach Dinner', activities: ['Breakfast at guesthouse', 'Free day for swimming, beach relaxation, or cycling', 'Lunch at guesthouse', 'Evening Special Local Beach Dinner', 'Overnight stay'] },
+      { day: 7, title: 'Departure', activities: ['Breakfast at guesthouse', 'Check-out from guesthouse', 'Speedboat transfer back to Malé International Airport', 'End of tour services'] },
+    ],
+    included: [
+      '6 Nights accommodation in a Double Room',
+      'Full-Board meal plan (Daily Breakfast, Lunch & Dinner – Halal)',
+      'Manta Ray Snorkeling Excursion',
+      'Sandbank Excursion',
+      'Island Hopping Tour',
+      'Shark Feeding Experience',
+      'Round-trip speedboat transfers (Malé ↔ Ukulhas)',
+      'One Special Local Beach Dinner',
+      'On-ground assistance during the stay',
+    ],
+    excluded: [],
+    rating: 4.9,
     reviewCount: 31,
     isHalalCertified: true,
   },
+
+  // 5. Ukulhas 5 Days ────────────────────────────────────────────────────────
   {
-    title: 'Halal Honeymoon Stay',
-    type: PackageType.HONEYMOON,
+    slug: 'ukulhas-5d',
+    title: 'Ukulhas Island 4 Nights / 5 Days – Full Board',
+    type: 'Island',
     destination: 'Maldives',
-    location: 'Private island resort',
-    duration: '4 nights',
-    price: 'From $1,250',
-    priceValue: 1250,
+    location: 'Ukulhas Island, Maldives',
+    duration: '5 Days / 4 Nights',
+    price: 'From $597',
+    priceValue: 597,
+    childPrice: 'From $298.50',
     description:
-      'Privacy-focused resort with transfers, halal meal planning and a romantic décor setup.',
+      'Escape to the tranquil beauty of Ukulhas Island, a pristine Maldivian gem known for its white sandy beaches, crystal-clear waters, and vibrant marine life. This Halal-friendly holiday offers a perfect mix of relaxation, adventure, and authentic local experiences with customisable excursions.',
+    images: [
+      'https://pub-a90bf5f1ce6f4b4cab5143b848c2b539.r2.dev/packages/ukulhas-5d/1.jpg',
+      'https://pub-a90bf5f1ce6f4b4cab5143b848c2b539.r2.dev/packages/ukulhas-5d/2.jpg',
+      'https://pub-a90bf5f1ce6f4b4cab5143b848c2b539.r2.dev/packages/ukulhas-5d/3.jpg',
+      'https://pub-a90bf5f1ce6f4b4cab5143b848c2b539.r2.dev/packages/ukulhas-5d/4.jpg',
+    ],
     imageGradient:
-      'radial-gradient(circle at 20% 100%, #ebd89c 0 26%, transparent 27%), linear-gradient(135deg, #f1aa99, #cc7f75)',
-    highlights: ['Private resort', 'Airport transfer', 'Halal meals', 'Romantic setup'],
-    rating: 5.0,
-    reviewCount: 22,
-    isHalalCertified: true,
-  },
-  {
-    title: 'Ramadan Family Trip',
-    type: PackageType.RAMADAN,
-    destination: 'Dubai',
-    location: 'Dubai · UAE',
-    duration: 'Custom',
-    price: 'Custom quote',
-    priceValue: 0,
-    description:
-      'Iftar guidance, family-friendly hotels, private city tours and prayer-friendly scheduling.',
-    imageGradient:
-      'radial-gradient(circle at 15% 100%, #f6daa5 0 26%, transparent 27%), linear-gradient(135deg, #9bd5be, #66bfa2)',
-    highlights: ['Iftar guide', 'Family hotels', 'Private city tour', 'Prayer planner'],
-    rating: 4.7,
-    reviewCount: 19,
-    isHalalCertified: true,
-  },
-  {
-    title: 'Malaysia Halal City Break',
-    type: PackageType.FAMILY,
-    destination: 'Malaysia',
-    location: 'Kuala Lumpur',
-    duration: '5 days',
-    price: 'From $690',
-    priceValue: 690,
-    description:
-      'Halal food areas, family attractions, airport transfer and curated hotel recommendations.',
-    imageGradient:
-      'radial-gradient(circle at 18% 100%, #f4d5a4 0 26%, transparent 27%), linear-gradient(135deg, #a7d8c4, #79c5a7)',
-    highlights: ['Halal food map', 'Family attractions', 'Airport transfer', 'Hotel guide'],
+      'radial-gradient(circle at 15% 100%, #e0f7fa 0 26%, transparent 27%), linear-gradient(135deg, #80deea, #00acc1)',
+    highlights: [
+      'Shark Feeding',
+      'Manta Ray Safari',
+      'Sandbank Visit',
+      'Picnic Island',
+      'BBQ & Beach Dinner Experience',
+      'Night Fishing',
+    ],
+    itinerary: [
+      { day: 1, title: 'Arrival & Island Welcome', activities: ['Arrival at Velana International Airport (Malé)', 'Speedboat transfer to Ukulhas Island (~1 hour 30 minutes)', 'Welcome and check-in at guesthouse', 'Lunch at guesthouse', 'Free time to relax at the beach or explore the island', 'Dinner at guesthouse (Halal)', 'Overnight stay in Ukulhas'] },
+      { day: 2, title: 'Excursion Day 1', activities: ['Breakfast at guesthouse', 'Excursion 1 – Choose from: Shark Feeding, Manta Ray Safari, 3-Spot Snorkeling, Island Hopping, or Sandbank Visit', 'Lunch at guesthouse', 'Free evening / sunset beach walk', 'Dinner at guesthouse (Halal)', 'Overnight stay'] },
+      { day: 3, title: 'Leisure & Special Beach Dinner', activities: ['Breakfast at guesthouse', 'Free time for swimming, beach relaxation, or cycling around the island', 'Lunch at guesthouse', 'Evening Special Beach Dinner (private setup, weather permitting)', 'Overnight stay'] },
+      { day: 4, title: 'Excursion Day 2', activities: ['Breakfast at guesthouse', 'Excursion 2 – Choose from: Picnic Island, BBQ & Beach Dinner Experience, Night Fishing, or Local Food Cooking Class', 'Lunch at guesthouse', 'Free evening at leisure', 'Dinner at guesthouse (Halal)', 'Overnight stay'] },
+      { day: 5, title: 'Departure', activities: ['Breakfast at guesthouse', 'Check-out from guesthouse', 'Speedboat transfer back to Malé International Airport', 'End of tour services'] },
+    ],
+    included: [
+      '4 Nights accommodation in a Double Room',
+      'Full-Board Meal Plan (Breakfast, Lunch & Dinner – Halal)',
+      'Two guided excursions of your choice',
+      'One Special Beach Dinner (private setup, weather permitting)',
+      'Round-trip Speedboat Transfers (Malé ↔ Ukulhas ↔ Malé)',
+      'On-ground assistance & coordination throughout the stay',
+    ],
+    excluded: [],
     rating: 4.8,
-    reviewCount: 37,
-    isHalalCertified: true,
-  },
-  {
-    title: 'Indonesia Island Escape',
-    type: PackageType.ISLAND,
-    destination: 'Indonesia',
-    location: 'Lombok · Bali',
-    duration: '6 days',
-    price: 'From $840',
-    priceValue: 840,
-    description:
-      'Muslim-friendly island route with private driver, halal dining discovery and scenic tours.',
-    imageGradient:
-      'radial-gradient(circle at 12% 100%, #f1cf9c 0 26%, transparent 27%), linear-gradient(135deg, #9bc9e7, #5b9fc2)',
-    highlights: ['Private driver', 'Halal dining', 'Scenic tours', 'Island hopping'],
-    rating: 4.9,
-    reviewCount: 44,
-    isHalalCertified: true,
-  },
-  {
-    title: 'China Muslim Heritage Tour',
-    type: PackageType.CITY,
-    destination: 'China',
-    location: "Xi'an · Beijing",
-    duration: '7 days',
-    price: 'From $1,100',
-    priceValue: 1100,
-    description:
-      'Islamic heritage sites, halal restaurants, private guide and family-friendly pacing.',
-    imageGradient:
-      'radial-gradient(circle at 18% 100%, #f5d4a6 0 26%, transparent 27%), linear-gradient(135deg, #c9a8e0, #a07ec9)',
-    highlights: ['Islamic heritage sites', 'Halal restaurants', 'Private guide', 'Mosque visits'],
-    rating: 4.7,
-    reviewCount: 15,
-    isHalalCertified: true,
-  },
-  {
-    title: 'Vietnam Halal Discovery',
-    type: PackageType.ISLAND,
-    destination: 'Vietnam',
-    location: 'Hanoi · Ha Long Bay',
-    duration: '5 days',
-    price: 'From $760',
-    priceValue: 760,
-    description:
-      'Halal-verified accommodation, private boat on Ha Long Bay and Muslim-friendly city walks.',
-    imageGradient:
-      'radial-gradient(circle at 14% 100%, #f0d198 0 26%, transparent 27%), linear-gradient(135deg, #91c9b5, #5baf94)',
-    highlights: ['Halal hotels', 'Ha Long Bay cruise', 'City tour', 'Prayer-friendly schedule'],
-    rating: 4.6,
-    reviewCount: 26,
+    reviewCount: 20,
     isHalalCertified: true,
   },
 ];
 
-@Injectable()
-export class SeedService {
-  constructor(private readonly packagesService: PackagesService) {}
-
-  async seed() {
-    for (const pkg of SEED_PACKAGES) {
-      await this.packagesService.create(pkg as any);
-    }
-    return { seeded: SEED_PACKAGES.length };
-  }
-}

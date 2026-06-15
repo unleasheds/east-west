@@ -1,25 +1,40 @@
 import { useRef } from 'react';
-import { Globe, Waves, TreePalm, Users, Anchor } from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
 import { useStore } from '../../store/useStore';
-import { CATEGORIES } from '../../data/packages';
+import { settingsApi } from '../../lib/api';
+import { CategoryItem, getIcon, autoIconName } from '../../lib/iconRegistry';
 
-const CATEGORY_ICONS: Record<string, LucideIcon> = {
-  'All':      Globe,
-  'Maldives': Waves,
-  'Malaysia': TreePalm,
-  'Family':   Users,
-  'Island':   Anchor,
-};
+const FALLBACK: CategoryItem[] = [
+  { label: 'All',      iconName: 'Globe'    },
+  { label: 'Maldives', iconName: 'Waves'    },
+  { label: 'Malaysia', iconName: 'TreePalm' },
+  { label: 'Family',   iconName: 'Users'    },
+  { label: 'Island',   iconName: 'Anchor'   },
+];
 
 export default function CategoryChips() {
   const { activeCategory, setActiveCategory } = useStore();
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  const { data: settings } = useQuery<Record<string, any[]>>({
+    queryKey: ['settings'],
+    queryFn: () => settingsApi.getAll(),
+    staleTime: 5 * 60_000,
+  });
+
+  // Handle both old string[] format and new {label,iconName}[] format
+  const raw: any[] = settings?.categories ?? [];
+  const categories: CategoryItem[] = raw.length > 0
+    ? raw.map((item) =>
+        typeof item === 'string'
+          ? { label: item, iconName: autoIconName(item) }
+          : { label: item.label, iconName: item.iconName ?? 'Globe' }
+      )
+    : FALLBACK;
+
   return (
     <div className="sticky top-[65px] z-30 border-b border-border bg-white/95 backdrop-blur-md">
       <div className="relative mx-auto max-w-7xl">
-        {/* Fade edges */}
         <div className="pointer-events-none absolute left-0 top-0 z-10 h-full w-8 bg-gradient-to-r from-white to-transparent md:left-8" />
         <div className="pointer-events-none absolute right-0 top-0 z-10 h-full w-8 bg-gradient-to-l from-white to-transparent md:right-8" />
 
@@ -27,9 +42,9 @@ export default function CategoryChips() {
           ref={scrollRef}
           className="hide-scrollbar flex items-center gap-1 overflow-x-auto px-6 py-2 md:px-10"
         >
-          {CATEGORIES.map(({ label }) => {
+          {categories.map(({ label, iconName }) => {
             const active = activeCategory === label;
-            const Icon = CATEGORY_ICONS[label] ?? Globe;
+            const Icon = getIcon(iconName);
             return (
               <button
                 key={label}

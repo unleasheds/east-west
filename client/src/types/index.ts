@@ -1,5 +1,14 @@
 export type PackageType = 'Family' | 'Private' | 'Honeymoon' | 'Ramadan' | 'Island' | 'City';
 
+export interface AuthUser {
+  id: string;
+  name: string;
+  email: string;
+  avatar: string;
+  isAdmin?: boolean;
+  createdAt: string;
+}
+
 export interface ItineraryDay {
   day: number;
   title: string;
@@ -8,6 +17,7 @@ export interface ItineraryDay {
 
 export interface Package {
   id: string;
+  slug?: string;          // present when data comes from API
   title: string;
   type: PackageType;
   destination: string;

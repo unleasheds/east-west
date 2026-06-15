@@ -1,12 +1,23 @@
 import { useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { useStore } from '../store/useStore';
 import { PACKAGES } from '../data/packages';
+import { packagesApi } from '../lib/api';
+import { Package } from '../types';
 import PackageCard from '../components/ui/PackageCard';
 
 export default function WishlistPage() {
   const navigate = useNavigate();
   const { savedIds } = useStore();
-  const saved = PACKAGES.filter((p) => savedIds.includes(p.id));
+
+  const { data: apiPackages } = useQuery<Package[]>({
+    queryKey: ['packages'],
+    queryFn: () => packagesApi.getAll(),
+    staleTime: 5 * 60_000,
+  });
+
+  const allPackages = apiPackages ?? PACKAGES;
+  const saved = allPackages.filter((p) => savedIds.includes(p.slug ?? p.id));
 
   return (
     <div className="page-enter mx-auto max-w-7xl px-4 py-8 md:px-8 md:py-12">

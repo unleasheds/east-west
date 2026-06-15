@@ -6,25 +6,21 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-export enum PackageType {
-  FAMILY    = 'Family',
-  PRIVATE   = 'Private',
-  HONEYMOON = 'Honeymoon',
-  RAMADAN   = 'Ramadan',
-  ISLAND    = 'Island',
-  CITY      = 'City',
-}
-
 @Entity('packages')
 export class Package {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  /** URL-friendly slug, e.g. 'himmafushi-7d' */
+  @Column({ unique: true })
+  slug: string;
+
   @Column()
   title: string;
 
-  @Column({ type: 'enum', enum: PackageType })
-  type: PackageType;
+  /** Free-text type managed via app_settings (package_types key) */
+  @Column({ default: 'Family' })
+  type: string;
 
   @Column()
   destination: string;
@@ -41,14 +37,31 @@ export class Package {
   @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
   priceValue: number;
 
+  @Column({ nullable: true, name: 'child_price' })
+  childPrice: string;
+
   @Column('text')
   description: string;
+
+  /** Ordered array of image URLs (CDN / R2) */
+  @Column({ type: 'simple-json', default: '[]' })
+  images: string[];
 
   @Column({ type: 'text', name: 'image_gradient' })
   imageGradient: string;
 
-  @Column({ type: 'simple-array', default: '' })
+  @Column({ type: 'simple-json', default: '[]' })
   highlights: string[];
+
+  /** [{day, title, activities:[]}] */
+  @Column({ type: 'simple-json', default: '[]' })
+  itinerary: { day: number; title: string; activities: string[] }[];
+
+  @Column({ type: 'simple-json', default: '[]' })
+  included: string[];
+
+  @Column({ type: 'simple-json', default: '[]', nullable: true })
+  excluded: string[];
 
   @Column({ type: 'decimal', precision: 3, scale: 1, default: 5.0 })
   rating: number;

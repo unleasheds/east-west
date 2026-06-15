@@ -1,20 +1,35 @@
 import {
   IsArray,
   IsBoolean,
-  IsEnum,
   IsNumber,
   IsOptional,
   IsString,
   Min,
+  ValidateNested,
 } from 'class-validator';
-import { PackageType } from '../entities/package.entity';
+import { Type } from 'class-transformer';
 
-export class CreatePackageDto {
+class ItineraryDayDto {
+  @IsNumber()
+  day: number;
+
   @IsString()
   title: string;
 
-  @IsEnum(PackageType)
-  type: PackageType;
+  @IsArray()
+  @IsString({ each: true })
+  activities: string[];
+}
+
+export class CreatePackageDto {
+  @IsString()
+  slug: string;
+
+  @IsString()
+  title: string;
+
+  @IsString()
+  type: string;
 
   @IsString()
   destination: string;
@@ -34,7 +49,16 @@ export class CreatePackageDto {
   priceValue?: number;
 
   @IsString()
+  @IsOptional()
+  childPrice?: string;
+
+  @IsString()
   description: string;
+
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional()
+  images?: string[];
 
   @IsString()
   imageGradient: string;
@@ -43,6 +67,22 @@ export class CreatePackageDto {
   @IsString({ each: true })
   @IsOptional()
   highlights?: string[];
+
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ItineraryDayDto)
+  @IsOptional()
+  itinerary?: ItineraryDayDto[];
+
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional()
+  included?: string[];
+
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional()
+  excluded?: string[];
 
   @IsNumber()
   @IsOptional()

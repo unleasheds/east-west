@@ -1,8 +1,14 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import { TripRequest, UserProfile, SearchState, ToastState } from '../types';
+import { TripRequest, UserProfile, SearchState, ToastState, AuthUser } from '../types';
 
 interface StoreState {
+  // ── Auth ───────────────────────────────────────────────────────────────────
+  user: AuthUser | null;
+  token: string | null;
+  login: (user: AuthUser, token: string) => void;
+  logout: () => void;
+
   savedIds: string[];
   toggleSave: (id: string) => void;
   isSaved: (id: string) => boolean;
@@ -22,6 +28,18 @@ interface StoreState {
 export const useStore = create<StoreState>()(
   persist<StoreState>(
     (set, get) => ({
+      // ── Auth ─────────────────────────────────────────────────────────────
+      user: null,
+      token: null,
+      login: (user: AuthUser, token: string) => {
+        set({ user, token });
+        get().showToast(`Welcome, ${user.name.split(' ')[0]}! 👋`, 'success');
+      },
+      logout: () => {
+        set({ user: null, token: null });
+        get().showToast('Signed out', 'default');
+      },
+
       savedIds: [],
       toggleSave: (id: string) => {
         const prev = get().savedIds;
@@ -67,9 +85,11 @@ export const useStore = create<StoreState>()(
       name: 'ew-store',
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
+        user:     state.user,
+        token:    state.token,
         savedIds: state.savedIds,
-        trips: state.trips,
-        profile: state.profile,
+        trips:    state.trips,
+        profile:  state.profile,
       }) as StoreState,
     }
   )

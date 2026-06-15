@@ -1,8 +1,10 @@
 import { useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { PACKAGES, WHATSAPP_NUMBER } from '../data/packages';
+import { packagesApi } from '../lib/api';
 import { useStore } from '../store/useStore';
-import { BookingOrder } from '../types';
+import { BookingOrder, Package } from '../types';
 import CheckoutModal from '../components/ui/CheckoutModal';
 
 type Tab = 'overview' | 'itinerary' | 'includes';
@@ -33,7 +35,15 @@ export default function PackageDetailPage() {
   const navigate = useNavigate();
   const { isSaved, toggleSave, addTrip } = useStore();
 
-  const pkg = PACKAGES.find((p) => p.id === id);
+  // Try API first (by slug = id param); fall back to static data
+  const { data: apiPkg, isLoading } = useQuery<Package>({
+    queryKey: ['package', id],
+    queryFn: () => packagesApi.getBySlug(id!),
+    enabled: !!id,
+    staleTime: 5 * 60_000,
+    retry: 1,
+  });
+  const pkg = apiPkg ?? PACKAGES.find((p) => p.id === id);
 
   const [tab, setTab] = useState<Tab>('overview');
   const [openDay, setOpenDay] = useState<number | null>(1);
@@ -43,6 +53,18 @@ export default function PackageDetailPage() {
   const [bookingForm, setBookingForm] = useState({ name: '', email: '', phone: '', requests: '' });
   const [showCheckout, setShowCheckout] = useState(false);
   const [checkoutOrder, setCheckoutOrder] = useState<BookingOrder | null>(null);
+
+  if (isLoading) {
+    return (
+      <div className="mx-auto max-w-2xl px-4 py-20 text-center">
+        <div className="animate-pulse space-y-4">
+          <div className="h-64 rounded-3xl bg-soft" />
+          <div className="h-6 bg-soft rounded-full w-2/3 mx-auto" />
+          <div className="h-4 bg-soft rounded-full w-1/3 mx-auto" />
+        </div>
+      </div>
+    );
+  }
 
   if (!pkg) {
     return (
@@ -311,7 +333,7 @@ export default function PackageDetailPage() {
                   <div className="flex items-center gap-3">
                     <h3 className="text-xl font-black text-ink">Guest reviews</h3>
                     <div className="flex items-center gap-1 rounded-full bg-soft px-3 py-1 text-sm font-bold">
-                      ★ {pkg.rating.toFixed(1)}
+                      ★ {Number(pkg.rating).toFixed(1)}
                       <span className="ml-1 text-xs font-normal text-muted">({pkg.reviewCount})</span>
                     </div>
                   </div>
@@ -460,7 +482,7 @@ export default function PackageDetailPage() {
               )}
               <div className="mt-1 flex items-center gap-1 text-sm font-semibold">
                 <span className="text-brand">★</span>
-                <span>{pkg.rating.toFixed(1)}</span>
+                <span>{Number(pkg.rating).toFixed(1)}</span>
                 <span className="text-muted">· {pkg.reviewCount} reviews</span>
               </div>
 

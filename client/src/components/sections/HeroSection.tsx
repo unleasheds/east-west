@@ -1,11 +1,14 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Search, MapPin, Calendar, Users, Plane, MessageCircle,
   Waves, TreePalm, Anchor, Fish, Building2, Star, CheckCircle,
 } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
 import { useStore } from '../../store/useStore';
-import { WHATSAPP_NUMBER } from '../../data/packages';
+import { PACKAGES, WHATSAPP_NUMBER } from '../../data/packages';
+import { packagesApi } from '../../lib/api';
+import { Package } from '../../types';
 
 const QUICK_PICKS = [
   { label: 'Maldives',     Icon: Waves     },
@@ -27,6 +30,54 @@ export default function HeroSection() {
   const { setSearch } = useStore();
   const [local, setLocal] = useState({ destination: '', dates: '', travellers: '' });
   const [guests, setGuests] = useState(2);
+  const [locationOpen, setLocationOpen] = useState(false);
+  const desktopWhereRef = useRef<HTMLDivElement>(null);
+  const mobileWhereRef = useRef<HTMLDivElement>(null);
+
+  const { data: apiPackages } = useQuery<Package[]>({
+    queryKey: ['packages'],
+    queryFn: () => packagesApi.getAll(),
+    staleTime: 5 * 60_000,
+  });
+
+  const allLocations = useMemo(() => {
+    const pkgs = apiPackages ?? PACKAGES;
+    const seen = new Set<string>();
+    const items: { destination: string; location: string }[] = [];
+    pkgs.forEach((p) => {
+      const key = `${p.destination}|${p.location}`;
+      if (!seen.has(key)) {
+        seen.add(key);
+        items.push({ destination: p.destination, location: p.location });
+      }
+    });
+    return items;
+  }, [apiPackages]);
+
+  const filteredLocations = local.destination
+    ? allLocations.filter(
+        (l) =>
+          l.destination.toLowerCase().includes(local.destination.toLowerCase()) ||
+          l.location.toLowerCase().includes(local.destination.toLowerCase()),
+      )
+    : allLocations;
+
+  useEffect(() => {
+    function handleOutside(e: MouseEvent) {
+      const t = e.target as Node;
+      if (
+        (!desktopWhereRef.current || !desktopWhereRef.current.contains(t)) &&
+        (!mobileWhereRef.current || !mobileWhereRef.current.contains(t))
+      ) {
+        setLocationOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleOutside);
+    return () => document.removeEventListener('mousedown', handleOutside);
+  }, []);
+
+  const featured = apiPackages?.[0] ?? PACKAGES[0];
+  const featuredKey = featured?.slug ?? featured?.id ?? '';
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
@@ -78,18 +129,55 @@ export default function HeroSection() {
               {/* Desktop: single pill */}
               <div className="hidden overflow-hidden rounded-full border border-border bg-white shadow-modal md:flex">
                 {/* Where */}
-                <label className="flex flex-1 cursor-text flex-col justify-center border-r border-border px-6 py-4 hover:bg-soft/60 transition">
-                  <div className="flex items-center gap-1.5">
-                    <MapPin className="h-3.5 w-3.5 text-muted" />
-                    <span className="text-[10px] font-black uppercase tracking-widest text-ink">Where</span>
-                  </div>
-                  <input
-                    value={local.destination}
-                    onChange={(e) => setLocal((p) => ({ ...p, destination: e.target.value }))}
-                    className="mt-0.5 w-full bg-transparent text-sm font-semibold text-ink outline-none placeholder:font-normal placeholder:text-muted"
-                    placeholder="Destination"
-                  />
-                </label>
+                <div ref={desktopWhereRef} className="relative flex flex-1 border-r border-border">
+                  <label
+                    className="flex flex-1 cursor-text flex-col justify-center px-6 py-4 hover:bg-soft/60 transition"
+                    onClick={() => setLocationOpen(true)}
+                  >
+                    <div className="flex items-center gap-1.5">
+                      <MapPin className="h-3.5 w-3.5 text-muted" />
+                      <span className="text-[10px] font-black uppercase tracking-widest text-ink">Where</span>
+                    </div>
+                    <input
+                      value={local.destination}
+                      onChange={(e) => {
+                        setLocal((p) => ({ ...p, destination: e.target.value }));
+                        setLocationOpen(true);
+                      }}
+                      onFocus={() => setLocationOpen(true)}
+                      className="mt-0.5 w-full bg-transparent text-sm font-semibold text-ink outline-none placeholder:font-normal placeholder:text-muted"
+                      placeholder="Destination"
+                    />
+                  </label>
+                  {locationOpen && (
+                    <div className="absolute left-0 top-full z-50 mt-2 w-72 overflow-hidden rounded-2xl border border-border bg-white shadow-modal">
+                      {filteredLocations.length === 0 ? (
+                        <p className="px-4 py-3 text-sm text-muted">No destinations found</p>
+                      ) : (
+                        filteredLocations.map((l) => (
+                          <button
+                            key={l.destination + l.location}
+                            type="button"
+                            onMouseDown={(e) => {
+                              e.preventDefault();
+                              setLocal((p) => ({ ...p, destination: l.destination }));
+                              setLocationOpen(false);
+                            }}
+                            className="flex w-full items-center gap-3 px-4 py-3 text-left transition hover:bg-soft/60"
+                          >
+                            <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-soft">
+                              <MapPin className="h-4 w-4 text-brand" />
+                            </span>
+                            <div>
+                              <p className="text-sm font-bold text-ink">{l.destination}</p>
+                              <p className="text-xs text-muted">{l.location}</p>
+                            </div>
+                          </button>
+                        ))
+                      )}
+                    </div>
+                  )}
+                </div>
                 {/* When */}
                 <label className="flex w-44 cursor-text flex-col justify-center border-r border-border px-6 py-4 hover:bg-soft/60 transition">
                   <div className="flex items-center gap-1.5">
@@ -143,18 +231,55 @@ export default function HeroSection() {
 
               {/* Mobile: stacked card */}
               <div className="flex flex-col overflow-hidden rounded-2xl border border-border bg-white shadow-card md:hidden">
-                <label className="flex cursor-text flex-col border-b border-border px-5 py-4">
-                  <div className="flex items-center gap-1.5">
-                    <MapPin className="h-3.5 w-3.5 text-muted" />
-                    <span className="text-[10px] font-black uppercase tracking-widest text-ink">Where</span>
-                  </div>
-                  <input
-                    value={local.destination}
-                    onChange={(e) => setLocal((p) => ({ ...p, destination: e.target.value }))}
-                    className="mt-0.5 w-full bg-transparent text-sm font-semibold text-ink outline-none placeholder:font-normal placeholder:text-muted"
-                    placeholder="Destination"
-                  />
-                </label>
+                <div ref={mobileWhereRef} className="relative border-b border-border">
+                  <label
+                    className="flex cursor-text flex-col px-5 py-4"
+                    onClick={() => setLocationOpen(true)}
+                  >
+                    <div className="flex items-center gap-1.5">
+                      <MapPin className="h-3.5 w-3.5 text-muted" />
+                      <span className="text-[10px] font-black uppercase tracking-widest text-ink">Where</span>
+                    </div>
+                    <input
+                      value={local.destination}
+                      onChange={(e) => {
+                        setLocal((p) => ({ ...p, destination: e.target.value }));
+                        setLocationOpen(true);
+                      }}
+                      onFocus={() => setLocationOpen(true)}
+                      className="mt-0.5 w-full bg-transparent text-sm font-semibold text-ink outline-none placeholder:font-normal placeholder:text-muted"
+                      placeholder="Destination"
+                    />
+                  </label>
+                  {locationOpen && (
+                    <div className="absolute left-0 top-full z-50 w-full overflow-hidden rounded-2xl border border-border bg-white shadow-modal">
+                      {filteredLocations.length === 0 ? (
+                        <p className="px-4 py-3 text-sm text-muted">No destinations found</p>
+                      ) : (
+                        filteredLocations.map((l) => (
+                          <button
+                            key={l.destination + l.location}
+                            type="button"
+                            onMouseDown={(e) => {
+                              e.preventDefault();
+                              setLocal((p) => ({ ...p, destination: l.destination }));
+                              setLocationOpen(false);
+                            }}
+                            className="flex w-full items-center gap-3 px-4 py-3 text-left transition hover:bg-soft/60"
+                          >
+                            <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-soft">
+                              <MapPin className="h-4 w-4 text-brand" />
+                            </span>
+                            <div>
+                              <p className="text-sm font-bold text-ink">{l.destination}</p>
+                              <p className="text-xs text-muted">{l.location}</p>
+                            </div>
+                          </button>
+                        ))
+                      )}
+                    </div>
+                  )}
+                </div>
                 <div className="grid grid-cols-2 border-b border-border">
                   <label className="flex cursor-text flex-col border-r border-border px-5 py-4">
                     <div className="flex items-center gap-1.5">
@@ -251,14 +376,11 @@ export default function HeroSection() {
             <div className="relative rounded-3xl bg-white p-2 shadow-modal">
               <div
                 className="relative h-[500px] overflow-hidden rounded-2xl"
-                style={{
-                  background:
-                    'radial-gradient(circle at 10% 105%, #f3d29d 0 20%, transparent 21%), radial-gradient(circle at 62% 108%, #f8e4ba 0 26%, transparent 27%), linear-gradient(145deg, #8fcfce, #65b7bd 55%, #479aaa)',
-                }}
+                style={{ background: featured?.imageGradient ?? 'linear-gradient(135deg,#8fcfce,#65b7bd)' }}
               >
                 <div className="absolute left-4 top-4 flex flex-col gap-2">
                   <span className="flex w-fit items-center gap-1.5 rounded-full bg-white px-3.5 py-1.5 text-xs font-bold shadow-card">
-                    <TreePalm className="h-3.5 w-3.5 text-brand" /> Maldives escape
+                    <TreePalm className="h-3.5 w-3.5 text-brand" /> {featured?.destination ?? 'Maldives'} escape
                   </span>
                   <span className="flex w-fit items-center gap-1.5 rounded-full bg-halal px-3.5 py-1.5 text-xs font-bold text-white shadow-card">
                     <CheckCircle className="h-3.5 w-3.5" /> Halal certified
@@ -268,25 +390,34 @@ export default function HeroSection() {
                   Family-safe tours
                 </div>
 
+                {/* Show first image if available */}
+                {featured?.images?.[0] && (
+                  <img
+                    src={featured.images[0]}
+                    alt={featured.title}
+                    className="absolute inset-0 h-full w-full object-cover opacity-30"
+                  />
+                )}
+
                 <div className="absolute inset-x-4 bottom-4 rounded-2xl bg-white/95 p-5 shadow-modal backdrop-blur">
                   <div className="flex items-start justify-between">
                     <div>
                       <p className="section-label">Featured escape</p>
                       <h3 className="mt-1.5 text-lg font-black text-ink">
-                        Maldives Family Island Escape
+                        {featured?.title ?? 'Maldives Family Island Escape'}
                       </h3>
-                      <p className="mt-1 text-sm text-muted">3 nights · hotel + transfer + tour</p>
+                      <p className="mt-1 text-sm text-muted">{featured?.duration ?? '3 nights'} · {featured?.location ?? 'hotel + transfer + tour'}</p>
                     </div>
                     <span className="flex items-center gap-1 text-sm font-bold">
-                      <Star className="h-3.5 w-3.5 fill-gold stroke-gold" /> 4.9
+                      <Star className="h-3.5 w-3.5 fill-gold stroke-gold" /> {featured?.rating ?? 4.9}
                     </span>
                   </div>
                   <div className="mt-4 flex items-center justify-between">
                     <span className="text-lg font-black text-ink">
-                      From $499 <span className="text-xs font-normal text-muted">/ person</span>
+                      {featured?.price ?? 'From $499'} <span className="text-xs font-normal text-muted">/ person</span>
                     </span>
                     <button
-                      onClick={() => navigate('/package/maldives-family')}
+                      onClick={() => navigate(`/package/${featuredKey}`)}
                       className="btn-primary py-2.5 text-xs"
                     >
                       View →

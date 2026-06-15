@@ -42,7 +42,7 @@ const CHANNELS = [
     tag: 'In person',
     tagColour: 'bg-soft text-muted',
     cardClass: 'bg-white text-ink',
-    body: 'Sharjah Media City, Sharjah, United Arab Emirates. Visit us Mon–Fri 9 am – 6 pm GST.',
+    body: 'RD Maldives Pvt. Ltd., M. Shaamy Villa 3rd Floor (+960 941 1751) · Sharjah Media City, UAE (+971 56 974 9429). Mon–Fri 9 am–6 pm GST.',
     href: 'https://maps.google.com/?q=Sharjah+Media+City',
     cta: 'Get directions',
     ctaClass: 'border border-border bg-white text-ink hover:border-ink',

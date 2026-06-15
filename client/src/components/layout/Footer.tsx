@@ -1,9 +1,45 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { WHATSAPP_NUMBER } from '../../data/packages';
+import { useStore } from '../../store/useStore';
 
 const YEAR = new Date().getFullYear();
 
+function scrollToPackages() {
+  // Scroll past the hero + category chips to the packages grid
+  const el = document.getElementById('packages-grid');
+  if (el) {
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } else {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+}
+
 export default function Footer() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { setSearch, setActiveCategory } = useStore();
+
+  function goToDestination(dest: string) {
+    setSearch({ destination: dest });
+    setActiveCategory('All');
+    if (location.pathname === '/') {
+      scrollToPackages();
+    } else {
+      navigate('/');
+      setTimeout(scrollToPackages, 300);
+    }
+  }
+
+  function goToType(type: string) {
+    setActiveCategory(type);
+    setSearch({ destination: '' });
+    if (location.pathname === '/') {
+      scrollToPackages();
+    } else {
+      navigate('/');
+      setTimeout(scrollToPackages, 300);
+    }
+  }
   return (
     <footer className="hidden border-t border-border bg-white md:block">
       {/* Newsletter / CTA strip */}
@@ -39,10 +75,8 @@ export default function Footer() {
         <div className="grid grid-cols-4 gap-8">
           {/* Brand */}
           <div>
-            <div className="flex items-center gap-2.5">
-              <div className="grid h-9 w-9 place-items-center rounded-xl gradient-brand text-xs font-black text-white">
-                EW
-              </div>
+            <div className="flex items-center gap-2">
+              <img src="/east-west/favicon.png" alt="EastWest" className="h-9 w-9 object-contain" />
               <div>
                 <p className="text-[15px] font-black text-ink">EastWest</p>
                 <p className="text-[10px] font-semibold text-muted">Halal Travel</p>
@@ -63,6 +97,15 @@ export default function Footer() {
               </span>
             </div>
 
+            {/* MIT Badge */}
+            <div className="mt-5">
+              <img
+                src="/east-west/mit-badge.png"
+                alt="Maldives Islamic Tourism — Est. 2025"
+                className="h-32 w-auto object-contain"
+              />
+            </div>
+
             <a
               href={`https://wa.me/${WHATSAPP_NUMBER}`}
               target="_blank"
@@ -79,9 +122,12 @@ export default function Footer() {
             <ul className="space-y-2.5 text-sm">
               {['Maldives', 'Malaysia', 'Indonesia', 'Dubai', 'China', 'Vietnam'].map((d) => (
                 <li key={d}>
-                  <Link to={`/?destination=${d}`} className="text-muted transition hover:text-ink">
+                  <button
+                    onClick={() => goToDestination(d)}
+                    className="text-muted transition hover:text-ink"
+                  >
                     {d}
-                  </Link>
+                  </button>
                 </li>
               ))}
             </ul>
@@ -92,41 +138,80 @@ export default function Footer() {
             <h4 className="section-label mb-4">Services</h4>
             <ul className="space-y-2.5 text-sm">
               {[
-                { label: 'Family packages', to: '/' },
-                { label: 'Honeymoon stays',  to: '/' },
-                { label: 'Private tours',    to: '/' },
-                { label: 'Ramadan trips',    to: '/' },
-                { label: 'City breaks',      to: '/' },
-                { label: 'Free trip planner',to: '/trips' },
-              ].map(({ label, to }) => (
+                { label: 'Family packages',  type: 'Family'    },
+                { label: 'Honeymoon stays',  type: 'Honeymoon' },
+                { label: 'Private tours',    type: 'Private'   },
+                { label: 'Ramadan trips',    type: 'Ramadan'   },
+                { label: 'City breaks',      type: 'City'      },
+              ].map(({ label, type }) => (
                 <li key={label}>
-                  <Link to={to} className="text-muted transition hover:text-ink">{label}</Link>
+                  <button
+                    onClick={() => goToType(type)}
+                    className="text-muted transition hover:text-ink"
+                  >
+                    {label}
+                  </button>
                 </li>
               ))}
+              <li>
+                <Link to="/trips" className="text-muted transition hover:text-ink">
+                  Free trip planner
+                </Link>
+              </li>
             </ul>
           </div>
 
           {/* Contact */}
           <div>
             <h4 className="section-label mb-4">Contact</h4>
-            <ul className="space-y-2.5 text-sm text-muted">
-              <li className="leading-relaxed">Sharjah Media City<br />Sharjah, UAE</li>
+            <ul className="space-y-3 text-sm text-muted">
+              <li>
+                <p className="mb-0.5 text-[10px] font-bold uppercase tracking-wider text-ink/50">Maldives</p>
+                <p className="leading-relaxed">RD Maldives Pvt. Ltd.<br />M. Shaamy Villa, 3rd Floor</p>
+                <a href="tel:+9609411751" className="mt-0.5 block transition hover:text-ink">+960 941 1751</a>
+              </li>
+              <li>
+                <p className="mb-0.5 text-[10px] font-bold uppercase tracking-wider text-ink/50">International</p>
+                <p className="leading-relaxed">Sharjah Media City<br />Sharjah, United Arab Emirates</p>
+                <a href="tel:+971569749429" className="mt-0.5 block transition hover:text-ink">+971 56 974 9429</a>
+              </li>
               <li>
                 <a href="mailto:info@eastwesthalaltravel.com" className="transition hover:text-ink">
                   info@eastwesthalaltravel.com
                 </a>
               </li>
-              <li className="pt-2">
-                <a
-                  href={`https://wa.me/${WHATSAPP_NUMBER}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="transition hover:text-ink"
-                >
-                  WhatsApp: +{WHATSAPP_NUMBER}
-                </a>
-              </li>
             </ul>
+
+            {/* Social */}
+            <div className="mt-4 flex gap-3">
+              <a
+                href="https://facebook.com/eastwesthalaltravels"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Facebook"
+                className="flex h-8 w-8 items-center justify-center rounded-full border border-border text-muted transition hover:border-ink hover:text-ink"
+              >
+                <svg viewBox="0 0 24 24" className="h-4 w-4 fill-current"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+              </a>
+              <a
+                href="https://www.instagram.com/eastwesthalaltravels/"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Instagram"
+                className="flex h-8 w-8 items-center justify-center rounded-full border border-border text-muted transition hover:border-ink hover:text-ink"
+              >
+                <svg viewBox="0 0 24 24" className="h-4 w-4 fill-none stroke-current" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+              </a>
+              <a
+                href={`https://wa.me/${WHATSAPP_NUMBER}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="WhatsApp"
+                className="flex h-8 w-8 items-center justify-center rounded-full border border-border text-muted transition hover:border-halal hover:text-halal"
+              >
+                <svg viewBox="0 0 24 24" className="h-4 w-4 fill-current"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+              </a>
+            </div>
 
             <div className="mt-5">
               <h4 className="section-label mb-3">Quick links</h4>
@@ -147,7 +232,7 @@ export default function Footer() {
 
         {/* Bottom bar */}
         <div className="mt-10 flex items-center justify-between border-t border-border pt-6 text-xs text-muted">
-          <p>© {YEAR} EastWest Halal Travel LLC · Licensed in UAE · All rights reserved</p>
+          <p>© {YEAR} EastWest Halal Travel LLC · RD Maldives Pvt. Ltd. · Licensed in UAE · All rights reserved</p>
           <div className="flex gap-6">
             <a href="#" className="hover:text-ink">Privacy policy</a>
             <a href="#" className="hover:text-ink">Terms of service</a>
