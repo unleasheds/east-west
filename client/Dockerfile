@@ -5,6 +5,8 @@ COPY package*.json ./
 RUN npm ci
 
 COPY . .
+ENV VITE_BASE=/
+RUN npm run build
 RUN npm run build
 
 FROM caddy:2-alpine
