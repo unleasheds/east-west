@@ -27,7 +27,7 @@ export default function PackageCard({ pkg }: Props) {
   // ── Carousel state ─────────────────────────────────────────────────────────
   const [imgIdx, setImgIdx] = useState(0);
   const touchX = useRef(0);
-  const images = pkg.images.length > 0 ? pkg.images : [];
+  const images = Array.isArray(pkg.images) && pkg.images.length > 0 ? pkg.images : [];
   const hasMultiple = images.length > 1;
 
   function prevImg(e: React.MouseEvent) {
