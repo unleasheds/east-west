@@ -169,10 +169,10 @@ const SEED_PACKAGES = [
     description:
       "Enjoy a peaceful Halal-friendly island escape in Himmafushi. This short yet immersive getaway combines relaxation, marine adventures, and authentic Maldivian culture, making it ideal for couples and Muslim families seeking a meaningful island experience with full Halal comfort.",
     images: [
-      'https://pub-a90bf5f1ce6f4b4cab5143b848c2b539.r2.dev/packages/himmafushi-7d/2.jpg',
-      'https://pub-a90bf5f1ce6f4b4cab5143b848c2b539.r2.dev/packages/himmafushi-7d/1.jpg',
-      'https://pub-a90bf5f1ce6f4b4cab5143b848c2b539.r2.dev/packages/himmafushi-7d/3.jpg',
-      'https://pub-a90bf5f1ce6f4b4cab5143b848c2b539.r2.dev/packages/himmafushi-7d/4.jpg',
+      'https://pub-a90bf5f1ce6f4b4cab5143b848c2b539.r2.dev/packages/himmafushi-4d/1.jpg',
+      'https://pub-a90bf5f1ce6f4b4cab5143b848c2b539.r2.dev/packages/himmafushi-4d/2.jpg',
+      'https://pub-a90bf5f1ce6f4b4cab5143b848c2b539.r2.dev/packages/himmafushi-4d/3.jpg',
+      'https://pub-a90bf5f1ce6f4b4cab5143b848c2b539.r2.dev/packages/himmafushi-4d/4.jpg',
     ],
     imageGradient:
       'radial-gradient(circle at 15% 100%, #b3e5fc 0 26%, transparent 27%), linear-gradient(135deg, #4fc3f7, #0288d1)',
@@ -217,10 +217,10 @@ const SEED_PACKAGES = [
     description:
       'Enjoy a relaxing Halal-friendly island escape in Ukulhas, Maldives, featuring crystal-clear waters, rich marine life, and authentic local culture. This tour includes full-board meals, comfortable guesthouse accommodation, exciting excursions such as manta ray snorkeling, sandbank visits, island hopping, and shark feeding, along with a memorable local beach dinner.',
     images: [
-      'https://pub-a90bf5f1ce6f4b4cab5143b848c2b539.r2.dev/packages/himmafushi-7d/1.jpg',
-      'https://pub-a90bf5f1ce6f4b4cab5143b848c2b539.r2.dev/packages/himmafushi-7d/2.jpg',
-      'https://pub-a90bf5f1ce6f4b4cab5143b848c2b539.r2.dev/packages/himmafushi-7d/3.jpg',
-      'https://pub-a90bf5f1ce6f4b4cab5143b848c2b539.r2.dev/packages/himmafushi-7d/4.jpg',
+      'https://pub-a90bf5f1ce6f4b4cab5143b848c2b539.r2.dev/packages/ukulhas-7d/1.jpg',
+      'https://pub-a90bf5f1ce6f4b4cab5143b848c2b539.r2.dev/packages/ukulhas-7d/2.jpg',
+      'https://pub-a90bf5f1ce6f4b4cab5143b848c2b539.r2.dev/packages/ukulhas-7d/3.jpg',
+      'https://pub-a90bf5f1ce6f4b4cab5143b848c2b539.r2.dev/packages/ukulhas-7d/4.jpg',
     ],
     imageGradient:
       'radial-gradient(circle at 15% 100%, #e8f5e9 0 26%, transparent 27%), linear-gradient(135deg, #66bb6a, #2e7d32)',

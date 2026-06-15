@@ -25,10 +25,10 @@ export const PACKAGES: Package[] = [
     description:
       'Experience the perfect blend of culture, comfort, and family-friendly adventure with our Kuala Lumpur Halal Family Tour. Specially designed for Muslim travellers, this package offers a relaxing and enriching journey through Malaysia\'s most iconic destinations while ensuring halal-friendly services and Shariah-compliant experiences throughout your stay.',
     images: [
-      'https://www.eastwesthalaltravel.com/wp-content/uploads/2026/01/DJI_20250221161932_0026_D-scaled.jpg',
-      'https://www.eastwesthalaltravel.com/wp-content/uploads/2026/01/DJI_20250221162017_0027_D-scaled.jpg',
-      'https://www.eastwesthalaltravel.com/wp-content/uploads/2026/01/DJI_20250221161900_0024_D-scaled.jpg',
-      'https://www.eastwesthalaltravel.com/wp-content/uploads/2026/01/DJI_20250221161859_0023_D-scaled.jpg',
+      'https://pub-a90bf5f1ce6f4b4cab5143b848c2b539.r2.dev/packages/kuala-lumpur-family/1.jpg',
+      'https://pub-a90bf5f1ce6f4b4cab5143b848c2b539.r2.dev/packages/kuala-lumpur-family/2.jpg',
+      'https://pub-a90bf5f1ce6f4b4cab5143b848c2b539.r2.dev/packages/kuala-lumpur-family/3.jpg',
+      'https://pub-a90bf5f1ce6f4b4cab5143b848c2b539.r2.dev/packages/kuala-lumpur-family/4.jpg',
     ],
     imageGradient:
       'radial-gradient(circle at 15% 100%, #c8e6c9 0 26%, transparent 27%), linear-gradient(135deg, #66bb6a, #388e3c)',
@@ -159,10 +159,10 @@ export const PACKAGES: Package[] = [
     description:
       '100% Halal-Friendly | Full-Board Local Island Holiday. Experience a serene and faith-conscious escape on Himmafushi Island, offering a perfect blend of marine adventures, relaxation, and authentic Maldivian island life. Ideal for Muslim couples and families seeking a peaceful Halal-only environment.',
     images: [
-      'https://www.eastwesthalaltravel.com/wp-content/uploads/2025/10/071F8C38-0A37-47B4-A072-E4A700BCF2A7-scaled.jpg',
-      'https://www.eastwesthalaltravel.com/wp-content/uploads/2026/01/photo_2025-04-10_16-40-22.jpg',
-      'https://www.eastwesthalaltravel.com/wp-content/uploads/2026/01/20250130_195340-scaled.jpg',
-      'https://www.eastwesthalaltravel.com/wp-content/uploads/2026/01/20250130_195333-scaled.jpg',
+      'https://pub-a90bf5f1ce6f4b4cab5143b848c2b539.r2.dev/packages/himmafushi-7d/1.jpg',
+      'https://pub-a90bf5f1ce6f4b4cab5143b848c2b539.r2.dev/packages/himmafushi-7d/2.jpg',
+      'https://pub-a90bf5f1ce6f4b4cab5143b848c2b539.r2.dev/packages/himmafushi-7d/3.jpg',
+      'https://pub-a90bf5f1ce6f4b4cab5143b848c2b539.r2.dev/packages/himmafushi-7d/4.jpg',
     ],
     imageGradient:
       'radial-gradient(circle at 15% 100%, #b2ebf2 0 26%, transparent 27%), linear-gradient(135deg, #26c6da, #0097a7)',
@@ -295,10 +295,10 @@ export const PACKAGES: Package[] = [
     description:
       'Enjoy a peaceful Halal-friendly island escape in Himmafushi, one of the Maldives\' most charming local islands. This short yet immersive getaway combines relaxation, marine adventures, and authentic Maldivian culture, making it ideal for couples and Muslim families seeking a meaningful island experience with full Halal comfort.',
     images: [
-      'https://www.eastwesthalaltravel.com/wp-content/uploads/2026/01/photo_2025-04-10_16-40-22.jpg',
-      'https://www.eastwesthalaltravel.com/wp-content/uploads/2025/10/071F8C38-0A37-47B4-A072-E4A700BCF2A7-scaled.jpg',
-      'https://www.eastwesthalaltravel.com/wp-content/uploads/2026/01/20250130_195340-scaled.jpg',
-      'https://www.eastwesthalaltravel.com/wp-content/uploads/2026/01/20250130_195333-scaled.jpg',
+      'https://pub-a90bf5f1ce6f4b4cab5143b848c2b539.r2.dev/packages/himmafushi-4d/1.jpg',
+      'https://pub-a90bf5f1ce6f4b4cab5143b848c2b539.r2.dev/packages/himmafushi-4d/2.jpg',
+      'https://pub-a90bf5f1ce6f4b4cab5143b848c2b539.r2.dev/packages/himmafushi-4d/3.jpg',
+      'https://pub-a90bf5f1ce6f4b4cab5143b848c2b539.r2.dev/packages/himmafushi-4d/4.jpg',
     ],
     imageGradient:
       'radial-gradient(circle at 15% 100%, #b3e5fc 0 26%, transparent 27%), linear-gradient(135deg, #4fc3f7, #0288d1)',
@@ -390,10 +390,10 @@ export const PACKAGES: Package[] = [
     description:
       'Enjoy a relaxing Halal-friendly island escape in Ukulhas, Maldives, featuring crystal-clear waters, rich marine life, and authentic local culture. This tour includes full-board meals, comfortable guesthouse accommodation, exciting excursions such as manta ray snorkeling, sandbank visits, island hopping, and shark feeding, along with a memorable local beach dinner.',
     images: [
-      'https://www.eastwesthalaltravel.com/wp-content/uploads/2025/10/071F8C38-0A37-47B4-A072-E4A700BCF2A7-scaled.jpg',
-      'https://www.eastwesthalaltravel.com/wp-content/uploads/2026/01/photo_2025-04-10_16-40-22.jpg',
-      'https://www.eastwesthalaltravel.com/wp-content/uploads/2026/01/20250130_195340-scaled.jpg',
-      'https://www.eastwesthalaltravel.com/wp-content/uploads/2026/01/20250130_195333-scaled.jpg',
+      'https://pub-a90bf5f1ce6f4b4cab5143b848c2b539.r2.dev/packages/ukulhas-7d/1.jpg',
+      'https://pub-a90bf5f1ce6f4b4cab5143b848c2b539.r2.dev/packages/ukulhas-7d/2.jpg',
+      'https://pub-a90bf5f1ce6f4b4cab5143b848c2b539.r2.dev/packages/ukulhas-7d/3.jpg',
+      'https://pub-a90bf5f1ce6f4b4cab5143b848c2b539.r2.dev/packages/ukulhas-7d/4.jpg',
     ],
     imageGradient:
       'radial-gradient(circle at 15% 100%, #e8f5e9 0 26%, transparent 27%), linear-gradient(135deg, #66bb6a, #2e7d32)',
@@ -523,10 +523,10 @@ export const PACKAGES: Package[] = [
     description:
       'Escape to the tranquil beauty of Ukulhas Island, a pristine Maldivian gem known for its white sandy beaches, crystal-clear waters, and vibrant marine life. This Halal-friendly holiday offers a perfect mix of relaxation, adventure, and authentic local experiences with customizable excursions including snorkeling, island hopping, and a special beach dinner.',
     images: [
-      'https://www.eastwesthalaltravel.com/wp-content/uploads/2025/10/DJI_0482-2-scaled.jpg',
-      'https://www.eastwesthalaltravel.com/wp-content/uploads/2026/01/20251102_124723-scaled.jpg',
-      'https://www.eastwesthalaltravel.com/wp-content/uploads/2026/01/20251102_130251-scaled.jpg',
-      'https://www.eastwesthalaltravel.com/wp-content/uploads/2026/01/20251102_130502-scaled.jpg',
+      'https://pub-a90bf5f1ce6f4b4cab5143b848c2b539.r2.dev/packages/ukulhas-5d/1.jpg',
+      'https://pub-a90bf5f1ce6f4b4cab5143b848c2b539.r2.dev/packages/ukulhas-5d/2.jpg',
+      'https://pub-a90bf5f1ce6f4b4cab5143b848c2b539.r2.dev/packages/ukulhas-5d/3.jpg',
+      'https://pub-a90bf5f1ce6f4b4cab5143b848c2b539.r2.dev/packages/ukulhas-5d/4.jpg',
     ],
     imageGradient:
       'radial-gradient(circle at 15% 100%, #e0f7fa 0 26%, transparent 27%), linear-gradient(135deg, #80deea, #00acc1)',
