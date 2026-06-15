@@ -1,14 +1,26 @@
-FROM node:20-alpine
-
+# ---- Build stage ----
+FROM node:20-alpine AS builder
 WORKDIR /app
 
+# Force development so devDeps (nest CLI) are installed
+ENV NODE_ENV=development
+
 COPY package*.json ./
-RUN npm ci --include=dev
+RUN npm ci
 
 COPY . .
-RUN npm run build
+RUN ./node_modules/.bin/nest build
+
+# ---- Run stage ----
+FROM node:20-alpine
+WORKDIR /app
 
 ENV NODE_ENV=production
+
+COPY package*.json ./
+RUN npm ci --omit=dev
+
+COPY --from=builder /app/dist ./dist
 
 EXPOSE 3001
 
