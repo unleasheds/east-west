@@ -3,7 +3,6 @@ import {
   Globe, Waves, TreePalm, Users, Anchor, Heart, Sun,
   Building2, Moon, Mountain, UtensilsCrossed, Plane,
   Camera, Compass, MapPin, Star, Ship, Umbrella, Sunrise,
-  Palmtree,
 } from 'lucide-react';
 
 export interface CategoryItem {
