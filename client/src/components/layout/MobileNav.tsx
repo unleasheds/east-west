@@ -11,15 +11,15 @@ const NAV = [
 
 export default function MobileNav() {
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-white/95 backdrop-blur-md shadow-bar md:hidden">
-      <div className="grid grid-cols-5 px-1 pt-1 pb-2" style={{ paddingBottom: 'max(8px, env(safe-area-inset-bottom))' }}>
+    <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-white/95 backdrop-blur-md shadow-bar md:hidden">
+      <div className="grid grid-cols-5 px-1 pt-1" style={{ paddingBottom: 'max(8px, env(safe-area-inset-bottom))' }}>
         {NAV.map(({ to, Icon, label }) => (
           <NavLink
             key={to}
             to={to}
             end={to === '/'}
             className={({ isActive }) =>
-              `flex flex-col items-center gap-0.5 py-1 transition-opacity ${
+              `flex min-w-0 flex-col items-center gap-0.5 px-0.5 py-1 transition-opacity ${
                 isActive ? 'text-brand' : 'text-muted'
               }`
             }
@@ -27,7 +27,7 @@ export default function MobileNav() {
             {({ isActive }) => (
               <>
                 <span
-                  className={`grid h-9 w-12 place-items-center rounded-xl transition-all duration-150 ${
+                  className={`grid h-8 w-full max-w-11 place-items-center rounded-xl transition-all duration-150 ${
                     isActive ? 'bg-brand-light' : ''
                   }`}
                 >
@@ -42,7 +42,7 @@ export default function MobileNav() {
                     strokeWidth={1.8}
                   />
                 </span>
-                <span className={`text-[9px] font-bold tracking-wide ${isActive ? 'text-brand' : ''}`}>
+                <span className={`w-full truncate text-center text-[9px] font-bold leading-tight ${isActive ? 'text-brand' : ''}`}>
                   {label}
                 </span>
               </>

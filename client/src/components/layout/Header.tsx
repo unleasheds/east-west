@@ -53,11 +53,11 @@ export default function Header() {
           scrolled ? 'shadow-topbar' : 'border-b border-border'
         }`}
       >
-        <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-3 md:px-8 md:py-4">
+        <div className="mx-auto flex max-w-7xl items-center gap-2 px-3 py-3 sm:gap-3 sm:px-4 md:px-8 md:py-4">
 
           {/* Logo */}
           <Link to="/" className="flex shrink-0 items-center gap-2">
-            <img src="/favicon.png" alt="EastWest" className="h-9 w-9 object-contain" />
+            <img src="/favicon.png" alt="EastWest" className="h-8 w-8 object-contain sm:h-9 sm:w-9" />
             <div className="hidden sm:block leading-tight">
               <p className="text-[15px] font-black text-ink">EastWest</p>
               <p className="text-[10px] font-semibold text-muted">Halal Travel</p>
@@ -187,7 +187,7 @@ export default function Header() {
           {showPill && (
             <button
               onClick={() => setOpen((v) => !v)}
-              className="flex flex-1 items-center gap-2 rounded-full border border-border bg-white px-4 py-2.5 shadow-card md:hidden"
+              className="flex min-w-0 flex-1 items-center gap-2 rounded-full border border-border bg-white px-3 py-2.5 shadow-card sm:px-4 md:hidden"
             >
               <Search className="h-4 w-4 shrink-0 text-muted" />
               <span className="truncate text-sm font-semibold text-ink">
@@ -201,7 +201,8 @@ export default function Header() {
             href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent('Hi EastWest Halal Travel, I want help planning a halal-friendly trip.')}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="ml-auto flex shrink-0 items-center gap-1.5 rounded-full bg-halal px-4 py-2.5 text-xs font-bold text-white transition hover:bg-halal-dark"
+            className="ml-auto flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-halal text-xs font-bold text-white transition hover:bg-halal-dark sm:h-auto sm:w-auto sm:px-4 sm:py-2.5"
+            aria-label="Chat on WhatsApp"
           >
             <MessageCircle className="h-4 w-4" />
             <span className="hidden sm:inline">WhatsApp</span>
@@ -222,18 +223,19 @@ export default function Header() {
           <Link
             to="/profile"
             className="flex shrink-0 items-center justify-center rounded-full border border-border bg-white shadow-sm transition hover:shadow-card"
-            style={{ width: 38, height: 38 }}
             aria-label="Profile"
           >
             {user?.avatar ? (
               <img
                 src={user.avatar}
                 alt={user.name}
-                className="h-full w-full rounded-full object-cover"
+                className="h-9 w-9 rounded-full object-cover sm:h-[38px] sm:w-[38px]"
                 referrerPolicy="no-referrer"
               />
             ) : (
-              <User className="h-4.5 w-4.5 text-muted" />
+              <span className="grid h-9 w-9 place-items-center sm:h-[38px] sm:w-[38px]">
+                <User className="h-4 w-4 text-muted" />
+              </span>
             )}
           </Link>
         </div>

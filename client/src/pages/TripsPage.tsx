@@ -20,9 +20,9 @@ function TripCard({ trip, onSelect }: { trip: TripRequest; onSelect: () => void 
       onClick={onSelect}
       className="w-full rounded-2xl bg-white p-5 shadow-card text-left transition hover:shadow-card-hover"
     >
-      <div className="flex items-start justify-between gap-3">
+      <div className="flex min-w-0 items-start justify-between gap-3">
         <div className="min-w-0">
-          <h4 className="truncate font-black text-ink">{trip.destination || 'Custom trip'}</h4>
+          <h4 className="break-words font-black text-ink">{trip.destination || 'Custom trip'}</h4>
           <p className="mt-0.5 text-sm text-muted">
             {trip.travellers ? `${trip.travellers} traveller(s)` : 'Travellers not set'}
             {trip.dates ? ` · ${trip.dates}` : ''}
@@ -30,7 +30,7 @@ function TripCard({ trip, onSelect }: { trip: TripRequest; onSelect: () => void 
           {trip.budget && <p className="mt-0.5 text-sm font-semibold text-ink">{trip.budget}</p>}
         </div>
         <div className="flex shrink-0 flex-col items-end gap-1">
-          <span className={`rounded-full px-3 py-1 text-xs font-bold ${STATUS_STYLES[trip.status]}`}>
+          <span className={`max-w-[6.5rem] truncate rounded-full px-3 py-1 text-xs font-bold ${STATUS_STYLES[trip.status]}`}>
             {trip.status.charAt(0).toUpperCase() + trip.status.slice(1)}
           </span>
           <span className="text-[10px] text-muted">{date}</span>
@@ -82,7 +82,7 @@ function TripDetailPanel({ trip, onClose }: { trip: TripRequest; onClose: () => 
         ].map(({ label, value, Icon }) => (
           <div key={label} className="rounded-2xl bg-soft px-4 py-3">
             <p className="text-[10px] font-bold uppercase tracking-wider text-muted">{label}</p>
-            <p className="mt-1 flex items-center gap-1.5 text-sm font-semibold text-ink">
+            <p className="mt-1 flex min-w-0 items-center gap-1.5 break-words text-sm font-semibold text-ink">
               <Icon className="h-3.5 w-3.5 shrink-0 text-muted" /> {value}
             </p>
           </div>
@@ -101,7 +101,7 @@ function TripDetailPanel({ trip, onClose }: { trip: TripRequest; onClose: () => 
 
       {/* Ref */}
       <div className="px-6 pb-4">
-        <p className="text-[11px] text-muted">
+        <p className="break-all text-[11px] text-muted">
           Reference: <span className="font-mono">{trip.id.slice(0, 8).toUpperCase()}</span>
         </p>
       </div>
@@ -158,7 +158,7 @@ export default function TripsPage() {
   }
 
   return (
-    <div className="page-enter mx-auto max-w-7xl px-4 py-8 md:px-8 md:py-12">
+    <div className="page-enter mx-auto max-w-7xl overflow-x-hidden px-4 py-8 md:px-8 md:py-12">
 
       {/* Page header */}
       <div className="mb-8">
@@ -197,7 +197,7 @@ export default function TripsPage() {
         </div>
 
         {/* Right — request form */}
-        <form onSubmit={handleSubmit} className="rounded-3xl bg-white p-6 shadow-card md:p-8">
+        <form onSubmit={handleSubmit} className="min-w-0 rounded-3xl bg-white p-5 shadow-card sm:p-6 md:p-8">
           <div className="mb-2 inline-flex items-center gap-1.5 rounded-full bg-halal-light px-3 py-1.5 text-xs font-bold text-halal">
             <CheckCircle className="h-3 w-3" /> Free trip planning
           </div>
@@ -213,27 +213,27 @@ export default function TripsPage() {
               { key: 'travellers',  placeholder: 'e.g. 2 adults, 2 children',         label: 'Travellers'    },
               { key: 'budget',      placeholder: 'e.g. $1,000–$2,000 per person',     label: 'Budget range'  },
             ] as const).map(({ key, placeholder, label }) => (
-              <label key={key} className="flex flex-col gap-1">
+              <label key={key} className="min-w-0 flex flex-col gap-1">
                 <span className="text-[11px] font-bold uppercase tracking-wider text-muted">
                   {label}
                 </span>
                 <input
                   value={form[key]}
                   onChange={(e) => setForm((p) => ({ ...p, [key]: e.target.value }))}
-                  className="rounded-xl bg-soft px-4 py-3.5 text-sm font-semibold text-ink outline-none placeholder:text-muted focus:ring-2 focus:ring-brand"
+                  className="min-w-0 rounded-xl bg-soft px-4 py-3.5 text-sm font-semibold text-ink outline-none placeholder:text-muted focus:ring-2 focus:ring-brand"
                   placeholder={placeholder}
                 />
               </label>
             ))}
 
-            <label className="flex flex-col gap-1 md:col-span-2">
+            <label className="min-w-0 flex flex-col gap-1 md:col-span-2">
               <span className="text-[11px] font-bold uppercase tracking-wider text-muted">
                 Special needs
               </span>
               <textarea
                 value={form.needs}
                 onChange={(e) => setForm((p) => ({ ...p, needs: e.target.value }))}
-                className="min-h-[100px] resize-none rounded-xl bg-soft px-4 py-3.5 text-sm font-semibold text-ink outline-none placeholder:text-muted focus:ring-2 focus:ring-brand"
+                className="min-h-[100px] min-w-0 resize-none rounded-xl bg-soft px-4 py-3.5 text-sm font-semibold text-ink outline-none placeholder:text-muted focus:ring-2 focus:ring-brand"
                 placeholder="Halal food only, private tour, baby seat, prayer-friendly hotels, mobility needs…"
               />
             </label>
@@ -255,7 +255,7 @@ export default function TripsPage() {
 
           <button
             type="submit"
-            className="mt-5 flex w-full items-center justify-center gap-2 rounded-full bg-halal py-4 text-sm font-bold text-white transition hover:bg-halal-dark"
+            className="mt-5 flex w-full items-center justify-center gap-2 rounded-full bg-halal px-4 py-4 text-center text-sm font-bold text-white transition hover:bg-halal-dark"
           >
             <MessageCircle className="h-4 w-4" /> Send to WhatsApp &amp; save request
           </button>
