@@ -1,6 +1,20 @@
 import { useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import {
+  ArrowLeft,
+  Baby,
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  Frown,
+  Heart,
+  Lock,
+  MessageCircle,
+  ShieldCheck,
+  Star,
+  X,
+} from 'lucide-react';
 import { PACKAGES, WHATSAPP_NUMBER } from '../data/packages';
 import { packagesApi } from '../lib/api';
 import { useStore } from '../store/useStore';
@@ -12,19 +26,16 @@ type Tab = 'overview' | 'itinerary' | 'includes';
 const REVIEWS = [
   {
     name: 'Fatimah A.',
-    flag: '🇬🇧',
     rating: 5,
     text: 'Absolutely flawless. Everything was halal-verified and our family felt completely at ease throughout the whole trip.',
   },
   {
     name: 'Khalid M.',
-    flag: '🇦🇪',
     rating: 5,
     text: 'Booked the Maldives package — the guesthouse was amazing and the excursions were perfectly organised. Highly recommend.',
   },
   {
     name: 'Aisha R.',
-    flag: '🇺🇸',
     rating: 5,
     text: 'Best decision we made. The prayer-friendly itinerary made the whole experience so much more meaningful.',
   },
@@ -69,7 +80,7 @@ export default function PackageDetailPage() {
   if (!pkg) {
     return (
       <div className="mx-auto max-w-2xl px-4 py-20 text-center">
-        <p className="text-5xl">😕</p>
+        <Frown className="mx-auto h-12 w-12 text-muted" strokeWidth={1.8} />
         <h2 className="mt-4 text-2xl font-black text-ink">Package not found</h2>
         <button
           onClick={() => navigate('/')}
@@ -135,7 +146,8 @@ export default function PackageDetailPage() {
           onClick={() => navigate(-1)}
           className="flex items-center gap-1.5 text-sm font-semibold text-muted transition hover:text-ink"
         >
-          ← Back to packages
+          <ArrowLeft className="h-4 w-4" strokeWidth={2.2} />
+          Back to packages
         </button>
       </div>
 
@@ -188,9 +200,7 @@ export default function PackageDetailPage() {
                     onClick={() => setHeroIdx((i) => i - 1)}
                     className="absolute left-3 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 shadow-md backdrop-blur-sm transition hover:scale-110"
                   >
-                    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2.5}>
-                      <path d="M15 18l-6-6 6-6" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
+                    <ChevronLeft className="h-4 w-4" strokeWidth={2.5} />
                   </button>
                 )}
                 {/* Right arrow */}
@@ -199,9 +209,7 @@ export default function PackageDetailPage() {
                     onClick={() => setHeroIdx((i) => i + 1)}
                     className="absolute right-3 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 shadow-md backdrop-blur-sm transition hover:scale-110"
                   >
-                    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2.5}>
-                      <path d="M9 18l6-6-6-6" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
+                    <ChevronRight className="h-4 w-4" strokeWidth={2.5} />
                   </button>
                 )}
 
@@ -218,8 +226,9 @@ export default function PackageDetailPage() {
                     {pkg.type}
                   </span>
                   {pkg.isHalalCertified && (
-                    <span className="rounded-full bg-halal px-3 py-1.5 text-xs font-bold text-white shadow">
-                      ✓ Halal
+                    <span className="flex items-center gap-1 rounded-full bg-halal px-3 py-1.5 text-xs font-bold text-white shadow">
+                      <ShieldCheck className="h-3.5 w-3.5" strokeWidth={2.4} />
+                      Halal
                     </span>
                   )}
                 </div>
@@ -229,17 +238,10 @@ export default function PackageDetailPage() {
                   onClick={() => toggleSave(pkg.id)}
                   className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-lg shadow backdrop-blur-sm transition hover:scale-110"
                 >
-                  <svg
-                    viewBox="0 0 24 24"
+                  <Heart
                     className={`h-5 w-5 transition-colors ${saved ? 'fill-brand stroke-brand' : 'fill-transparent stroke-ink/70'}`}
                     strokeWidth={2}
-                  >
-                    <path
-                      d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
+                  />
                 </button>
 
                 {/* Bottom meta */}
@@ -312,7 +314,7 @@ export default function PackageDetailPage() {
                   </p>
                   {pkg.childPrice && (
                     <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-halal-light px-4 py-2 text-xs font-bold text-halal-dark">
-                      <span>👶</span>
+                      <Baby className="h-4 w-4" strokeWidth={2.2} />
                       Children: {pkg.childPrice}
                     </div>
                   )}
@@ -325,7 +327,7 @@ export default function PackageDetailPage() {
                     {pkgHighlights.map((h) => (
                       <li key={h} className="flex items-start gap-3 text-sm text-ink">
                         <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-halal-light text-halal text-xs font-bold">
-                          ✓
+                          <Check className="h-3.5 w-3.5" strokeWidth={2.6} />
                         </span>
                         {h}
                       </li>
@@ -338,7 +340,8 @@ export default function PackageDetailPage() {
                   <div className="flex items-center gap-3">
                     <h3 className="text-xl font-black text-ink">Guest reviews</h3>
                     <div className="flex items-center gap-1 rounded-full bg-soft px-3 py-1 text-sm font-bold">
-                      ★ {Number(pkg.rating).toFixed(1)}
+                      <Star className="h-4 w-4 fill-brand text-brand" strokeWidth={2.2} />
+                      {Number(pkg.rating).toFixed(1)}
                       <span className="ml-1 text-xs font-normal text-muted">({pkg.reviewCount})</span>
                     </div>
                   </div>
@@ -351,10 +354,14 @@ export default function PackageDetailPage() {
                               {r.name[0]}
                             </div>
                             <p className="text-sm font-black text-ink">
-                              {r.name} {r.flag}
+                              {r.name}
                             </p>
                           </div>
-                          <div className="text-xs font-bold text-brand">{'★'.repeat(r.rating)}</div>
+                          <div className="flex items-center gap-0.5 text-brand">
+                            {Array.from({ length: r.rating }).map((_, index) => (
+                              <Star key={index} className="h-3.5 w-3.5 fill-brand" strokeWidth={2.2} />
+                            ))}
+                          </div>
                         </div>
                         <p className="mt-3 text-sm leading-relaxed text-muted">{r.text}</p>
                       </div>
@@ -419,7 +426,7 @@ export default function PackageDetailPage() {
                 <div className="rounded-3xl bg-white p-6 shadow-card md:p-8">
                   <h3 className="flex items-center gap-2 text-xl font-black text-ink">
                     <span className="flex h-7 w-7 items-center justify-center rounded-full bg-halal-light text-halal text-sm">
-                      ✓
+                      <Check className="h-4 w-4" strokeWidth={2.6} />
                     </span>
                     Package Includes
                   </h3>
@@ -427,7 +434,7 @@ export default function PackageDetailPage() {
                     {pkgIncluded.map((item) => (
                       <li key={item} className="flex items-start gap-3 text-sm text-ink">
                         <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-halal-light text-halal text-xs font-bold">
-                          ✓
+                          <Check className="h-3.5 w-3.5" strokeWidth={2.6} />
                         </span>
                         {item}
                       </li>
@@ -439,7 +446,7 @@ export default function PackageDetailPage() {
                   <div className="rounded-3xl bg-white p-6 shadow-card md:p-8">
                     <h3 className="flex items-center gap-2 text-xl font-black text-ink">
                       <span className="flex h-7 w-7 items-center justify-center rounded-full bg-red-50 text-red-400 text-sm">
-                        ✕
+                        <X className="h-4 w-4" strokeWidth={2.6} />
                       </span>
                       Not Included
                     </h3>
@@ -447,7 +454,7 @@ export default function PackageDetailPage() {
                       {pkgExcluded.map((item) => (
                         <li key={item} className="flex items-start gap-3 text-sm text-muted">
                           <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-red-50 text-red-400 text-xs font-bold">
-                            ✕
+                            <X className="h-3.5 w-3.5" strokeWidth={2.6} />
                           </span>
                           {item}
                         </li>
@@ -457,14 +464,18 @@ export default function PackageDetailPage() {
                 )}
 
                 <div className="rounded-3xl border border-brand-light bg-brand-light/40 p-5">
-                  <p className="text-sm font-semibold text-ink">
-                    💬 Have questions about what's included? Chat with us on WhatsApp and we'll
-                    clarify everything before you book.
+                  <p className="flex items-start gap-2 text-sm font-semibold text-ink">
+                    <MessageCircle className="mt-0.5 h-4 w-4 shrink-0 text-brand" strokeWidth={2.2} />
+                    <span>
+                      Have questions about what's included? Chat with us on WhatsApp and we'll
+                      clarify everything before you book.
+                    </span>
                   </p>
                   <button
                     onClick={handleWhatsApp}
-                    className="mt-3 rounded-full bg-brand px-5 py-2.5 text-sm font-bold text-white transition hover:bg-brand-dark"
+                    className="mt-3 inline-flex items-center gap-2 rounded-full bg-brand px-5 py-2.5 text-sm font-bold text-white transition hover:bg-brand-dark"
                   >
+                    <MessageCircle className="h-4 w-4" strokeWidth={2.2} />
                     Chat on WhatsApp
                   </button>
                 </div>
@@ -486,7 +497,7 @@ export default function PackageDetailPage() {
                 </p>
               )}
               <div className="mt-1 flex items-center gap-1 text-sm font-semibold">
-                <span className="text-brand">★</span>
+                <Star className="h-4 w-4 fill-brand text-brand" strokeWidth={2.2} />
                 <span>{Number(pkg.rating).toFixed(1)}</span>
                 <span className="text-muted">· {pkg.reviewCount} reviews</span>
               </div>
@@ -578,9 +589,10 @@ export default function PackageDetailPage() {
                 {pkg.priceValue > 0 ? (
                   <button
                     onClick={openCheckout}
-                    className="w-full rounded-full bg-brand py-4 text-sm font-bold text-white transition hover:bg-brand-dark"
+                    className="flex w-full items-center justify-center gap-2 rounded-full bg-brand py-4 text-sm font-bold text-white transition hover:bg-brand-dark"
                   >
-                    🔒 Book &amp; Pay — ${(pkg.priceValue * travellers).toLocaleString()}
+                    <Lock className="h-4 w-4" strokeWidth={2.2} />
+                    Book &amp; Pay — ${(pkg.priceValue * travellers).toLocaleString()}
                   </button>
                 ) : (
                   <p className="rounded-2xl bg-soft px-4 py-3 text-center text-sm font-semibold text-muted">
@@ -589,9 +601,10 @@ export default function PackageDetailPage() {
                 )}
                 <button
                   onClick={handleWhatsApp}
-                  className="w-full rounded-full border border-border bg-white py-4 text-sm font-bold text-ink transition hover:border-halal hover:text-halal"
+                  className="flex w-full items-center justify-center gap-2 rounded-full border border-border bg-white py-4 text-sm font-bold text-ink transition hover:border-halal hover:text-halal"
                 >
-                  💬 Enquire on WhatsApp
+                  <MessageCircle className="h-4 w-4" strokeWidth={2.2} />
+                  Enquire on WhatsApp
                 </button>
               </div>
 
@@ -608,9 +621,10 @@ export default function PackageDetailPage() {
                   {pkgIncluded.slice(0, 4).map((item) => (
                     <span
                       key={item}
-                      className="rounded-full bg-soft px-2.5 py-1 text-[10px] font-semibold text-ink"
+                      className="inline-flex items-center gap-1 rounded-full bg-soft px-2.5 py-1 text-[10px] font-semibold text-ink"
                     >
-                      ✓ {item.split('(')[0].trim()}
+                      <Check className="h-3 w-3 text-halal" strokeWidth={2.6} />
+                      {item.split('(')[0].trim()}
                     </span>
                   ))}
                   {pkgIncluded.length > 4 && (
