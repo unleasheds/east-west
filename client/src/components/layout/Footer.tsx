@@ -1,12 +1,11 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
-import { WHATSAPP_NUMBER } from '../../data/packages';
-import { settingsApi } from '../../lib/api';
+import { PACKAGES, WHATSAPP_NUMBER } from '../../data/packages';
 import { useStore } from '../../store/useStore';
-import { PackageType } from '../../types';
+import type { PackageType } from '../../types';
 
 const YEAR = new Date().getFullYear();
 const FALLBACK_PACKAGE_TYPES: PackageType[] = ['Family', 'Private', 'Honeymoon', 'Ramadan', 'Island', 'City'];
+const PACKAGE_TYPES = Array.from(new Set(PACKAGES.map((pkg) => pkg.type)));
 
 function scrollToPackages() {
   // Scroll past the hero + category chips to the packages grid
@@ -22,15 +21,7 @@ export default function Footer() {
   const navigate = useNavigate();
   const location = useLocation();
   const { setSearch, setActiveCategory } = useStore();
-  const { data: settings } = useQuery<Record<string, unknown[]>>({
-    queryKey: ['settings'],
-    queryFn: () => settingsApi.getAll(),
-    staleTime: 5 * 60_000,
-  });
-
-  const packageTypes = (settings?.package_types?.filter(
-    (type): type is string => typeof type === 'string' && type.trim().length > 0,
-  ) ?? FALLBACK_PACKAGE_TYPES);
+  const packageTypes = PACKAGE_TYPES.length > 0 ? PACKAGE_TYPES : FALLBACK_PACKAGE_TYPES;
 
   function goToDestination(dest: string) {
     setSearch({ destination: dest });
