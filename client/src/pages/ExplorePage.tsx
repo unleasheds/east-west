@@ -68,7 +68,7 @@ export default function ExplorePage() {
 
         {/* Package grid — Airbnb listing grid */}
         {isLoading ? (
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <div className="grid gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4">
             {Array.from({ length: 4 }).map((_, i) => (
               <div key={i} className="animate-pulse rounded-3xl bg-white shadow-card">
                 <div className="h-56 rounded-t-3xl bg-soft" />
@@ -80,7 +80,7 @@ export default function ExplorePage() {
             ))}
           </div>
         ) : filtered.length > 0 ? (
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <div className="grid gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4">
             {filtered.map((pkg) => (
               <PackageCard key={pkg.id} pkg={pkg} />
             ))}

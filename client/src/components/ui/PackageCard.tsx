@@ -78,14 +78,14 @@ export default function PackageCard({ pkg }: Props) {
                   key={i}
                   src={src}
                   alt={`${pkg.title} photo ${i + 1}`}
-                  className="aspect-[4/3] w-full shrink-0 object-cover"
+                  className="aspect-[16/9] w-full shrink-0 object-cover sm:aspect-[4/3]"
                   draggable={false}
                 />
               ))}
             </div>
           ) : (
             <div
-              className="aspect-[4/3] w-full"
+              className="aspect-[16/9] w-full sm:aspect-[4/3]"
               style={{ background: pkg.imageGradient }}
             />
           )}
