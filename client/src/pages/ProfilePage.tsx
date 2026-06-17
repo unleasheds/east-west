@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useStore } from '../store/useStore';
 import { UserProfile } from '../types';
 import GoogleLoginButton from '../components/ui/GoogleLoginButton';
-import { LogOut, User as UserIcon } from 'lucide-react';
+import { LogOut, User as UserIcon, Luggage, Moon, ClipboardList, Lock, MessageCircle, Zap, ShieldCheck, CheckCircle } from 'lucide-react';
 
 function Completeness({ profile }: { profile: UserProfile }) {
   const fields = [profile.name, profile.phone, profile.email, profile.familySize, profile.budget, profile.preferences];
@@ -53,9 +53,9 @@ function GoogleAvatar({ name, avatar }: { name?: string; avatar?: string }) {
 // ── Sign-in screen (not authenticated) ──────────────────────────────────────
 function SignInPanel() {
   const PERKS = [
-    { icon: '🧳', label: 'Saved wishlist syncs', body: 'Your saved packages follow you across devices.' },
-    { icon: '🕌', label: 'Halal preferences', body: 'We remember your dietary and prayer needs for every booking.' },
-    { icon: '📋', label: 'Trip history', body: 'All your requests in one place, with status tracking.' },
+    { Icon: Luggage,       label: 'Saved wishlist syncs', body: 'Your saved packages follow you across devices.' },
+    { Icon: Moon,          label: 'Halal preferences',    body: 'We remember your dietary and prayer needs for every booking.' },
+    { Icon: ClipboardList, label: 'Trip history',         body: 'All your requests in one place, with status tracking.' },
   ];
 
   return (
@@ -74,12 +74,14 @@ function SignInPanel() {
         </div>
 
         <div className="mt-8 space-y-3 text-left">
-          {PERKS.map((i) => (
-            <div key={i.label} className="flex gap-3 rounded-2xl bg-soft p-4">
-              <span className="text-xl">{i.icon}</span>
+          {PERKS.map(({ Icon, label, body }) => (
+            <div key={label} className="flex gap-3 rounded-2xl bg-soft p-4">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white">
+                <Icon className="h-4 w-4 text-brand" />
+              </div>
               <div>
-                <p className="text-sm font-bold text-ink">{i.label}</p>
-                <p className="mt-0.5 text-xs text-muted">{i.body}</p>
+                <p className="text-sm font-bold text-ink">{label}</p>
+                <p className="mt-0.5 text-xs text-muted">{body}</p>
               </div>
             </div>
           ))}
@@ -131,7 +133,7 @@ export default function ProfilePage() {
                   </span>
                   {user.isAdmin && (
                     <span className="inline-flex items-center gap-1.5 rounded-full bg-ink px-3 py-1 text-xs font-bold text-white">
-                      ⚡ Admin
+                      <Zap className="h-3 w-3" /> Admin
                     </span>
                   )}
                 </div>
@@ -151,14 +153,16 @@ export default function ProfilePage() {
 
           <div className="space-y-3">
             {[
-              { icon: '🔒', label: 'Private & secure', body: 'Your data is stored locally and never sold to third parties.' },
-              { icon: '💬', label: 'Faster quotes', body: 'Your saved preferences auto-fill every WhatsApp trip request.' },
-            ].map((i) => (
-              <div key={i.label} className="flex gap-4 rounded-2xl bg-white p-5 shadow-card">
-                <span className="text-2xl">{i.icon}</span>
+              { Icon: Lock,          label: 'Private & secure', body: 'Your data is stored locally and never sold to third parties.' },
+              { Icon: MessageCircle, label: 'Faster quotes',    body: 'Your saved preferences auto-fill every WhatsApp trip request.' },
+            ].map(({ Icon, label, body }) => (
+              <div key={label} className="flex gap-4 rounded-2xl bg-white p-5 shadow-card">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-light">
+                  <Icon className="h-5 w-5 text-brand" />
+                </div>
                 <div>
-                  <h4 className="font-black text-ink">{i.label}</h4>
-                  <p className="mt-1 text-sm leading-relaxed text-muted">{i.body}</p>
+                  <h4 className="font-black text-ink">{label}</h4>
+                  <p className="mt-1 text-sm leading-relaxed text-muted">{body}</p>
                 </div>
               </div>
             ))}
@@ -172,8 +176,8 @@ export default function ProfilePage() {
               <p className="section-label">Your details</p>
               <h2 className="mt-1 text-2xl font-black text-ink">Travel preferences</h2>
             </div>
-            <span className="rounded-full bg-halal-light px-3 py-1.5 text-xs font-bold text-halal">
-              ✓ Private &amp; secure
+            <span className="inline-flex items-center gap-1 rounded-full bg-halal-light px-3 py-1.5 text-xs font-bold text-halal">
+              <ShieldCheck className="h-3 w-3" /> Private &amp; secure
             </span>
           </div>
 
@@ -209,8 +213,14 @@ export default function ProfilePage() {
           </div>
 
           <div className="mt-5 flex flex-wrap gap-2">
-            {['🔒 Never shared', '✓ Saves instantly', '💬 Pre-fills WhatsApp'].map((b) => (
-              <span key={b} className="rounded-full bg-soft px-3 py-1.5 text-[11px] font-semibold text-muted">{b}</span>
+            {[
+              { Icon: Lock,          label: 'Never shared'       },
+              { Icon: CheckCircle,   label: 'Saves instantly'    },
+              { Icon: MessageCircle, label: 'Pre-fills WhatsApp' },
+            ].map(({ Icon, label }) => (
+              <span key={label} className="flex items-center gap-1.5 rounded-full bg-soft px-3 py-1.5 text-[11px] font-semibold text-muted">
+                <Icon className="h-3 w-3" /> {label}
+              </span>
             ))}
           </div>
 

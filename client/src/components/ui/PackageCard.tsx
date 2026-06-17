@@ -54,7 +54,7 @@ export default function PackageCard({ pkg }: Props) {
   )}`;
 
   return (
-    <article className="group cursor-pointer">
+    <article className="group w-full min-w-0 cursor-pointer overflow-hidden">
       {/* ── Image / carousel ─────────────────────────────────────────────── */}
       <div
         className="relative overflow-hidden rounded-2xl"
@@ -70,7 +70,7 @@ export default function PackageCard({ pkg }: Props) {
         >
           {images.length > 0 ? (
             <div
-              className="flex transition-transform duration-300 ease-out"
+              className="flex w-full transition-transform duration-300 ease-out"
               style={{ transform: `translateX(-${imgIdx * 100}%)` }}
             >
               {images.map((src, i) => (

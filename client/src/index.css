@@ -9,7 +9,7 @@
 
   body {
     font-family: 'Inter', system-ui, sans-serif;
-    @apply bg-sand text-ink antialiased;
+    @apply bg-white text-ink antialiased;
     overflow-x: hidden;
   }
 
@@ -20,7 +20,7 @@
 
 @layer components {
   .btn-primary {
-    @apply rounded-full bg-gold px-6 py-3.5 text-sm font-bold text-white transition-all duration-150 hover:bg-gold-dark active:scale-95;
+    @apply rounded-full bg-brand px-6 py-3.5 text-sm font-bold text-white transition-all duration-150 hover:bg-brand-dark active:scale-95;
   }
   .btn-secondary {
     @apply rounded-full border border-border bg-white px-6 py-3.5 text-sm font-semibold text-ink transition-all duration-150 hover:border-ink active:scale-95;

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Plane, Calendar, Users, CreditCard, Clock, CheckCircle, Star, Timer, MessageCircle, X, Lock, Utensils, Moon } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import { TripRequest } from '../types';
 import { WHATSAPP_NUMBER } from '../data/packages';
@@ -65,28 +66,24 @@ function TripDetailPanel({ trip, onClose }: { trip: TripRequest; onClose: () => 
           onClick={onClose}
           className="flex h-8 w-8 items-center justify-center rounded-full bg-soft text-muted hover:text-ink"
         >
-          ✕
+          <X className="h-4 w-4" />
         </button>
       </div>
 
       {/* Details grid */}
       <div className="grid gap-3 p-6 sm:grid-cols-2">
         {[
-          { label: 'Destination', value: trip.destination, icon: '✈️' },
-          { label: 'Travel dates', value: trip.dates || 'Not specified', icon: '📅' },
-          { label: 'Travellers', value: trip.travellers || 'Not specified', icon: '👥' },
-          { label: 'Budget', value: trip.budget || 'Not specified', icon: '💳' },
-          { label: 'Submitted', value: date, icon: '🕐' },
-          {
-            label: 'Status',
-            value: trip.status.charAt(0).toUpperCase() + trip.status.slice(1),
-            icon: trip.status === 'confirmed' ? '✅' : trip.status === 'completed' ? '🎉' : '⏳',
-          },
-        ].map((row) => (
-          <div key={row.label} className="rounded-2xl bg-soft px-4 py-3">
-            <p className="text-[10px] font-bold uppercase tracking-wider text-muted">{row.label}</p>
+          { label: 'Destination',  value: trip.destination,                                            Icon: Plane      },
+          { label: 'Travel dates', value: trip.dates       || 'Not specified',                         Icon: Calendar   },
+          { label: 'Travellers',   value: trip.travellers  || 'Not specified',                         Icon: Users      },
+          { label: 'Budget',       value: trip.budget      || 'Not specified',                         Icon: CreditCard },
+          { label: 'Submitted',    value: date,                                                        Icon: Clock      },
+          { label: 'Status',       value: trip.status.charAt(0).toUpperCase() + trip.status.slice(1), Icon: trip.status === 'confirmed' ? CheckCircle : trip.status === 'completed' ? Star : Timer },
+        ].map(({ label, value, Icon }) => (
+          <div key={label} className="rounded-2xl bg-soft px-4 py-3">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-muted">{label}</p>
             <p className="mt-1 flex items-center gap-1.5 text-sm font-semibold text-ink">
-              <span>{row.icon}</span> {row.value}
+              <Icon className="h-3.5 w-3.5 shrink-0 text-muted" /> {value}
             </p>
           </div>
         ))}
@@ -116,9 +113,9 @@ function TripDetailPanel({ trip, onClose }: { trip: TripRequest; onClose: () => 
             href={`https://wa.me/${WHATSAPP_NUMBER}?text=${waMsg}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex-1 rounded-full bg-halal py-3.5 text-center text-sm font-bold text-white transition hover:bg-halal-dark"
+            className="flex flex-1 items-center justify-center gap-2 rounded-full bg-halal py-3.5 text-sm font-bold text-white transition hover:bg-halal-dark"
           >
-            💬 Follow up on WhatsApp
+            <MessageCircle className="h-4 w-4" /> Follow up on WhatsApp
           </a>
           <button
             onClick={onClose}
@@ -188,8 +185,10 @@ export default function TripsPage() {
             </>
           ) : (
             <div className="rounded-3xl bg-white py-16 text-center shadow-card">
-              <p className="text-5xl">✈️</p>
-              <h3 className="mt-4 text-xl font-black text-ink">No trip requests yet</h3>
+              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-soft">
+                <Plane className="h-8 w-8 text-brand" />
+              </div>
+              <h3 className="text-xl font-black text-ink">No trip requests yet</h3>
               <p className="mt-2 text-sm text-muted">
                 Fill in the form to send your first free halal trip plan.
               </p>
@@ -200,7 +199,7 @@ export default function TripsPage() {
         {/* Right — request form */}
         <form onSubmit={handleSubmit} className="rounded-3xl bg-white p-6 shadow-card md:p-8">
           <div className="mb-2 inline-flex items-center gap-1.5 rounded-full bg-halal-light px-3 py-1.5 text-xs font-bold text-halal">
-            ✓ Free trip planning
+            <CheckCircle className="h-3 w-3" /> Free trip planning
           </div>
           <h2 className="mt-2 text-2xl font-black text-ink">Plan your halal trip</h2>
           <p className="mt-1 text-sm text-muted">
@@ -242,16 +241,23 @@ export default function TripsPage() {
 
           {/* Trust badges */}
           <div className="mt-5 flex flex-wrap gap-3 text-xs text-muted">
-            {['🍽️ Halal-verified', '🕌 Prayer-friendly', '💬 Reply within 2 hrs', '🔒 No card needed'].map((b) => (
-              <span key={b} className="rounded-full bg-soft px-3 py-1.5 font-semibold">{b}</span>
+            {[
+              { Icon: Utensils,      label: 'Halal-verified'      },
+              { Icon: Moon,          label: 'Prayer-friendly'      },
+              { Icon: MessageCircle, label: 'Reply within 2 hrs'  },
+              { Icon: Lock,          label: 'No card needed'       },
+            ].map(({ Icon, label }) => (
+              <span key={label} className="flex items-center gap-1.5 rounded-full bg-soft px-3 py-1.5 font-semibold">
+                <Icon className="h-3 w-3" /> {label}
+              </span>
             ))}
           </div>
 
           <button
             type="submit"
-            className="mt-5 w-full rounded-full bg-halal py-4 text-sm font-bold text-white transition hover:bg-halal-dark"
+            className="mt-5 flex w-full items-center justify-center gap-2 rounded-full bg-halal py-4 text-sm font-bold text-white transition hover:bg-halal-dark"
           >
-            💬 Send to WhatsApp &amp; save request
+            <MessageCircle className="h-4 w-4" /> Send to WhatsApp &amp; save request
           </button>
         </form>
       </div>
