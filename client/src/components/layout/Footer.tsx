@@ -1,8 +1,12 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { WHATSAPP_NUMBER } from '../../data/packages';
+import { settingsApi } from '../../lib/api';
 import { useStore } from '../../store/useStore';
+import { PackageType } from '../../types';
 
 const YEAR = new Date().getFullYear();
+const FALLBACK_PACKAGE_TYPES: PackageType[] = ['Family', 'Private', 'Honeymoon', 'Ramadan', 'Island', 'City'];
 
 function scrollToPackages() {
   // Scroll past the hero + category chips to the packages grid
@@ -18,6 +22,15 @@ export default function Footer() {
   const navigate = useNavigate();
   const location = useLocation();
   const { setSearch, setActiveCategory } = useStore();
+  const { data: settings } = useQuery<Record<string, unknown[]>>({
+    queryKey: ['settings'],
+    queryFn: () => settingsApi.getAll(),
+    staleTime: 5 * 60_000,
+  });
+
+  const packageTypes = (settings?.package_types?.filter(
+    (type): type is string => typeof type === 'string' && type.trim().length > 0,
+  ) ?? FALLBACK_PACKAGE_TYPES);
 
   function goToDestination(dest: string) {
     setSearch({ destination: dest });
@@ -181,23 +194,17 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Services */}
+          {/* Package Types */}
           <div>
-            <h4 className="section-label mb-4">Services</h4>
+            <h4 className="section-label mb-4">Package Types</h4>
             <ul className="space-y-2.5 text-sm">
-              {[
-                { label: 'Family packages',  type: 'Family'    },
-                { label: 'Honeymoon stays',  type: 'Honeymoon' },
-                { label: 'Private tours',    type: 'Private'   },
-                { label: 'Ramadan trips',    type: 'Ramadan'   },
-                { label: 'City breaks',      type: 'City'      },
-              ].map(({ label, type }) => (
-                <li key={label}>
+              {packageTypes.map((type) => (
+                <li key={type}>
                   <button
                     onClick={() => goToType(type)}
                     className="text-muted transition hover:text-ink"
                   >
-                    {label}
+                    {type}
                   </button>
                 </li>
               ))}
