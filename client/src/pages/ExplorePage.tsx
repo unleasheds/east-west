@@ -46,7 +46,7 @@ export default function ExplorePage() {
         <div className="mb-6 flex items-end justify-between">
           <div>
             <p className="section-label">Ready to book</p>
-            <h2 className="mt-1 flex items-center gap-3 text-3xl font-black text-ink md:text-4xl">
+            <h2 className="mt-1 flex items-center gap-2 text-xl font-black text-ink sm:text-3xl md:text-4xl">
               {activeCategory === 'All' ? 'All halal escapes' : `${activeCategory} packages`}
               <span className="rounded-full bg-soft px-3 py-1 text-sm font-bold text-muted">
                 {filtered.length}

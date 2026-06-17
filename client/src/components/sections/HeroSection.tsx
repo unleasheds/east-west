@@ -104,22 +104,22 @@ export default function HeroSection() {
           {/* ── Left ── */}
           <div>
             {/* Trust badge */}
-            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-halal/30 bg-halal-light px-4 py-2 text-xs font-bold text-halal">
-              <span className="relative flex h-2 w-2">
+            <div className="mb-5 inline-flex max-w-full items-center gap-2 overflow-hidden rounded-full border border-halal/30 bg-halal-light px-4 py-2 text-xs font-bold text-halal">
+              <span className="relative flex h-2 w-2 shrink-0">
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-halal opacity-75" />
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-halal" />
               </span>
-              Muslim-friendly · Halal-verified · Private tours
+              <span className="truncate">Muslim-friendly · Halal-verified · Private tours</span>
             </div>
 
             {/* Headline */}
-            <h1 className="max-w-xl text-[2.25rem] font-black leading-[0.92] tracking-tight text-ink sm:text-5xl md:text-7xl lg:text-[80px]">
+            <h1 className="max-w-xl text-[1.9rem] font-black leading-[0.95] tracking-tight text-ink sm:text-5xl md:text-7xl lg:text-[80px]">
               Halal Travel,
               <br />
               <span className="text-brand">Made Simple.</span>
             </h1>
 
-            <p className="mt-5 max-w-md text-base leading-relaxed text-muted">
+            <p className="mt-4 max-w-md text-sm leading-relaxed text-muted sm:text-base">
               Verified halal hotels, private tours and prayer-friendly itineraries —
               planned for you on WhatsApp.
             </p>
@@ -343,15 +343,15 @@ export default function HeroSection() {
             </form>
 
             {/* CTAs */}
-            <div className="mt-5 flex flex-wrap items-center gap-3">
-              <button onClick={() => navigate('/trips')} className="btn-primary flex items-center gap-2">
+            <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+              <button onClick={() => navigate('/trips')} className="btn-primary flex w-full items-center justify-center gap-2 sm:w-auto">
                 <Plane className="h-4 w-4" /> Free trip plan
               </button>
               <a
                 href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent('Hi EastWest Halal Travel, I want help planning a halal-friendly trip.')}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn-halal flex items-center gap-2"
+                className="btn-halal flex w-full items-center justify-center gap-2 sm:w-auto"
               >
                 <MessageCircle className="h-4 w-4" /> Chat on WhatsApp
               </a>

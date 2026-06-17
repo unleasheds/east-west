@@ -5,11 +5,12 @@
 @layer base {
   *, *::before, *::after { box-sizing: border-box; }
 
-  html { scroll-behavior: smooth; }
+  html { scroll-behavior: smooth; overflow-x: hidden; }
 
   body {
     font-family: 'Inter', system-ui, sans-serif;
     @apply bg-sand text-ink antialiased;
+    overflow-x: hidden;
   }
 
   input, textarea, select { font-family: inherit; }
