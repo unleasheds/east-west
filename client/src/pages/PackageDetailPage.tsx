@@ -83,6 +83,11 @@ export default function PackageDetailPage() {
 
   const saved = isSaved(pkg.id);
   const totalCents = pkg.priceValue > 0 ? pkg.priceValue * travellers * 100 : 0;
+  const pkgImages = Array.isArray(pkg.images) ? pkg.images : [];
+  const pkgHighlights = Array.isArray(pkg.highlights) ? pkg.highlights : [];
+  const pkgItinerary = Array.isArray(pkg.itinerary) ? pkg.itinerary : [];
+  const pkgIncluded = Array.isArray(pkg.included) ? pkg.included : [];
+  const pkgExcluded = Array.isArray(pkg.excluded) ? pkg.excluded : [];
 
   function openCheckout() {
     if (!pkg) return;
@@ -148,16 +153,16 @@ export default function PackageDetailPage() {
                 onTouchStart={(e) => { heroTouchX.current = e.touches[0].clientX; }}
                 onTouchEnd={(e) => {
                   const dx = e.changedTouches[0].clientX - heroTouchX.current;
-                  if (dx > 40) setHeroIdx((i) => (i === 0 ? pkg.images.length - 1 : i - 1));
-                  else if (dx < -40) setHeroIdx((i) => (i === pkg.images.length - 1 ? 0 : i + 1));
+                  if (dx > 40) setHeroIdx((i) => (i === 0 ? pkgImages.length - 1 : i - 1));
+                  else if (dx < -40) setHeroIdx((i) => (i === pkgImages.length - 1 ? 0 : i + 1));
                 }}
               >
-                {pkg.images.length > 0 ? (
+                {pkgImages.length > 0 ? (
                   <div
                     className="flex transition-transform duration-300 ease-out"
                     style={{ transform: `translateX(-${heroIdx * 100}%)` }}
                   >
-                    {pkg.images.map((src, i) => (
+                    {pkgImages.map((src, i) => (
                       <img
                         key={i}
                         src={src}
@@ -178,7 +183,7 @@ export default function PackageDetailPage() {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
 
                 {/* Left arrow */}
-                {pkg.images.length > 1 && heroIdx > 0 && (
+                {pkgImages.length > 1 && heroIdx > 0 && (
                   <button
                     onClick={() => setHeroIdx((i) => i - 1)}
                     className="absolute left-3 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 shadow-md backdrop-blur-sm transition hover:scale-110"
@@ -189,7 +194,7 @@ export default function PackageDetailPage() {
                   </button>
                 )}
                 {/* Right arrow */}
-                {pkg.images.length > 1 && heroIdx < pkg.images.length - 1 && (
+                {pkgImages.length > 1 && heroIdx < pkgImages.length - 1 && (
                   <button
                     onClick={() => setHeroIdx((i) => i + 1)}
                     className="absolute right-3 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 shadow-md backdrop-blur-sm transition hover:scale-110"
@@ -201,9 +206,9 @@ export default function PackageDetailPage() {
                 )}
 
                 {/* Image counter */}
-                {pkg.images.length > 1 && (
+                {pkgImages.length > 1 && (
                   <div className="absolute bottom-4 right-4 rounded-full bg-black/60 px-2.5 py-1 text-xs font-bold text-white backdrop-blur-sm">
-                    {heroIdx + 1} / {pkg.images.length}
+                    {heroIdx + 1} / {pkgImages.length}
                   </div>
                 )}
 
@@ -252,9 +257,9 @@ export default function PackageDetailPage() {
               </div>
 
               {/* Thumbnail strip */}
-              {pkg.images.length > 1 && (
+              {pkgImages.length > 1 && (
                 <div className="mt-2 flex gap-2 overflow-x-auto pb-0.5 hide-scrollbar">
-                  {pkg.images.map((src, i) => (
+                  {pkgImages.map((src, i) => (
                     <button
                       key={i}
                       onClick={() => setHeroIdx(i)}
@@ -317,7 +322,7 @@ export default function PackageDetailPage() {
                 <div className="rounded-3xl bg-white p-6 shadow-card md:p-8">
                   <h3 className="text-xl font-black text-ink">Trip highlights</h3>
                   <ul className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
-                    {pkg.highlights.map((h) => (
+                    {pkgHighlights.map((h) => (
                       <li key={h} className="flex items-start gap-3 text-sm text-ink">
                         <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-halal-light text-halal text-xs font-bold">
                           ✓
@@ -365,7 +370,7 @@ export default function PackageDetailPage() {
                 <h3 className="text-xl font-black text-ink">Day-by-Day Itinerary</h3>
                 <p className="mt-1 text-xs text-muted">{pkg.duration}</p>
                 <div className="mt-5 space-y-2">
-                  {pkg.itinerary.map((day) => {
+                  {pkgItinerary.map((day) => {
                     const isOpen = openDay === day.day;
                     return (
                       <div key={day.day} className="overflow-hidden rounded-2xl border border-border">
@@ -419,7 +424,7 @@ export default function PackageDetailPage() {
                     Package Includes
                   </h3>
                   <ul className="mt-4 space-y-3">
-                    {pkg.included.map((item) => (
+                    {pkgIncluded.map((item) => (
                       <li key={item} className="flex items-start gap-3 text-sm text-ink">
                         <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-halal-light text-halal text-xs font-bold">
                           ✓
@@ -430,7 +435,7 @@ export default function PackageDetailPage() {
                   </ul>
                 </div>
 
-                {pkg.excluded && pkg.excluded.length > 0 && (
+                {pkgExcluded.length > 0 && (
                   <div className="rounded-3xl bg-white p-6 shadow-card md:p-8">
                     <h3 className="flex items-center gap-2 text-xl font-black text-ink">
                       <span className="flex h-7 w-7 items-center justify-center rounded-full bg-red-50 text-red-400 text-sm">
@@ -439,7 +444,7 @@ export default function PackageDetailPage() {
                       Not Included
                     </h3>
                     <ul className="mt-4 space-y-3">
-                      {pkg.excluded.map((item) => (
+                      {pkgExcluded.map((item) => (
                         <li key={item} className="flex items-start gap-3 text-sm text-muted">
                           <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-red-50 text-red-400 text-xs font-bold">
                             ✕
@@ -600,7 +605,7 @@ export default function PackageDetailPage() {
                   What's included
                 </p>
                 <div className="flex flex-wrap gap-1.5">
-                  {pkg.included.slice(0, 4).map((item) => (
+                  {pkgIncluded.slice(0, 4).map((item) => (
                     <span
                       key={item}
                       className="rounded-full bg-soft px-2.5 py-1 text-[10px] font-semibold text-ink"
@@ -608,12 +613,12 @@ export default function PackageDetailPage() {
                       ✓ {item.split('(')[0].trim()}
                     </span>
                   ))}
-                  {pkg.included.length > 4 && (
+                  {pkgIncluded.length > 4 && (
                     <button
                       onClick={() => setTab('includes')}
                       className="rounded-full bg-brand-light px-2.5 py-1 text-[10px] font-bold text-brand"
                     >
-                      +{pkg.included.length - 4} more
+                      +{pkgIncluded.length - 4} more
                     </button>
                   )}
                 </div>

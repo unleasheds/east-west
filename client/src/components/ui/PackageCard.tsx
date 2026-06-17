@@ -97,7 +97,7 @@ export default function PackageCard({ pkg }: Props) {
         {hasMultiple && imgIdx > 0 && (
           <button
             onClick={prevImg}
-            className="absolute left-2 top-1/2 z-10 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-md opacity-0 transition-opacity group-hover:opacity-100 hover:scale-110"
+            className="absolute left-2 top-1/2 z-10 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-md transition-opacity opacity-100 md:opacity-0 md:group-hover:opacity-100 hover:scale-110"
             aria-label="Previous image"
           >
             <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth={2.5}>
@@ -110,7 +110,7 @@ export default function PackageCard({ pkg }: Props) {
         {hasMultiple && imgIdx < images.length - 1 && (
           <button
             onClick={nextImg}
-            className="absolute right-2 top-1/2 z-10 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-md opacity-0 transition-opacity group-hover:opacity-100 hover:scale-110"
+            className="absolute right-2 top-1/2 z-10 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-md transition-opacity opacity-100 md:opacity-0 md:group-hover:opacity-100 hover:scale-110"
             aria-label="Next image"
           >
             <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth={2.5}>

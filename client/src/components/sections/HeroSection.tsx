@@ -113,7 +113,7 @@ export default function HeroSection() {
             </div>
 
             {/* Headline */}
-            <h1 className="max-w-xl text-5xl font-black leading-[0.92] tracking-tight text-ink md:text-7xl lg:text-[80px]">
+            <h1 className="max-w-xl text-[2.25rem] font-black leading-[0.92] tracking-tight text-ink sm:text-5xl md:text-7xl lg:text-[80px]">
               Halal Travel,
               <br />
               <span className="text-brand">Made Simple.</span>
@@ -358,7 +358,7 @@ export default function HeroSection() {
             </div>
 
             {/* Stats strip */}
-            <div className="mt-7 grid grid-cols-4 divide-x divide-border rounded-2xl border border-border bg-white">
+            <div className="mt-7 grid grid-cols-2 divide-x divide-y divide-border rounded-2xl border border-border bg-white sm:grid-cols-4 sm:divide-y-0">
               {STATS.map(({ value, label, star }) => (
                 <div key={label} className="px-4 py-3 text-center">
                   <p className="flex items-center justify-center gap-1 text-base font-black text-ink md:text-lg">

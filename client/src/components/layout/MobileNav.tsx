@@ -12,7 +12,7 @@ const NAV = [
 export default function MobileNav() {
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-white/95 backdrop-blur-md shadow-bar md:hidden">
-      <div className="grid grid-cols-5 px-1 pb-safe pt-1 pb-2">
+      <div className="grid grid-cols-5 px-1 pt-1 pb-2" style={{ paddingBottom: 'max(8px, env(safe-area-inset-bottom))' }}>
         {NAV.map(({ to, Icon, label }) => (
           <NavLink
             key={to}
