@@ -1,6 +1,6 @@
 import { Package } from '../types';
 
-export const WHATSAPP_NUMBER = '971569749429';
+export const WHATSAPP_NUMBER = '9609411751';
 
 export const CATEGORIES = [
   { label: 'All',      icon: '🌍' },

@@ -10,7 +10,6 @@
   body {
     font-family: 'Inter', system-ui, sans-serif;
     @apply bg-white text-ink antialiased;
-    overflow-x: hidden;
   }
 
   input, textarea, select { font-family: inherit; }
