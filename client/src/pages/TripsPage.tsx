@@ -142,17 +142,21 @@ export default function TripsPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    const msg = encodeURIComponent(
+      `Hi EastWest Halal Travel, I want a halal travel plan.\n\nDestination: ${form.destination}\nDates: ${form.dates}\nTravellers: ${form.travellers}\nBudget: ${form.budget}\nSpecial needs: ${form.needs}`
+    );
+
+    // Open WhatsApp directly from the submit event. Waiting for the API request
+    // first causes browsers to treat this as an unsolicited popup and block it.
+    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`, '_blank');
+
     addTrip(form);
-    // Persist to server (best-effort — don't block UX on failure)
+    // Persist to server (best-effort — don't block WhatsApp on an API failure)
     try {
       await tripsApi.create({ ...form, userId: user?.id });
     } catch {
       // silently ignore — trip is still saved locally
     }
-    const msg = encodeURIComponent(
-      `Hi EastWest Halal Travel, I want a halal travel plan.\n\nDestination: ${form.destination}\nDates: ${form.dates}\nTravellers: ${form.travellers}\nBudget: ${form.budget}\nSpecial needs: ${form.needs}`
-    );
-    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`, '_blank');
     setForm({ destination: '', dates: '', travellers: '', budget: '', needs: '' });
     showToast('Trip request sent!', 'success');
   }
