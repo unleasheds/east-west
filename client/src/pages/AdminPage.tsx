@@ -6,6 +6,7 @@ import {
   Trash2, ToggleLeft, ToggleRight, ShieldCheck, ShieldOff, Check, X, Settings,
   Star, CheckCircle2, XCircle, Calendar, CreditCard, Clock, Plane,
   Tag, Globe, FileText, AlertCircle, Layers, ChevronUp, ChevronDown,
+  Image as ImageIcon, Upload, Loader2,
 } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import { adminApi, settingsApi } from '../lib/api';
@@ -25,6 +26,7 @@ interface AdminPackage {
   priceValue: number;
   childPrice?: string;
   description?: string;
+  images?: string[];
   imageGradient?: string;
   highlights?: string[];
   itinerary?: { day: number; title: string; activities: string[] }[];
@@ -55,6 +57,161 @@ interface AdminTrip {
   needs: string;
   status: 'pending' | 'confirmed' | 'completed';
   createdAt: string;
+}
+
+function PackageImageManager({
+  images,
+  onChange,
+}: {
+  images: string[];
+  onChange: (images: string[]) => void;
+}) {
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState('');
+  const [dragging, setDragging] = useState(false);
+
+  async function upload(files: File[]) {
+    if (!files.length || uploading) return;
+    const available = Math.max(0, 12 - images.length);
+    const selected = files.slice(0, available);
+    if (!selected.length) {
+      setError('A package can have up to 12 photos.');
+      return;
+    }
+
+    setUploading(true);
+    setError('');
+    const uploaded: string[] = [];
+    try {
+      for (const file of selected) {
+        const result = await adminApi.uploadPackageImage(file);
+        uploaded.push(result.url);
+      }
+      if (files.length > selected.length) {
+        setError('Only the first available photos were uploaded (12 maximum).');
+      }
+    } catch (err: any) {
+      setError(err?.response?.data?.message ?? 'Upload failed. Please try again.');
+    } finally {
+      if (uploaded.length) onChange([...images, ...uploaded]);
+      setUploading(false);
+    }
+  }
+
+  function move(from: number, to: number) {
+    if (to < 0 || to >= images.length) return;
+    const next = [...images];
+    const [image] = next.splice(from, 1);
+    next.splice(to, 0, image);
+    onChange(next);
+  }
+
+  return (
+    <div className="space-y-5">
+      <div>
+        <div className="mb-1 flex items-center gap-2">
+          <ImageIcon className="h-5 w-5 text-brand" />
+          <p className="text-base font-black text-ink">Package Photos</p>
+        </div>
+        <p className="text-xs text-muted">
+          Upload up to 12 JPG, PNG, WebP, or GIF images. The first photo is the cover.
+        </p>
+      </div>
+
+      <label
+        onDragEnter={(e) => { e.preventDefault(); setDragging(true); }}
+        onDragOver={(e) => e.preventDefault()}
+        onDragLeave={(e) => { e.preventDefault(); setDragging(false); }}
+        onDrop={(e) => {
+          e.preventDefault();
+          setDragging(false);
+          void upload(Array.from(e.dataTransfer.files));
+        }}
+        className={`flex min-h-36 cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed px-6 py-8 text-center transition ${
+          dragging ? 'border-brand bg-brand-light' : 'border-border bg-soft/40 hover:border-brand/60'
+        }`}
+      >
+        <input
+          type="file"
+          accept="image/jpeg,image/png,image/webp,image/gif"
+          multiple
+          disabled={uploading || images.length >= 12}
+          className="sr-only"
+          onChange={(e) => {
+            void upload(Array.from(e.target.files ?? []));
+            e.target.value = '';
+          }}
+        />
+        {uploading ? (
+          <>
+            <Loader2 className="h-8 w-8 animate-spin text-brand" />
+            <p className="mt-3 text-sm font-bold text-ink">Uploading photos…</p>
+          </>
+        ) : (
+          <>
+            <Upload className="h-8 w-8 text-brand" />
+            <p className="mt-3 text-sm font-bold text-ink">Drop photos here or click to browse</p>
+            <p className="mt-1 text-xs text-muted">Maximum 8 MB per image</p>
+          </>
+        )}
+      </label>
+
+      {error && (
+        <div className="flex items-start gap-2 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600">
+          <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+          <span>{error}</span>
+        </div>
+      )}
+
+      {images.length > 0 && (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {images.map((url, index) => (
+            <div key={`${url}-${index}`} className="overflow-hidden rounded-2xl border border-border bg-white">
+              <div className="relative aspect-[4/3] bg-soft">
+                <img src={url} alt={`Package photo ${index + 1}`} className="h-full w-full object-cover" />
+                {index === 0 && (
+                  <span className="absolute left-2 top-2 rounded-full bg-ink/85 px-2.5 py-1 text-[10px] font-black uppercase tracking-wide text-white">
+                    Cover
+                  </span>
+                )}
+                <button
+                  type="button"
+                  onClick={() => onChange(images.filter((_, i) => i !== index))}
+                  className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-white/95 text-red-500 shadow hover:bg-red-50"
+                  title="Remove photo"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              </div>
+              <div className="flex items-center justify-between gap-2 px-3 py-2">
+                <span className="text-xs font-semibold text-muted">Photo {index + 1}</span>
+                <div className="flex gap-1">
+                  <button
+                    type="button"
+                    disabled={index === 0}
+                    onClick={() => move(index, index - 1)}
+                    className="rounded-lg p-1.5 text-muted hover:bg-soft hover:text-ink disabled:opacity-30"
+                    title="Move earlier"
+                  >
+                    <ChevronUp className="h-4 w-4" />
+                  </button>
+                  <button
+                    type="button"
+                    disabled={index === images.length - 1}
+                    onClick={() => move(index, index + 1)}
+                    className="rounded-lg p-1.5 text-muted hover:bg-soft hover:text-ink disabled:opacity-30"
+                    title="Move later"
+                  >
+                    <ChevronDown className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 }
 
 // ── Packages Tab ─────────────────────────────────────────────────────────────
@@ -330,6 +487,7 @@ function PackageForm({
   });
 
   const [highlights, setHighlights] = useState<string[]>(initial?.highlights ?? []);
+  const [images, setImages] = useState<string[]>(initial?.images ?? []);
   const [itinerary, setItinerary] = useState<{ day: number; title: string; activities: string[] }[]>(
     initial?.itinerary ?? []
   );
@@ -345,6 +503,7 @@ function PackageForm({
       ...basics,
       childPrice: basics.childPrice || null,
       priceValue: Number(basics.priceValue),
+      images,
       highlights,
       itinerary: itinerary.map((d) => ({
         ...d,
@@ -357,6 +516,7 @@ function PackageForm({
 
   const STEPS: { label: string; Icon: React.ElementType }[] = [
     { label: 'Basic Info', Icon: FileText      },
+    { label: 'Photos',     Icon: ImageIcon     },
     { label: 'Highlights', Icon: Star          },
     { label: 'Itinerary',  Icon: Calendar      },
     { label: 'Includes',   Icon: CheckCircle2  },
@@ -526,8 +686,13 @@ function PackageForm({
           </>
         )}
 
-        {/* ── Step 1: Highlights ── */}
+        {/* ── Step 1: Photos ── */}
         {step === 1 && (
+          <PackageImageManager images={images} onChange={setImages} />
+        )}
+
+        {/* ── Step 2: Highlights ── */}
+        {step === 2 && (
           <ListBuilder
             label="Trip Highlights"
             hint="Key selling points shown on the package page (aim for 5–8)"
@@ -539,13 +704,13 @@ function PackageForm({
           />
         )}
 
-        {/* ── Step 2: Itinerary ── */}
-        {step === 2 && (
+        {/* ── Step 3: Itinerary ── */}
+        {step === 3 && (
           <ItineraryBuilder itinerary={itinerary} onChange={setItinerary} />
         )}
 
-        {/* ── Step 3: Includes / Excludes ── */}
-        {step === 3 && (
+        {/* ── Step 4: Includes / Excludes ── */}
+        {step === 4 && (
           <div className="space-y-5">
             <ListBuilder
               label="Package Includes"

@@ -8,17 +8,24 @@ import {
   Patch,
   Post,
   Query,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { PackagesService } from './packages.service';
 import { CreatePackageDto } from './dto/create-package.dto';
 import { UpdatePackageDto } from './dto/update-package.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AdminGuard } from '../auth/guards/admin.guard';
+import { PackageImagesService, UploadedImage } from './package-images.service';
 
 @Controller('packages')
 export class PackagesController {
-  constructor(private readonly svc: PackagesService) {}
+  constructor(
+    private readonly svc: PackagesService,
+    private readonly images: PackageImagesService,
+  ) {}
 
   @Get()
   findAll(@Query('type') type?: string, @Query('destination') destination?: string) {
@@ -36,6 +43,13 @@ export class PackagesController {
   @Get('slug/:slug')
   findBySlug(@Param('slug') slug: string) {
     return this.svc.findBySlug(slug);
+  }
+
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  @Post('images')
+  @UseInterceptors(FileInterceptor('image', { limits: { fileSize: 8 * 1024 * 1024 } }))
+  uploadImage(@UploadedFile() file: UploadedImage) {
+    return this.images.upload(file);
   }
 
   @Get(':id')

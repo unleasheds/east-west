@@ -76,6 +76,13 @@ export const adminApi = {
   createPackage: (data: object) => api.post('/packages', data).then((r) => r.data),
   updatePackage: (id: string, data: object) => api.patch(`/packages/${id}`, data).then((r) => r.data),
   deletePackage: (id: string) => api.delete(`/packages/${id}`).then((r) => r.data),
+  uploadPackageImage: (file: File) => {
+    const data = new FormData();
+    data.append('image', file);
+    return api.post<{ url: string; key: string }>('/packages/images', data, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    }).then((r) => r.data);
+  },
   // Users
   getAllUsers: () => api.get('/users').then((r) => r.data),
   setAdmin: (id: string, isAdmin: boolean) => api.patch(`/users/${id}/admin`, { isAdmin }).then((r) => r.data),
