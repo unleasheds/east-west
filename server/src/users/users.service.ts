@@ -1,14 +1,26 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
+import { UserActivity } from './entities/user-activity.entity';
+import { Package } from '../packages/entities/package.entity';
+import { Trip } from '../trips/entities/trip.entity';
+import { Wishlist } from '../wishlist/entities/wishlist.entity';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly repo: Repository<User>,
+    @InjectRepository(UserActivity)
+    private readonly activities: Repository<UserActivity>,
+    @InjectRepository(Package)
+    private readonly packages: Repository<Package>,
+    @InjectRepository(Trip)
+    private readonly trips: Repository<Trip>,
+    @InjectRepository(Wishlist)
+    private readonly wishlists: Repository<Wishlist>,
   ) {}
 
   async upsert(dto: CreateUserDto): Promise<User> {
@@ -33,6 +45,79 @@ export class UsersService {
 
   findAll() {
     return this.repo.find({ order: { createdAt: 'DESC' } });
+  }
+
+  async trackPackageView(userId: string, packageId: string) {
+    const pkg = await this.packages.findOne({ where: { id: packageId, isActive: true } });
+    if (!pkg) return { tracked: false };
+
+    let activity = await this.activities.findOne({ where: { userId, packageId } });
+    if (activity) {
+      activity.viewCount += 1;
+      activity.lastViewedAt = new Date();
+    } else {
+      activity = this.activities.create({
+        userId,
+        packageId,
+        viewCount: 1,
+        lastViewedAt: new Date(),
+      });
+    }
+    await this.activities.save(activity);
+    return { tracked: true };
+  }
+
+  async findAllWithActivity() {
+    const users = await this.repo.find({ order: { createdAt: 'DESC' } });
+    const userIds = users.map((user) => user.id);
+    if (!userIds.length) return [];
+
+    const [activities, trips, wishlists] = await Promise.all([
+      this.activities.find({
+        where: { userId: In(userIds) },
+        order: { lastViewedAt: 'DESC' },
+      }),
+      this.trips.find({ where: { userId: In(userIds) } }),
+      this.wishlists.find({ where: { userId: In(userIds) } }),
+    ]);
+    const packageIds = [...new Set(activities.map((activity) => activity.packageId))];
+    const packages = packageIds.length
+      ? await this.packages.find({ where: { id: In(packageIds) } })
+      : [];
+    const packageById = new Map(packages.map((pkg) => [pkg.id, pkg]));
+
+    return users.map((user) => {
+      const viewedPackages = activities
+        .filter((activity) => activity.userId === user.id)
+        .map((activity) => {
+          const pkg = packageById.get(activity.packageId);
+          return {
+            packageId: activity.packageId,
+            title: pkg?.title ?? 'Unavailable package',
+            slug: pkg?.slug,
+            destination: pkg?.destination,
+            viewCount: activity.viewCount,
+            lastViewedAt: activity.lastViewedAt,
+          };
+        });
+      return {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        avatar: user.avatar,
+        familySize: user.familySize,
+        budget: user.budget,
+        preferences: user.preferences,
+        isAdmin: user.isAdmin,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+        tripCount: trips.filter((trip) => trip.userId === user.id).length,
+        wishlistCount: wishlists.filter((item) => item.userId === user.id).length,
+        viewedPackages,
+        lastActivityAt: viewedPackages[0]?.lastViewedAt ?? null,
+      };
+    });
   }
 
   async setAdmin(id: string, isAdmin: boolean) {

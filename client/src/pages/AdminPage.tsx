@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
@@ -44,6 +44,22 @@ interface AdminUser {
   avatar: string;
   isAdmin: boolean;
   createdAt: string;
+  updatedAt: string;
+  phone?: string;
+  familySize?: string;
+  budget?: string;
+  preferences?: string;
+  tripCount: number;
+  wishlistCount: number;
+  lastActivityAt?: string | null;
+  viewedPackages: {
+    packageId: string;
+    title: string;
+    slug?: string;
+    destination?: string;
+    viewCount: number;
+    lastViewedAt: string;
+  }[];
 }
 
 interface AdminTrip {
@@ -917,6 +933,7 @@ function PackagesTab({ packageTypes, destinations }: { packageTypes: string[]; d
 function UsersTab() {
   const qc = useQueryClient();
   const { user: me } = useStore();
+  const [expanded, setExpanded] = useState<string | null>(null);
 
   const { data: users = [], isLoading } = useQuery<AdminUser[]>({
     queryKey: ['admin-users'],
@@ -938,13 +955,14 @@ function UsersTab() {
           <tr className="border-b border-border bg-soft/60">
             <th className="px-4 py-3 text-left text-xs font-black uppercase tracking-wider text-muted">User</th>
             <th className="px-4 py-3 text-left text-xs font-black uppercase tracking-wider text-muted">Email</th>
-            <th className="px-4 py-3 text-left text-xs font-black uppercase tracking-wider text-muted">Joined</th>
+            <th className="px-4 py-3 text-left text-xs font-black uppercase tracking-wider text-muted">Activity</th>
             <th className="px-4 py-3 text-right text-xs font-black uppercase tracking-wider text-muted">Admin</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-border">
           {users.map((u) => (
-            <tr key={u.id} className="hover:bg-soft/40 transition">
+            <Fragment key={u.id}>
+            <tr className="hover:bg-soft/40 transition">
               <td className="px-4 py-3">
                 <div className="flex items-center gap-3">
                   {u.avatar ? (
@@ -954,11 +972,28 @@ function UsersTab() {
                       {u.name?.[0] ?? '?'}
                     </div>
                   )}
-                  <span className="font-semibold text-ink">{u.name ?? '—'}</span>
+                  <div>
+                    <p className="font-semibold text-ink">{u.name ?? '—'}</p>
+                    <p className="text-[10px] text-muted">Joined {new Date(u.createdAt).toLocaleDateString()}</p>
+                  </div>
                 </div>
               </td>
               <td className="px-4 py-3 text-muted">{u.email}</td>
-              <td className="px-4 py-3 text-muted">{new Date(u.createdAt).toLocaleDateString()}</td>
+              <td className="px-4 py-3">
+                <button
+                  onClick={() => setExpanded(expanded === u.id ? null : u.id)}
+                  className="text-left text-xs text-muted transition hover:text-brand"
+                >
+                  <span className="font-bold text-ink">{u.viewedPackages.length}</span> viewed
+                  <span className="mx-1">·</span>
+                  <span className="font-bold text-ink">{u.tripCount}</span> trips
+                  <span className="mx-1">·</span>
+                  <span className="font-bold text-ink">{u.wishlistCount}</span> saved
+                  <span className="ml-2 font-bold text-brand">
+                    {expanded === u.id ? 'Hide ▲' : 'Details ▼'}
+                  </span>
+                </button>
+              </td>
               <td className="px-4 py-3 text-right">
                 <button
                   disabled={u.id === me?.id}
@@ -973,6 +1008,59 @@ function UsersTab() {
                 </button>
               </td>
             </tr>
+            {expanded === u.id && (
+              <tr key={`${u.id}-details`}>
+                <td colSpan={4} className="bg-soft/40 px-5 py-5">
+                  <div className="grid gap-4 lg:grid-cols-[.8fr_1.2fr]">
+                    <div className="rounded-2xl bg-white p-4 shadow-sm">
+                      <p className="text-xs font-black uppercase tracking-wider text-muted">User details</p>
+                      <dl className="mt-3 grid grid-cols-2 gap-3 text-sm">
+                        {[
+                          ['Phone', u.phone],
+                          ['Family size', u.familySize],
+                          ['Budget', u.budget],
+                          ['Last activity', u.lastActivityAt ? new Date(u.lastActivityAt).toLocaleString() : 'No activity'],
+                        ].map(([label, value]) => (
+                          <div key={label}>
+                            <dt className="text-[10px] font-bold uppercase tracking-wide text-muted">{label}</dt>
+                            <dd className="mt-0.5 font-semibold text-ink">{value || '—'}</dd>
+                          </div>
+                        ))}
+                      </dl>
+                      {u.preferences && (
+                        <div className="mt-4 border-t border-border pt-3">
+                          <p className="text-[10px] font-bold uppercase tracking-wide text-muted">Preferences</p>
+                          <p className="mt-1 text-sm text-ink">{u.preferences}</p>
+                        </div>
+                      )}
+                    </div>
+                    <div className="rounded-2xl bg-white p-4 shadow-sm">
+                      <p className="text-xs font-black uppercase tracking-wider text-muted">Packages viewed</p>
+                      {u.viewedPackages.length > 0 ? (
+                        <div className="mt-3 space-y-2">
+                          {u.viewedPackages.map((view) => (
+                            <div key={view.packageId} className="flex items-center justify-between gap-3 rounded-xl border border-border px-3 py-2.5">
+                              <div className="min-w-0">
+                                <p className="truncate text-sm font-bold text-ink">{view.title}</p>
+                                <p className="text-[11px] text-muted">
+                                  {view.destination || '—'} · Last viewed {new Date(view.lastViewedAt).toLocaleString()}
+                                </p>
+                              </div>
+                              <span className="shrink-0 rounded-full bg-brand-light px-2.5 py-1 text-xs font-black text-brand">
+                                {view.viewCount} view{view.viewCount === 1 ? '' : 's'}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="mt-4 text-sm text-muted">No package views recorded yet.</p>
+                      )}
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            )}
+            </Fragment>
           ))}
         </tbody>
       </table>

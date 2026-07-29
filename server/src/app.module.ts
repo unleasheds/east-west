@@ -16,6 +16,7 @@ import { Wishlist } from './wishlist/entities/wishlist.entity';
 import { AppSetting } from './settings/entities/app-setting.entity';
 import { Review } from './reviews/entities/review.entity';
 import { ReviewsModule } from './reviews/reviews.module';
+import { UserActivity } from './users/entities/user-activity.entity';
 
 @Module({
   imports: [
@@ -30,7 +31,7 @@ import { ReviewsModule } from './reviews/reviews.module';
         const databaseUrl = config.get<string>('DATABASE_URL');
         const base = {
           type: 'postgres' as const,
-          entities: [Package, Trip, User, Wishlist, AppSetting, Review],
+          entities: [Package, Trip, User, UserActivity, Wishlist, AppSetting, Review],
           synchronize: true,
           logging: config.get<string>('NODE_ENV') === 'development',
           ssl: databaseUrl ? { rejectUnauthorized: false } : false,

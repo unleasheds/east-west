@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -16,7 +16,7 @@ import {
   X,
 } from 'lucide-react';
 import { PACKAGES, WHATSAPP_NUMBER } from '../data/packages';
-import { packagesApi, reviewsApi, tripsApi } from '../lib/api';
+import { packagesApi, reviewsApi, tripsApi, usersApi } from '../lib/api';
 import { useStore } from '../store/useStore';
 import { BookingOrder, Package, ReviewSummary } from '../types';
 import CheckoutModal from '../components/ui/CheckoutModal';
@@ -52,6 +52,13 @@ export default function PackageDetailPage() {
   const [bookingForm, setBookingForm] = useState({ name: '', email: '', phone: '', requests: '' });
   const [showCheckout, setShowCheckout] = useState(false);
   const [checkoutOrder, setCheckoutOrder] = useState<BookingOrder | null>(null);
+
+  useEffect(() => {
+    if (!user?.id || !apiPkg?.id) return;
+    void usersApi.trackPackageView(apiPkg.id).catch(() => {
+      // Activity tracking must never interrupt the package experience.
+    });
+  }, [apiPkg?.id, user?.id]);
 
   if (isLoading) {
     return (

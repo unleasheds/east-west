@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, ParseUUIDPipe, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, ForbiddenException, Get, Param, ParseUUIDPipe, Patch, Post, Request, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -13,15 +13,31 @@ export class UsersController {
     return this.svc.upsert(dto);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Post('activity/package/:packageId')
+  trackPackageView(
+    @Param('packageId', ParseUUIDPipe) packageId: string,
+    @Request() req: { user: { id: string } },
+  ) {
+    return this.svc.trackPackageView(req.user.id, packageId);
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Get(':id')
-  findOne(@Param('id', ParseUUIDPipe) id: string) {
+  findOne(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Request() req: { user: { id: string; isAdmin?: boolean } },
+  ) {
+    if (req.user.id !== id && !req.user.isAdmin) {
+      throw new ForbiddenException('You cannot view another user');
+    }
     return this.svc.findOne(id);
   }
 
   @UseGuards(JwtAuthGuard, AdminGuard)
   @Get()
   findAll() {
-    return this.svc.findAll();
+    return this.svc.findAllWithActivity();
   }
 
   @UseGuards(JwtAuthGuard, AdminGuard)

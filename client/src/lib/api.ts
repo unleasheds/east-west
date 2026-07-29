@@ -56,6 +56,8 @@ export const reviewsApi = {
 
 export const usersApi = {
   upsert: (data: object) => api.post('/users', data).then((r) => r.data),
+  trackPackageView: (packageId: string) =>
+    api.post(`/users/activity/package/${packageId}`).then((r) => r.data),
 };
 
 export const wishlistApi = {
