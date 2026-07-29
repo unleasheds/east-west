@@ -36,7 +36,7 @@ export default function InstallAppButton() {
 
   return (
     <div className="fixed bottom-24 left-1/2 z-[65] flex w-[calc(100%-2rem)] max-w-sm -translate-x-1/2 items-center gap-3 rounded-2xl bg-brand p-3 text-white shadow-modal md:bottom-6 md:left-auto md:right-6 md:translate-x-0">
-      <img src="/icon-192.png?v=3" alt="" className="h-11 w-11 rounded-xl bg-white object-cover" />
+      <img src="/icon-192.png?v=4" alt="" className="h-11 w-11 rounded-xl bg-white object-cover" />
       <div className="min-w-0 flex-1">
         <p className="text-sm font-black">Install EastWest</p>
         <p className="text-[11px] text-white/65">Quick access from your home screen</p>

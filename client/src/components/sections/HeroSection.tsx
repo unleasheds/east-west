@@ -10,13 +10,13 @@ import { PACKAGES, WHATSAPP_NUMBER } from '../../data/packages';
 import { packagesApi, settingsApi, tripsApi } from '../../lib/api';
 import { Package } from '../../types';
 
-const QUICK_PICKS = [
-  { label: 'Maldives',     Icon: Waves     },
-  { label: 'Malaysia',     Icon: TreePalm  },
-  { label: 'Himmafushi',   Icon: Anchor    },
-  { label: 'Ukulhas',      Icon: Fish      },
-  { label: 'Kuala Lumpur', Icon: Building2 },
-];
+const DESTINATION_ICONS: Record<string, typeof MapPin> = {
+  Maldives: Waves,
+  Malaysia: TreePalm,
+  Himmafushi: Anchor,
+  Ukulhas: Fish,
+  'Kuala Lumpur': Building2,
+};
 
 export default function HeroSection() {
   const navigate = useNavigate();
@@ -39,15 +39,16 @@ export default function HeroSection() {
     staleTime: 5 * 60_000,
   });
 
+  const availablePackages = Array.isArray(apiPackages)
+    ? apiPackages
+    : import.meta.env.DEV
+      ? PACKAGES
+      : [];
+
   const allLocations = useMemo(() => {
-    const pkgs = Array.isArray(apiPackages)
-      ? apiPackages
-      : import.meta.env.DEV
-        ? PACKAGES
-        : [];
     const seen = new Set<string>();
     const items: { destination: string; location: string }[] = [];
-    pkgs.forEach((p) => {
+    availablePackages.forEach((p) => {
       const key = `${p.destination}|${p.location}`;
       if (!seen.has(key)) {
         seen.add(key);
@@ -55,7 +56,17 @@ export default function HeroSection() {
       }
     });
     return items;
-  }, [apiPackages]);
+  }, [availablePackages]);
+
+  const quickPicks = useMemo(
+    () =>
+      [...new Set(availablePackages.map((pkg) => pkg.destination).filter(Boolean))]
+        .map((label) => ({
+          label,
+          Icon: DESTINATION_ICONS[label] ?? MapPin,
+        })),
+    [availablePackages],
+  );
 
   const filteredLocations = local.destination
     ? allLocations.filter(
@@ -83,11 +94,6 @@ export default function HeroSection() {
     typeof settings?.featured_package_id?.[0] === 'string'
       ? settings.featured_package_id[0]
       : undefined;
-  const availablePackages = Array.isArray(apiPackages)
-    ? apiPackages
-    : import.meta.env.DEV
-      ? PACKAGES
-      : [];
   const featured =
     availablePackages.find((pkg) => pkg.id === featuredPackageId) ??
     availablePackages[0];
@@ -110,7 +116,7 @@ export default function HeroSection() {
           star: true,
         }]
       : []),
-    { value: '15', label: 'destinations' },
+    { value: String(quickPicks.length), label: 'active destinations' },
     { value: '< 2 hr', label: 'quote reply' },
   ];
   const featuredKey = featured?.slug ?? featured?.id ?? '';
@@ -430,7 +436,7 @@ export default function HeroSection() {
               {/* Quick destination picks */}
               <div className="mt-3 flex flex-wrap items-center gap-2">
                 <span className="text-xs text-muted">Popular:</span>
-                {QUICK_PICKS.map(({ label, Icon }) => (
+                {quickPicks.map(({ label, Icon }) => (
                   <button
                     key={label}
                     type="button"

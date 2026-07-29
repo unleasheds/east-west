@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Search, MapPin, Calendar, Users, MessageCircle, User, ShieldCheck } from 'lucide-react';
 import { useStore } from '../../store/useStore';
 import { WHATSAPP_NUMBER } from '../../data/packages';
+import LanguageSelector from '../ui/LanguageSelector';
 
 const QUICK_PICKS = ['Maldives', 'Malaysia', 'Himmafushi', 'Ukulhas', 'Kuala Lumpur'];
 
@@ -195,6 +196,8 @@ export default function Header() {
               </span>
             </button>
           )}
+
+          <LanguageSelector />
 
           {/* WhatsApp */}
           <a
