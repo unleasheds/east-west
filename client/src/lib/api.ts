@@ -87,6 +87,10 @@ export const settingsApi = {
 };
 
 export const adminApi = {
+  // Translation drafts — reviewed by an admin before they are saved
+  translatePackage: (payload: object) =>
+    api.post('/translation/package', payload, { timeout: 180_000 }).then((r) => r.data),
+
   // Packages
   getAllPackages: () => api.get('/packages/admin/all').then((r) => r.data),
   createPackage: (data: object) => api.post('/packages', data).then((r) => r.data),

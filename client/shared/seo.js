@@ -262,9 +262,30 @@ export function staticRouteMeta(path, locale = DEFAULT_LOCALE) {
  * @property {string} [updatedAt]
  */
 
+/**
+ * Removes markup and Markdown emphasis from admin-authored copy.
+ *
+ * Package descriptions are rich text (HTML, or legacy `**bold**`). Meta
+ * descriptions and JSON-LD are plain-text fields — leaking `<p>` tags or stray
+ * asterisks into a search snippet is a visible defect.
+ */
+function stripMarkup(value) {
+  return String(value ?? '')
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/\*\*/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 /** Trims to a whole word and appends an ellipsis, so descriptions never cut mid-word. */
 function truncate(text, max) {
-  const flat = String(text || '').replace(/\s+/g, ' ').trim();
+  const flat = stripMarkup(text);
   if (flat.length <= max) return flat;
   const cut = flat.slice(0, max - 1);
   const lastSpace = cut.lastIndexOf(' ');

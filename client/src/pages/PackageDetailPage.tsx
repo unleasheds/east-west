@@ -23,6 +23,7 @@ import CheckoutModal from '../components/ui/CheckoutModal';
 import Seo from '../components/seo/Seo';
 import { packageMeta, staticRouteMeta } from '../lib/seo';
 import { localisePackage } from '../lib/localisePackage';
+import { toRenderableHtml } from '../lib/richText';
 import { useLanguage } from '../i18n/LanguageProvider';
 
 type Tab = 'overview' | 'itinerary' | 'includes';
@@ -359,7 +360,11 @@ export default function PackageDetailPage() {
                 {/* Description */}
                 <div className="rounded-3xl bg-white p-6 shadow-card md:p-8">
                   <h2 className="text-xl font-black text-ink">About this trip</h2>
-                  <p className="mt-3 text-sm leading-relaxed text-muted">{pkg.description}</p>
+                  {/* Admin-authored rich text; sanitised to an allowlist before rendering. */}
+                  <div
+                    className="rich-text mt-3 text-sm leading-relaxed text-muted"
+                    dangerouslySetInnerHTML={{ __html: toRenderableHtml(pkg.description) }}
+                  />
                   <p className="mt-3 text-sm leading-relaxed text-muted">
                     All EastWest packages are curated specifically for Muslim families and couples.
                     We pre-verify halal food options, identify prayer spaces, and plan tour timings

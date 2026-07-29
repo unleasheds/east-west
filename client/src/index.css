@@ -86,3 +86,24 @@
 
 /* Number counter fade */
 .stat-num { font-variant-numeric: tabular-nums; }
+
+/* ── Rich text ─────────────────────────────────────────────────────────────
+   Shared by the admin editor and the public package description, so what an
+   admin composes is what a visitor sees. */
+.rich-text-editor:empty::before {
+  content: attr(data-placeholder);
+  @apply text-muted/60;
+}
+.rich-text-editor h2, .rich-text h2 { @apply mt-4 text-lg font-black text-ink first:mt-0; }
+.rich-text-editor h3, .rich-text h3 { @apply mt-3 text-base font-bold text-ink first:mt-0; }
+.rich-text-editor h4, .rich-text h4 { @apply mt-3 text-sm font-bold text-ink first:mt-0; }
+.rich-text-editor p,  .rich-text p  { @apply mt-2 first:mt-0; }
+.rich-text-editor ul, .rich-text ul { @apply mt-2 list-disc space-y-1 pl-5; }
+.rich-text-editor ol, .rich-text ol { @apply mt-2 list-decimal space-y-1 pl-5; }
+.rich-text-editor blockquote, .rich-text blockquote {
+  @apply mt-3 border-l-2 border-brand pl-3 italic;
+}
+.rich-text-editor a, .rich-text a { @apply text-brand underline; }
+.rich-text-editor strong, .rich-text strong { @apply font-bold text-ink; }
+[dir='rtl'] .rich-text-editor ul, [dir='rtl'] .rich-text ul,
+[dir='rtl'] .rich-text-editor ol, [dir='rtl'] .rich-text ol { @apply pl-0 pr-5; }

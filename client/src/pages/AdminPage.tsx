@@ -6,11 +6,12 @@ import {
   Trash2, ToggleLeft, ToggleRight, ShieldCheck, ShieldOff, Check, X, Settings,
   Star, CheckCircle2, XCircle, Calendar, CreditCard, Clock, Plane,
   Tag, Globe, FileText, AlertCircle, Layers, ChevronUp, ChevronDown,
-  Image as ImageIcon, Upload, Loader2, Languages,
+  Image as ImageIcon, Upload, Loader2, Languages, Sparkles,
 } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import { adminApi, settingsApi } from '../lib/api';
 import { CategoryItem, PICKABLE_ICONS, getIcon, autoIconName } from '../lib/iconRegistry';
+import RichTextEditor from '../components/admin/RichTextEditor';
 import Seo from '../components/seo/Seo';
 import { staticRouteMeta } from '../lib/seo';
 import { useLanguage } from '../i18n/LanguageProvider';
@@ -271,21 +272,59 @@ function linesToList(value: string): string[] {
  * value, so a partial translation is a valid, coherent state.
  */
 function TranslationsEditor({
+  source,
   englishItinerary,
   value,
   onChange,
 }: {
+  /** The English copy currently in the form — the input for auto-translation. */
+  source: PackageTranslationDraft;
   englishItinerary: { day: number; title: string; activities: string[] }[];
   value: Record<string, PackageTranslationDraft>;
   onChange: (next: Record<string, PackageTranslationDraft>) => void;
 }) {
   const [active, setActive] = useState<TranslatableLocale>('ms');
+  const [translating, setTranslating] = useState<TranslatableLocale | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const current = value[active] ?? {};
   const meta = TRANSLATABLE_LOCALES.find((l) => l.code === active)!;
   const dir = meta.rtl ? 'rtl' : 'ltr';
 
   function patch(field: keyof PackageTranslationDraft, fieldValue: unknown) {
     onChange({ ...value, [active]: { ...current, [field]: fieldValue } });
+  }
+
+  /**
+   * Drafts a translation from the English copy currently in the form.
+   *
+   * The result is written into the editable fields rather than saved, so an
+   * admin always reviews machine output before it reaches customers.
+   */
+  async function autoTranslate() {
+    const locale = active;
+    setError(null);
+    setTranslating(locale);
+    try {
+      const draft = await adminApi.translatePackage({
+        locale,
+        title: source.title,
+        location: source.location,
+        duration: source.duration,
+        description: source.description,
+        highlights: source.highlights ?? [],
+        included: source.included ?? [],
+        excluded: source.excluded ?? [],
+        itinerary: englishItinerary,
+      });
+      onChange({ ...value, [locale]: draft as PackageTranslationDraft });
+    } catch (err) {
+      const message =
+        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ??
+        'Translation failed. Check the API key and try again.';
+      setError(message);
+    } finally {
+      setTranslating(null);
+    }
   }
 
   function patchDay(day: number, field: 'title' | 'activities', fieldValue: unknown) {
@@ -343,6 +382,33 @@ function TranslationsEditor({
         ))}
       </div>
 
+      {/* Auto-translate from the English copy in this form */}
+      <div className="mb-5 flex flex-wrap items-center gap-3 rounded-xl bg-soft/60 p-3">
+        <button
+          type="button"
+          onClick={autoTranslate}
+          disabled={translating !== null || !source.title}
+          className="flex items-center gap-2 rounded-full bg-ink px-4 py-2 text-xs font-bold text-white transition hover:bg-ink/90 disabled:opacity-40"
+        >
+          {translating === active ? (
+            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+          ) : (
+            <Sparkles className="h-3.5 w-3.5" />
+          )}
+          {translating === active ? `Translating to ${meta.label}…` : `Auto-translate to ${meta.label}`}
+        </button>
+        <p className="text-[11px] text-muted">
+          Fills the fields below from the English copy. Review before saving — it overwrites this
+          language's fields.
+        </p>
+      </div>
+
+      {error && (
+        <p className="mb-4 rounded-xl bg-red-50 px-3 py-2 text-xs font-semibold text-red-500">
+          {error}
+        </p>
+      )}
+
       <div className="space-y-4" dir={dir}>
         <label className="flex flex-col gap-1">
           <span className="text-xs font-bold text-muted">Title ({meta.native})</span>
@@ -372,15 +438,14 @@ function TranslationsEditor({
           </label>
         </div>
 
-        <label className="flex flex-col gap-1">
+        <div className="flex flex-col gap-1">
           <span className="text-xs font-bold text-muted">Description</span>
-          <textarea
-            rows={4}
+          <RichTextEditor
             value={current.description ?? ''}
-            onChange={(e) => patch('description', e.target.value)}
-            className={field}
+            onChange={(html) => patch('description', html)}
+            dir={dir}
           />
-        </label>
+        </div>
 
         {([
           ['highlights', 'Trip Highlights'],
@@ -922,12 +987,10 @@ function PackageForm({
 
                 <label className="col-span-2 flex flex-col gap-1">
                   <span className="text-xs font-bold text-muted">Description</span>
-                  <textarea
+                  <RichTextEditor
                     value={basics.description}
-                    onChange={(e) => setB('description', e.target.value)}
-                    rows={4}
+                    onChange={(html) => setB('description', html)}
                     placeholder="Describe the package experience for travellers…"
-                    className="rounded-xl border border-border px-3 py-2.5 text-sm text-ink outline-none focus:border-brand resize-none"
                   />
                 </label>
 
@@ -997,6 +1060,15 @@ function PackageForm({
         {/* ── Step 5: Translations ── */}
         {step === 5 && (
           <TranslationsEditor
+            source={{
+              title: basics.title,
+              location: basics.location,
+              duration: basics.duration,
+              description: basics.description,
+              highlights,
+              included,
+              excluded,
+            }}
             englishItinerary={itinerary}
             value={translations}
             onChange={setTranslations}

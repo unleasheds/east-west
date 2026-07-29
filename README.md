@@ -128,6 +128,35 @@ Arabic metadata to crawlers.
 
 The admin panel itself is staff-only and deliberately stays English.
 
+### Auto-translate
+
+**Admin → Packages → Languages → Auto-translate** drafts a package's Malay or
+Arabic copy from the English currently in the form, via the Claude API
+(`POST /api/translation/package`, admin-only). It fills the editable fields —
+it does **not** save. Marketing copy carries brand voice, so a human reviews
+before it reaches customers.
+
+The prompt preserves HTML markup, itinerary day numbers, list lengths, prices
+and proper nouns; only visible text is translated. Requires
+`ANTHROPIC_API_KEY` on the API service — without it the endpoint returns a
+clear "not configured" message rather than failing silently.
+
+### Package descriptions are rich text
+
+Descriptions are authored with a Word-style editor (bold, italic, headings,
+lists, links) and stored as HTML. Older records written as Markdown (`**bold**`)
+rendered literally, asterisks and all; `client/src/lib/richText.ts` now detects
+which shape a record is in and normalises both to sanitised HTML at render time,
+so no migration is needed.
+
+Two invariants worth preserving:
+
+- **Sanitise on the way in and out.** Package copy is admin-authored but served
+  to every visitor — an unsanitised paste would be site-wide stored XSS. The
+  allowlist lives in `richText.ts`.
+- **Strip markup for metadata.** Meta descriptions and JSON-LD are plain-text
+  fields; `stripMarkup()` in `shared/seo.js` keeps tags out of search snippets.
+
 ### Environment
 
 | Variable | Where | Purpose |

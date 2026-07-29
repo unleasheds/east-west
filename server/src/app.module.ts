@@ -17,6 +17,7 @@ import { AppSetting } from './settings/entities/app-setting.entity';
 import { Review } from './reviews/entities/review.entity';
 import { ReviewsModule } from './reviews/reviews.module';
 import { SeoModule } from './seo/seo.module';
+import { TranslationModule } from './translation/translation.module';
 import { UserActivity } from './users/entities/user-activity.entity';
 
 @Module({
@@ -61,6 +62,7 @@ import { UserActivity } from './users/entities/user-activity.entity';
     SettingsModule,
     ReviewsModule,
     SeoModule,
+    TranslationModule,
   ],
 })
 export class AppModule {}
