@@ -9,8 +9,8 @@
       <circle cx="56" cy="47" r="24" fill="black"/>
     </mask>
   </defs>
-  <circle cx="44" cy="59" r="31" fill="#E4A853" mask="url(#crescent-mask)"/>
+  <circle cx="44" cy="59" r="31" fill="#316077" mask="url(#crescent-mask)"/>
 
   <!-- Head — small circle at upper-right of crescent opening -->
-  <circle cx="68" cy="27" r="9" fill="#E4A853"/>
+  <circle cx="68" cy="27" r="9" fill="#316077"/>
 </svg>
