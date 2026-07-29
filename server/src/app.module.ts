@@ -14,6 +14,8 @@ import { Trip } from './trips/entities/trip.entity';
 import { User } from './users/entities/user.entity';
 import { Wishlist } from './wishlist/entities/wishlist.entity';
 import { AppSetting } from './settings/entities/app-setting.entity';
+import { Review } from './reviews/entities/review.entity';
+import { ReviewsModule } from './reviews/reviews.module';
 
 @Module({
   imports: [
@@ -28,7 +30,7 @@ import { AppSetting } from './settings/entities/app-setting.entity';
         const databaseUrl = config.get<string>('DATABASE_URL');
         const base = {
           type: 'postgres' as const,
-          entities: [Package, Trip, User, Wishlist, AppSetting],
+          entities: [Package, Trip, User, Wishlist, AppSetting, Review],
           synchronize: true,
           logging: config.get<string>('NODE_ENV') === 'development',
           ssl: databaseUrl ? { rejectUnauthorized: false } : false,
@@ -55,6 +57,7 @@ import { AppSetting } from './settings/entities/app-setting.entity';
     PaymentsModule,
     AuthModule,
     SettingsModule,
+    ReviewsModule,
   ],
 })
 export class AppModule {}

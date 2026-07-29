@@ -81,3 +81,17 @@ export interface BookingOrder {
   phone: string;
   specialRequests: string;
 }
+
+export interface Review {
+  id: string;
+  travellerName: string;
+  rating: number;
+  comment: string;
+  createdAt: string;
+}
+
+export interface ReviewSummary {
+  rating: number;
+  reviewCount: number;
+  reviews: Review[];
+}

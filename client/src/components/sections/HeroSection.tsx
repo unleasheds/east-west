@@ -7,7 +7,7 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { useStore } from '../../store/useStore';
 import { PACKAGES, WHATSAPP_NUMBER } from '../../data/packages';
-import { packagesApi } from '../../lib/api';
+import { packagesApi, settingsApi, tripsApi } from '../../lib/api';
 import { Package } from '../../types';
 
 const QUICK_PICKS = [
@@ -37,6 +37,12 @@ export default function HeroSection() {
   const { data: apiPackages } = useQuery<Package[]>({
     queryKey: ['packages'],
     queryFn: () => packagesApi.getAll(),
+    staleTime: 5 * 60_000,
+  });
+
+  const { data: settings } = useQuery<Record<string, unknown[]>>({
+    queryKey: ['settings'],
+    queryFn: () => settingsApi.getAll(),
     staleTime: 5 * 60_000,
   });
 
@@ -76,8 +82,33 @@ export default function HeroSection() {
     return () => document.removeEventListener('mousedown', handleOutside);
   }, []);
 
-  const featured = apiPackages?.[0] ?? PACKAGES[0];
+  const featuredPackageId =
+    typeof settings?.featured_package_id?.[0] === 'string'
+      ? settings.featured_package_id[0]
+      : undefined;
+  const availablePackages = Array.isArray(apiPackages) ? apiPackages : PACKAGES;
+  const featured =
+    availablePackages.find((pkg) => pkg.id === featuredPackageId) ??
+    availablePackages[0];
   const featuredKey = featured?.slug ?? featured?.id ?? '';
+  const { data: monthlyBookings } = useQuery({
+    queryKey: ['monthly-bookings', featured?.id],
+    queryFn: () => tripsApi.getMonthlyBookings(featured!.id),
+    enabled: Array.isArray(apiPackages) && !!featured?.id,
+    staleTime: 60_000,
+  });
+
+  const featuredType = featured?.type?.toLowerCase() ?? '';
+  const isCouplesPackage = featuredType.includes('couple') || featuredType.includes('honeymoon');
+  const isFamilyPackage = featuredType.includes('family');
+  const bookedCount = isCouplesPackage || isFamilyPackage
+    ? monthlyBookings?.bookingCount ?? 0
+    : monthlyBookings?.travellerCount ?? 0;
+  const bookedUnit = isCouplesPackage
+    ? bookedCount === 1 ? 'couple' : 'couples'
+    : isFamilyPackage
+      ? bookedCount === 1 ? 'family' : 'families'
+      : bookedCount === 1 ? 'person' : 'persons';
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
@@ -372,10 +403,10 @@ export default function HeroSection() {
           </div>
 
           {/* ── Right — featured card ── */}
-          <div className="hidden lg:block">
+          <div className="block">
             <div className="relative rounded-3xl bg-white p-2 shadow-modal">
               <div
-                className="relative h-[500px] overflow-hidden rounded-2xl"
+                className="relative h-[360px] overflow-hidden rounded-2xl sm:h-[420px] lg:h-[500px]"
                 style={{ background: featured?.imageGradient ?? 'linear-gradient(135deg,#8fcfce,#65b7bd)' }}
               >
                 <div className="absolute left-4 top-4 flex flex-col gap-2">
@@ -433,7 +464,7 @@ export default function HeroSection() {
                   ))}
                 </div>
                 <p className="text-xs font-semibold text-muted">
-                  <span className="font-black text-ink">124 families</span> booked this month
+                  <span className="font-black text-ink">{bookedCount} {bookedUnit}</span> booked this month
                 </p>
               </div>
             </div>

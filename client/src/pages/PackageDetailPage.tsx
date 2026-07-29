@@ -16,35 +16,17 @@ import {
   X,
 } from 'lucide-react';
 import { PACKAGES, WHATSAPP_NUMBER } from '../data/packages';
-import { packagesApi } from '../lib/api';
+import { packagesApi, reviewsApi, tripsApi } from '../lib/api';
 import { useStore } from '../store/useStore';
-import { BookingOrder, Package } from '../types';
+import { BookingOrder, Package, ReviewSummary } from '../types';
 import CheckoutModal from '../components/ui/CheckoutModal';
 
 type Tab = 'overview' | 'itinerary' | 'includes';
 
-const REVIEWS = [
-  {
-    name: 'Fatimah A.',
-    rating: 5,
-    text: 'Absolutely flawless. Everything was halal-verified and our family felt completely at ease throughout the whole trip.',
-  },
-  {
-    name: 'Khalid M.',
-    rating: 5,
-    text: 'Booked the Maldives package — the guesthouse was amazing and the excursions were perfectly organised. Highly recommend.',
-  },
-  {
-    name: 'Aisha R.',
-    rating: 5,
-    text: 'Best decision we made. The prayer-friendly itinerary made the whole experience so much more meaningful.',
-  },
-];
-
 export default function PackageDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { isSaved, toggleSave, addTrip } = useStore();
+  const { isSaved, toggleSave, addTrip, user, showToast } = useStore();
 
   // Try API first (by slug = id param); fall back to static data
   const { data: apiPkg, isLoading } = useQuery<Package>({
@@ -55,6 +37,12 @@ export default function PackageDetailPage() {
     retry: 1,
   });
   const pkg = apiPkg ?? PACKAGES.find((p) => p.id === id);
+  const { data: reviewSummary } = useQuery<ReviewSummary>({
+    queryKey: ['reviews', apiPkg?.id],
+    queryFn: () => reviewsApi.getForPackage(apiPkg!.id),
+    enabled: !!apiPkg?.id,
+    staleTime: 60_000,
+  });
 
   const [tab, setTab] = useState<Tab>('overview');
   const [openDay, setOpenDay] = useState<number | null>(1);
@@ -99,6 +87,9 @@ export default function PackageDetailPage() {
   const pkgItinerary = Array.isArray(pkg.itinerary) ? pkg.itinerary : [];
   const pkgIncluded = Array.isArray(pkg.included) ? pkg.included : [];
   const pkgExcluded = Array.isArray(pkg.excluded) ? pkg.excluded : [];
+  const verifiedRating = reviewSummary?.rating ?? 0;
+  const verifiedReviewCount = reviewSummary?.reviewCount ?? 0;
+  const verifiedReviews = reviewSummary?.reviews ?? [];
 
   function openCheckout() {
     if (!pkg) return;
@@ -113,15 +104,32 @@ export default function PackageDetailPage() {
       phone: bookingForm.phone,
       specialRequests: bookingForm.requests,
     };
-    addTrip({
+    setCheckoutOrder(order);
+    setShowCheckout(true);
+  }
+
+  async function recordSuccessfulBooking() {
+    if (!pkg) return;
+    const trip = {
       destination: pkg.title,
       dates: '',
       travellers: String(travellers),
       budget: pkg.price,
       needs: bookingForm.requests,
-    });
-    setCheckoutOrder(order);
-    setShowCheckout(true);
+    };
+    addTrip(trip);
+
+    if (apiPkg) {
+      try {
+        await tripsApi.create({
+          ...trip,
+          packageId: apiPkg.id,
+          ...(user?.id ? { userId: user.id } : {}),
+        });
+      } catch {
+        showToast('Payment succeeded, but the booking record needs staff confirmation.', 'error');
+      }
+    }
   }
 
   function handleWhatsApp() {
@@ -341,20 +349,26 @@ export default function PackageDetailPage() {
                     <h3 className="text-xl font-black text-ink">Guest reviews</h3>
                     <div className="flex items-center gap-1 rounded-full bg-soft px-3 py-1 text-sm font-bold">
                       <Star className="h-4 w-4 fill-brand text-brand" strokeWidth={2.2} />
-                      {Number(pkg.rating).toFixed(1)}
-                      <span className="ml-1 text-xs font-normal text-muted">({pkg.reviewCount})</span>
+                      {verifiedReviewCount ? verifiedRating.toFixed(1) : 'New'}
+                      <span className="ml-1 text-xs font-normal text-muted">({verifiedReviewCount})</span>
                     </div>
                   </div>
+                  <p className="mt-2 text-xs text-muted">
+                    Ratings and comments are from verified travellers who booked and completed this trip.
+                  </p>
                   <div className="mt-5 space-y-4">
-                    {REVIEWS.map((r) => (
-                      <div key={r.name} className="rounded-2xl bg-soft p-4">
+                    {verifiedReviews.map((r) => (
+                      <div key={r.id} className="rounded-2xl bg-soft p-4">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
                             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-brand text-xs font-black text-white">
-                              {r.name[0]}
+                              {r.travellerName[0]}
                             </div>
                             <p className="text-sm font-black text-ink">
-                              {r.name}
+                              {r.travellerName}
+                              <span className="ml-2 text-[10px] font-bold uppercase tracking-wide text-halal">
+                                Verified trip
+                              </span>
                             </p>
                           </div>
                           <div className="flex items-center gap-0.5 text-brand">
@@ -363,9 +377,14 @@ export default function PackageDetailPage() {
                             ))}
                           </div>
                         </div>
-                        <p className="mt-3 text-sm leading-relaxed text-muted">{r.text}</p>
+                        <p className="mt-3 text-sm leading-relaxed text-muted">{r.comment}</p>
                       </div>
                     ))}
+                    {verifiedReviews.length === 0 && (
+                      <p className="rounded-2xl bg-soft p-5 text-center text-sm text-muted">
+                        No verified traveller reviews yet.
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>
@@ -498,8 +517,8 @@ export default function PackageDetailPage() {
               )}
               <div className="mt-1 flex items-center gap-1 text-sm font-semibold">
                 <Star className="h-4 w-4 fill-brand text-brand" strokeWidth={2.2} />
-                <span>{Number(pkg.rating).toFixed(1)}</span>
-                <span className="text-muted">· {pkg.reviewCount} reviews</span>
+                <span>{verifiedReviewCount ? verifiedRating.toFixed(1) : 'New'}</span>
+                <span className="text-muted">· {verifiedReviewCount} verified reviews</span>
               </div>
 
               <div className="my-5 h-px bg-border" />
@@ -647,6 +666,7 @@ export default function PackageDetailPage() {
         <CheckoutModal
           order={checkoutOrder}
           onClose={() => setShowCheckout(false)}
+          onSuccess={recordSuccessfulBooking}
         />
       )}
     </div>

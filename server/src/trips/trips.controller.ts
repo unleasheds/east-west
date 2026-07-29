@@ -14,6 +14,11 @@ export class TripsController {
     return this.svc.findAll();
   }
 
+  @Get('monthly-bookings/:packageId')
+  monthlyBookings(@Param('packageId', ParseUUIDPipe) packageId: string) {
+    return this.svc.monthlyBookings(packageId);
+  }
+
   @Post()
   create(@Body() dto: CreateTripDto) {
     return this.svc.create(dto);

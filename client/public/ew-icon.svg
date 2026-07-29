@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
   <!-- Dark charcoal background matching brand -->
-  <rect width="100" height="100" rx="20" fill="#3A3740"/>
+  <rect width="100" height="100" rx="20" fill="#26252C"/>
 
   <!-- Crescent body (outer circle minus inner offset circle via mask) -->
   <defs>

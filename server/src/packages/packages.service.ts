@@ -4,15 +4,17 @@ import { Repository } from 'typeorm';
 import { Package } from './entities/package.entity';
 import { CreatePackageDto } from './dto/create-package.dto';
 import { UpdatePackageDto } from './dto/update-package.dto';
+import { ReviewsService } from '../reviews/reviews.service';
 
 @Injectable()
 export class PackagesService {
   constructor(
     @InjectRepository(Package)
     private readonly repo: Repository<Package>,
+    private readonly reviews: ReviewsService,
   ) {}
 
-  findAll(filters?: { type?: string; destination?: string }) {
+  async findAll(filters?: { type?: string; destination?: string }) {
     const qb = this.repo
       .createQueryBuilder('p')
       .where('p.is_active = :active', { active: true });
@@ -26,7 +28,8 @@ export class PackagesService {
       });
     }
 
-    return qb.orderBy('p.created_at', 'ASC').getMany();
+    const packages = await qb.orderBy('p.created_at', 'ASC').getMany();
+    return Promise.all(packages.map((pkg) => this.withVerifiedRating(pkg)));
   }
 
   findAllAdmin() {
@@ -36,13 +39,18 @@ export class PackagesService {
   async findOne(id: string) {
     const pkg = await this.repo.findOne({ where: { id, isActive: true } });
     if (!pkg) throw new NotFoundException(`Package ${id} not found`);
-    return pkg;
+    return this.withVerifiedRating(pkg);
   }
 
   async findBySlug(slug: string) {
     const pkg = await this.repo.findOne({ where: { slug, isActive: true } });
     if (!pkg) throw new NotFoundException(`Package '${slug}' not found`);
-    return pkg;
+    return this.withVerifiedRating(pkg);
+  }
+
+  private async withVerifiedRating(pkg: Package) {
+    const summary = await this.reviews.findForPackage(pkg.id);
+    return { ...pkg, rating: summary.rating, reviewCount: summary.reviewCount };
   }
 
   create(dto: CreatePackageDto) {
@@ -58,7 +66,8 @@ export class PackagesService {
   }
 
   async remove(id: string) {
-    const pkg = await this.findOne(id);
+    const pkg = await this.repo.findOne({ where: { id } });
+    if (!pkg) throw new NotFoundException(`Package ${id} not found`);
     pkg.isActive = false;
     return this.repo.save(pkg);
   }

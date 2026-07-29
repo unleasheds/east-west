@@ -41,6 +41,9 @@ export class Trip {
   @Column({ type: 'enum', enum: TripStatus, default: TripStatus.PENDING })
   status: TripStatus;
 
+  @Column({ name: 'booked_at', type: 'timestamp', nullable: true })
+  bookedAt: Date;
+
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 

@@ -38,6 +38,17 @@ export const packagesApi = {
 export const tripsApi = {
   create: (data: object) => api.post('/trips', data).then((r) => r.data),
   getAll: () => api.get('/trips').then((r) => r.data),
+  getMonthlyBookings: (packageId: string) =>
+    api.get<{ bookingCount: number; travellerCount: number }>(
+      `/trips/monthly-bookings/${packageId}`,
+    ).then((r) => r.data),
+};
+
+export const reviewsApi = {
+  getForPackage: (packageId: string) =>
+    api.get<import('../types').ReviewSummary>(`/reviews/package/${packageId}`).then((r) => r.data),
+  create: (packageId: string, data: { rating: number; comment: string }) =>
+    api.post<import('../types').ReviewSummary>(`/reviews/package/${packageId}`, data).then((r) => r.data),
 };
 
 export const usersApi = {

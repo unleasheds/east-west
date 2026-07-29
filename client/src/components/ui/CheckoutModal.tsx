@@ -230,9 +230,10 @@ function SuccessScreen({ onClose }: { onClose: () => void }) {
 interface Props {
   order: BookingOrder;
   onClose: () => void;
+  onSuccess?: () => void | Promise<void>;
 }
 
-export default function CheckoutModal({ order, onClose }: Props) {
+export default function CheckoutModal({ order, onClose, onSuccess }: Props) {
   const [paid, setPaid] = useState(false);
 
   return (
@@ -261,7 +262,14 @@ export default function CheckoutModal({ order, onClose }: Props) {
           <SuccessScreen onClose={onClose} />
         ) : (
           <Elements stripe={stripePromise}>
-            <CheckoutForm order={order} onSuccess={() => setPaid(true)} onClose={onClose} />
+            <CheckoutForm
+              order={order}
+              onSuccess={() => {
+                setPaid(true);
+                void onSuccess?.();
+              }}
+              onClose={onClose}
+            />
           </Elements>
         )}
       </div>

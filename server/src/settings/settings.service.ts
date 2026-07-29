@@ -7,6 +7,7 @@ export const SETTING_KEYS = {
   PACKAGE_TYPES:  'package_types',
   DESTINATIONS:   'destinations',
   CATEGORIES:     'categories',
+  FEATURED_PACKAGE: 'featured_package_id',
 } as const;
 
 const DEFAULTS: Record<string, unknown[]> = {

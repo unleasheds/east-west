@@ -1,5 +1,4 @@
-import { IsEnum, IsOptional, IsString, IsUUID } from 'class-validator';
-import { TripStatus } from '../entities/trip.entity';
+import { IsOptional, IsString, IsUUID } from 'class-validator';
 
 export class CreateTripDto {
   @IsUUID()
@@ -30,7 +29,4 @@ export class CreateTripDto {
   @IsOptional()
   needs?: string;
 
-  @IsEnum(TripStatus)
-  @IsOptional()
-  status?: TripStatus;
 }

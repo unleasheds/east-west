@@ -10,6 +10,7 @@ import TripsPage from './pages/TripsPage';
 import InboxPage from './pages/InboxPage';
 import ProfilePage from './pages/ProfilePage';
 import AdminPage from './pages/AdminPage';
+import InstallAppButton from './components/ui/InstallAppButton';
 
 export default function App() {
   return (
@@ -31,6 +32,7 @@ export default function App() {
       <Footer />
       <MobileNav />
       <Toast />
+      <InstallAppButton />
     </div>
   );
 }

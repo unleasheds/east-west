@@ -1500,6 +1500,7 @@ function SettingsTab() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
+        <FeaturedEscapeSetting />
         <SettingsList
           settingKey="package_types"
           label="Package Types"
@@ -1517,6 +1518,60 @@ function SettingsTab() {
           badge="destinations"
         />
         <CategoryList />
+      </div>
+    </div>
+  );
+}
+
+function FeaturedEscapeSetting() {
+  const qc = useQueryClient();
+  const { data: packages = [] } = useQuery<AdminPackage[]>({
+    queryKey: ['admin-packages'],
+    queryFn: adminApi.getAllPackages,
+  });
+  const { data: settings } = useQuery<Record<string, unknown[]>>({
+    queryKey: ['settings'],
+    queryFn: () => settingsApi.getAll(),
+  });
+  const selected =
+    typeof settings?.featured_package_id?.[0] === 'string'
+      ? settings.featured_package_id[0]
+      : '';
+
+  const mutation = useMutation({
+    mutationFn: (packageId: string) =>
+      settingsApi.setList('featured_package_id', packageId ? [packageId] : []),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['settings'] }),
+  });
+
+  return (
+    <div className="col-span-full rounded-2xl border border-border bg-white p-6 shadow-card">
+      <div className="flex items-start gap-3">
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gold-light text-gold-dark">
+          <Star className="h-4 w-4" />
+        </span>
+        <div className="flex-1">
+          <p className="font-black text-ink">Homepage featured escape</p>
+          <p className="mt-1 text-xs text-muted">
+            Choose the package shown in the homepage hero on desktop and mobile.
+          </p>
+          <select
+            value={selected}
+            onChange={(event) => mutation.mutate(event.target.value)}
+            disabled={mutation.isPending}
+            className="mt-4 w-full rounded-xl border border-border bg-white px-4 py-3 text-sm font-semibold text-ink outline-none focus:border-brand disabled:opacity-60"
+          >
+            <option value="">Use first active package</option>
+            {packages.filter((pkg) => pkg.isActive).map((pkg) => (
+              <option key={pkg.id} value={pkg.id}>
+                {pkg.title} — {pkg.destination}
+              </option>
+            ))}
+          </select>
+          {mutation.isSuccess && (
+            <p className="mt-2 text-xs font-semibold text-halal">Featured escape updated.</p>
+          )}
+        </div>
       </div>
     </div>
   );
