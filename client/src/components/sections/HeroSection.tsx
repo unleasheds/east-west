@@ -486,7 +486,7 @@ export default function HeroSection() {
                 className="relative h-[360px] overflow-hidden rounded-2xl sm:h-[420px] lg:h-[500px]"
                 style={{ background: featured?.imageGradient ?? 'linear-gradient(135deg,#8fcfce,#65b7bd)' }}
               >
-                <div className="absolute left-4 top-4 flex flex-col gap-2">
+                <div className="absolute left-4 top-4 z-10 flex flex-col gap-2">
                   <span className="flex w-fit items-center gap-1.5 rounded-full bg-white px-3.5 py-1.5 text-xs font-bold shadow-card">
                     <TreePalm className="h-3.5 w-3.5 text-brand" /> {featured?.destination ?? 'Maldives'} escape
                   </span>
@@ -494,7 +494,7 @@ export default function HeroSection() {
                     <CheckCircle className="h-3.5 w-3.5" /> Halal certified
                   </span>
                 </div>
-                <div className="absolute right-4 top-4 rounded-full bg-ink/80 px-3 py-1.5 text-xs font-bold text-white backdrop-blur-sm">
+                <div className="absolute right-4 top-4 z-10 rounded-full bg-ink/80 px-3 py-1.5 text-xs font-bold text-white backdrop-blur-sm">
                   Family-safe tours
                 </div>
 
@@ -503,7 +503,7 @@ export default function HeroSection() {
                   <img
                     src={featured.images[0]}
                     alt={featured.title}
-                    className="absolute inset-0 h-full w-full object-cover opacity-30"
+                    className="absolute inset-0 h-full w-full object-cover"
                   />
                 )}
 
