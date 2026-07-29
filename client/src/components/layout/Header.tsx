@@ -57,7 +57,7 @@ export default function Header() {
 
           {/* Logo */}
           <Link to="/" className="flex shrink-0 items-center gap-2">
-            <img src="/logo.svg" alt="EastWest" className="h-8 w-8 object-contain sm:h-9 sm:w-9" />
+            <img src="/logo.svg?v=2" alt="EastWest" className="h-8 w-8 object-contain sm:h-9 sm:w-9" />
             <div className="hidden sm:block leading-tight">
               <p className="text-[15px] font-black text-ink">EastWest</p>
               <p className="text-[10px] font-semibold text-muted">Halal Travel</p>
