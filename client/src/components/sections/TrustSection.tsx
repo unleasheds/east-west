@@ -84,7 +84,7 @@ export default function TrustSection() {
             <div className="mt-7 grid grid-cols-3 gap-3">
               {[
                 { n: '5K+',   l: 'Bookings'    },
-                { n: '4.9',   l: 'Avg rating'  },
+                { n: 'Real',  l: 'Guest reviews' },
                 { n: '15',    l: 'Destinations' },
               ].map(({ n, l }) => (
                 <div key={l} className="rounded-2xl bg-white/10 px-3 py-3 text-center">

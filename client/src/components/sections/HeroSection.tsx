@@ -18,13 +18,6 @@ const QUICK_PICKS = [
   { label: 'Kuala Lumpur', Icon: Building2 },
 ];
 
-const STATS = [
-  { value: '5,000+', label: 'travellers' },
-  { value: '4.9',    label: 'avg rating', star: true },
-  { value: '15',     label: 'destinations' },
-  { value: '< 2 hr', label: 'quote reply' },
-];
-
 export default function HeroSection() {
   const navigate = useNavigate();
   const { setSearch } = useStore();
@@ -90,6 +83,28 @@ export default function HeroSection() {
   const featured =
     availablePackages.find((pkg) => pkg.id === featuredPackageId) ??
     availablePackages[0];
+  const verifiedReviewCount = availablePackages.reduce(
+    (total, pkg) => total + (pkg.reviewCount > 0 ? pkg.reviewCount : 0),
+    0,
+  );
+  const verifiedRating = verifiedReviewCount
+    ? availablePackages.reduce(
+        (total, pkg) => total + Number(pkg.rating) * pkg.reviewCount,
+        0,
+      ) / verifiedReviewCount
+    : 0;
+  const stats = [
+    { value: '5,000+', label: 'travellers' },
+    ...(verifiedReviewCount > 0
+      ? [{
+          value: verifiedRating.toFixed(1),
+          label: `${verifiedReviewCount} verified reviews`,
+          star: true,
+        }]
+      : []),
+    { value: '15', label: 'destinations' },
+    { value: '< 2 hr', label: 'quote reply' },
+  ];
   const featuredKey = featured?.slug ?? featured?.id ?? '';
   const { data: monthlyBookings } = useQuery({
     queryKey: ['monthly-bookings', featured?.id],
@@ -438,8 +453,10 @@ export default function HeroSection() {
             </div>
 
             {/* Stats strip */}
-            <div className="mt-7 grid grid-cols-2 divide-x divide-y divide-border rounded-2xl border border-border bg-white sm:grid-cols-4 sm:divide-y-0">
-              {STATS.map(({ value, label, star }) => (
+            <div className={`mt-7 grid grid-cols-2 divide-x divide-y divide-border rounded-2xl border border-border bg-white sm:divide-y-0 ${
+              stats.length === 4 ? 'sm:grid-cols-4' : 'sm:grid-cols-3'
+            }`}>
+              {stats.map(({ value, label, star }) => (
                 <div key={label} className="px-4 py-3 text-center">
                   <p className="flex items-center justify-center gap-1 text-base font-black text-ink md:text-lg">
                     {value}
@@ -488,9 +505,12 @@ export default function HeroSection() {
                       </h3>
                       <p className="mt-1 text-sm text-muted">{featured?.duration ?? '3 nights'} · {featured?.location ?? 'hotel + transfer + tour'}</p>
                     </div>
-                    <span className="flex items-center gap-1 text-sm font-bold">
-                      <Star className="h-3.5 w-3.5 fill-gold stroke-gold" /> {featured?.rating ?? 4.9}
-                    </span>
+                    {featured && featured.reviewCount > 0 && Number(featured.rating) > 0 && (
+                      <span className="flex items-center gap-1 text-sm font-bold">
+                        <Star className="h-3.5 w-3.5 fill-gold stroke-gold" />
+                        {Number(featured.rating).toFixed(1)}
+                      </span>
+                    )}
                   </div>
                   <div className="mt-4 flex items-center justify-between">
                     <span className="text-lg font-black text-ink">
