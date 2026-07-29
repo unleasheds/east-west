@@ -184,10 +184,12 @@ export default function PackageCard({ pkg }: Props) {
             <h3 className="truncate text-sm font-bold text-ink">{pkg.title}</h3>
             <p className="mt-0.5 text-xs text-muted">{pkg.location}</p>
           </div>
-          <div className="flex shrink-0 items-center gap-1">
-            <StarRating value={pkg.rating} />
-            <span className="text-[10px] text-muted">({pkg.reviewCount})</span>
-          </div>
+          {pkg.reviewCount > 0 && Number(pkg.rating) > 0 && (
+            <div className="flex shrink-0 items-center gap-1">
+              <StarRating value={pkg.rating} />
+              <span className="text-[10px] text-muted">({pkg.reviewCount})</span>
+            </div>
+          )}
         </div>
 
         <div className="mt-2.5 flex items-center justify-between">

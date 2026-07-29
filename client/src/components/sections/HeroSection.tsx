@@ -155,6 +155,55 @@ export default function HeroSection() {
               planned for you on WhatsApp.
             </p>
 
+            {/* Mobile featured escape — placed before search */}
+            <div className="mt-6 overflow-hidden rounded-3xl bg-white p-2 shadow-modal lg:hidden">
+              <button
+                type="button"
+                onClick={() => navigate(`/package/${featuredKey}`)}
+                className="relative block h-64 w-full overflow-hidden rounded-2xl text-left sm:h-72"
+                style={{ background: featured?.imageGradient ?? 'linear-gradient(135deg,#8fcfce,#65b7bd)' }}
+              >
+                {featured?.images?.[0] && (
+                  <img
+                    src={featured.images[0]}
+                    alt={featured.title}
+                    className="absolute inset-0 h-full w-full object-cover"
+                  />
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-black/10" />
+                <span className="absolute left-3 top-3 rounded-full bg-white px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-brand shadow-card">
+                  Featured escape
+                </span>
+                <span className="absolute right-3 top-3 flex items-center gap-1 rounded-full bg-halal px-2.5 py-1.5 text-[10px] font-bold text-white">
+                  <CheckCircle className="h-3 w-3" /> Halal certified
+                </span>
+                <div className="absolute inset-x-4 bottom-4 text-white">
+                  <p className="text-xs font-semibold text-white/75">
+                    {featured?.destination} · {featured?.duration}
+                  </p>
+                  <h2 className="mt-1 line-clamp-2 text-xl font-black leading-tight">
+                    {featured?.title}
+                  </h2>
+                  <div className="mt-3 flex items-end justify-between gap-3">
+                    <span className="text-base font-black">
+                      {featured?.price}
+                      {featured && featured.priceValue > 0 && (
+                        <span className="ml-1 text-[10px] font-normal text-white/70">/ person</span>
+                      )}
+                    </span>
+                    <span className="rounded-full bg-white px-4 py-2 text-xs font-black text-brand">
+                      View trip →
+                    </span>
+                  </div>
+                </div>
+              </button>
+              {bookedCount > 0 && (
+                <p className="px-3 py-2.5 text-center text-xs font-semibold text-muted">
+                  <span className="font-black text-ink">{bookedCount} {bookedUnit}</span> booked this month
+                </p>
+              )}
+            </div>
+
             {/* ── Airbnb-style search pill ── */}
             <form onSubmit={handleSearch} className="mt-8">
               {/* Desktop: single pill */}
@@ -403,7 +452,7 @@ export default function HeroSection() {
           </div>
 
           {/* ── Right — featured card ── */}
-          <div className="block">
+          <div className="hidden lg:block">
             <div className="relative rounded-3xl bg-white p-2 shadow-modal">
               <div
                 className="relative h-[360px] overflow-hidden rounded-2xl sm:h-[420px] lg:h-[500px]"
@@ -457,16 +506,18 @@ export default function HeroSection() {
                 </div>
               </div>
 
-              <div className="flex items-center justify-between px-4 py-3">
-                <div className="flex -space-x-2">
-                  {['#316077','#E4A853','#22C55E','#26252C'].map((c) => (
-                    <div key={c} className="h-7 w-7 rounded-full border-2 border-white" style={{ background: c }} />
-                  ))}
+              {bookedCount > 0 && (
+                <div className="flex items-center justify-between px-4 py-3">
+                  <div className="flex -space-x-2">
+                    {['#316077','#E4A853','#22C55E','#26252C'].map((c) => (
+                      <div key={c} className="h-7 w-7 rounded-full border-2 border-white" style={{ background: c }} />
+                    ))}
+                  </div>
+                  <p className="text-xs font-semibold text-muted">
+                    <span className="font-black text-ink">{bookedCount} {bookedUnit}</span> booked this month
+                  </p>
                 </div>
-                <p className="text-xs font-semibold text-muted">
-                  <span className="font-black text-ink">{bookedCount} {bookedUnit}</span> booked this month
-                </p>
-              </div>
+              )}
             </div>
           </div>
 

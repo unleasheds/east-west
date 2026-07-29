@@ -51,7 +51,7 @@ export default function Footer() {
         <div className="flex flex-col items-center gap-4 px-5 py-6 text-center">
           {/* Brand */}
           <div className="flex items-center gap-2">
-            <img src="/favicon.png" alt="EastWest" className="h-8 w-8 object-contain" />
+            <img src="/logo.svg" alt="EastWest" className="h-8 w-8 object-contain" />
             <div className="text-left">
               <p className="text-sm font-black text-ink">EastWest</p>
               <p className="text-[10px] font-semibold text-muted">Halal Travel</p>
@@ -128,7 +128,7 @@ export default function Footer() {
           {/* Brand */}
           <div>
             <div className="flex items-center gap-2">
-              <img src="/favicon.png" alt="EastWest" className="h-9 w-9 object-contain" />
+              <img src="/logo.svg" alt="EastWest" className="h-9 w-9 object-contain" />
               <div>
                 <p className="text-[15px] font-black text-ink">EastWest</p>
                 <p className="text-[10px] font-semibold text-muted">Halal Travel</p>
