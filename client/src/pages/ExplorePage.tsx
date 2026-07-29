@@ -14,14 +14,18 @@ export default function ExplorePage() {
   const { activeCategory, search } = useStore();
   const query = search.destination.toLowerCase();
 
-  // Fetch from API; fall back to static data while loading or on error
+  // Production listings always come from the active-only API.
   const { data: apiPackages, isLoading } = useQuery<Package[]>({
     queryKey: ['packages'],
     queryFn: () => packagesApi.getAll(),
     staleTime: 5 * 60_000,
   });
 
-  const allPackages: Package[] = Array.isArray(apiPackages) ? apiPackages : PACKAGES;
+  const allPackages: Package[] = Array.isArray(apiPackages)
+    ? apiPackages
+    : import.meta.env.DEV
+      ? PACKAGES
+      : [];
 
   const filtered = useMemo(() => {
     return allPackages.filter((p) => {

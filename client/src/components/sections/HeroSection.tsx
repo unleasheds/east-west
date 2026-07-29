@@ -40,7 +40,11 @@ export default function HeroSection() {
   });
 
   const allLocations = useMemo(() => {
-    const pkgs = Array.isArray(apiPackages) ? apiPackages : PACKAGES;
+    const pkgs = Array.isArray(apiPackages)
+      ? apiPackages
+      : import.meta.env.DEV
+        ? PACKAGES
+        : [];
     const seen = new Set<string>();
     const items: { destination: string; location: string }[] = [];
     pkgs.forEach((p) => {
@@ -79,7 +83,11 @@ export default function HeroSection() {
     typeof settings?.featured_package_id?.[0] === 'string'
       ? settings.featured_package_id[0]
       : undefined;
-  const availablePackages = Array.isArray(apiPackages) ? apiPackages : PACKAGES;
+  const availablePackages = Array.isArray(apiPackages)
+    ? apiPackages
+    : import.meta.env.DEV
+      ? PACKAGES
+      : [];
   const featured =
     availablePackages.find((pkg) => pkg.id === featuredPackageId) ??
     availablePackages[0];
@@ -171,6 +179,7 @@ export default function HeroSection() {
             </p>
 
             {/* Mobile featured escape — placed before search */}
+            {featured && (
             <div className="mt-6 overflow-hidden rounded-3xl bg-white p-2 shadow-modal lg:hidden">
               <button
                 type="button"
@@ -218,6 +227,7 @@ export default function HeroSection() {
                 </p>
               )}
             </div>
+            )}
 
             {/* ── Airbnb-style search pill ── */}
             <form onSubmit={handleSearch} className="mt-8">
@@ -469,6 +479,7 @@ export default function HeroSection() {
           </div>
 
           {/* ── Right — featured card ── */}
+          {featured && (
           <div className="hidden lg:block">
             <div className="relative rounded-3xl bg-white p-2 shadow-modal">
               <div
@@ -540,6 +551,7 @@ export default function HeroSection() {
               )}
             </div>
           </div>
+          )}
 
         </div>
       </div>

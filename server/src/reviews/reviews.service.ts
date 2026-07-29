@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { Package } from '../packages/entities/package.entity';
 import { Trip, TripStatus } from '../trips/entities/trip.entity';
 import { User } from '../users/entities/user.entity';
@@ -18,22 +18,21 @@ export class ReviewsService {
     @InjectRepository(Review) private readonly reviews: Repository<Review>,
     @InjectRepository(Trip) private readonly trips: Repository<Trip>,
     @InjectRepository(Package) private readonly packages: Repository<Package>,
+    @InjectRepository(User) private readonly users: Repository<User>,
   ) {}
 
   async findForPackage(packageId: string) {
-    const rows = await this.reviews
-      .createQueryBuilder('review')
-      .leftJoin(User, 'user', 'user.id = review.user_id')
-      .select([
-        'review.id AS id',
-        'review.rating AS rating',
-        'review.comment AS comment',
-        'review.created_at AS "createdAt"',
-        `COALESCE(NULLIF(user.name, ''), 'Verified traveller') AS "travellerName"`,
-      ])
-      .where('review.package_id = :packageId', { packageId })
-      .orderBy('review.created_at', 'DESC')
-      .getRawMany();
+    const rows = await this.reviews.find({
+      where: { packageId },
+      order: { createdAt: 'DESC' },
+    });
+    const userIds = [...new Set(rows.map((review) => review.userId))];
+    const travellers = userIds.length
+      ? await this.users.find({ where: { id: In(userIds) } })
+      : [];
+    const travellerNames = new Map(
+      travellers.map((traveller) => [traveller.id, traveller.name]),
+    );
 
     const count = rows.length;
     const rating = count
@@ -43,7 +42,13 @@ export class ReviewsService {
     return {
       rating: Number(rating.toFixed(1)),
       reviewCount: count,
-      reviews: rows.map((row) => ({ ...row, rating: Number(row.rating) })),
+      reviews: rows.map((row) => ({
+        id: row.id,
+        rating: Number(row.rating),
+        comment: row.comment,
+        createdAt: row.createdAt,
+        travellerName: travellerNames.get(row.userId)?.trim() || 'Verified traveller',
+      })),
     };
   }
 

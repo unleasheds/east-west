@@ -2,9 +2,12 @@ import axios from 'axios';
 
 // In dev: Vite proxies /api → localhost:3001
 // In production: VITE_API_URL points to the Railway backend service URL
-const baseURL = import.meta.env.VITE_API_URL
-  ? `${import.meta.env.VITE_API_URL}/api`
-  : '/api';
+const configuredApiUrl = import.meta.env.VITE_API_URL?.replace(/\/$/, '');
+const baseURL = configuredApiUrl
+  ? `${configuredApiUrl}/api`
+  : import.meta.env.PROD
+    ? 'https://api.eastwesthalaltravel.com/api'
+    : '/api';
 
 const api = axios.create({
   baseURL,
