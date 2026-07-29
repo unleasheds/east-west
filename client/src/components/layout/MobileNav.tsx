@@ -5,7 +5,7 @@ const NAV = [
   { to: '/',         label: 'Explore',  Icon: Search        },
   { to: '/wishlist', label: 'Wishlist', Icon: Heart         },
   { to: '/trips',    label: 'Trips',    Icon: Plane         },
-  { to: '/inbox',    label: 'Inbox',    Icon: MessageCircle },
+  { to: '/contact',  label: 'Contact',  Icon: MessageCircle },
   { to: '/profile',  label: 'Profile',  Icon: User          },
 ];
 

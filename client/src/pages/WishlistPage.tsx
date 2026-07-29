@@ -5,6 +5,8 @@ import { PACKAGES } from '../data/packages';
 import { packagesApi } from '../lib/api';
 import { Package } from '../types';
 import PackageCard from '../components/ui/PackageCard';
+import Seo from '../components/seo/Seo';
+import { staticRouteMeta } from '../lib/seo';
 
 export default function WishlistPage() {
   const navigate = useNavigate();
@@ -21,6 +23,8 @@ export default function WishlistPage() {
 
   return (
     <div className="page-enter mx-auto max-w-7xl px-4 py-8 md:px-8 md:py-12">
+      <Seo {...staticRouteMeta('/wishlist')} />
+
       {/* Header */}
       <div className="mb-8 flex items-end justify-between">
         <div>

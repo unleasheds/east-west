@@ -7,6 +7,12 @@ import { WHATSAPP_NUMBER } from '../../data/packages';
 
 interface Props {
   pkg: Package;
+  /**
+   * Set on the first cards in the grid. Their leading image is usually the
+   * page's Largest Contentful Paint element, so it is fetched eagerly and at
+   * high priority instead of being deferred like the rest of the grid.
+   */
+  priority?: boolean;
 }
 
 function StarRating({ value }: { value: number }) {
@@ -18,7 +24,7 @@ function StarRating({ value }: { value: number }) {
   );
 }
 
-export default function PackageCard({ pkg }: Props) {
+export default function PackageCard({ pkg, priority = false }: Props) {
   const navigate = useNavigate();
   const { isSaved, toggleSave } = useStore();
   const pkgKey = pkg.slug ?? pkg.id;   // slug for API data; id for static fallback
@@ -77,7 +83,16 @@ export default function PackageCard({ pkg }: Props) {
                 <img
                   key={i}
                   src={src}
-                  alt={`${pkg.title} photo ${i + 1}`}
+                  alt={
+                    i === 0
+                      ? `${pkg.title} — halal ${pkg.type} holiday in ${pkg.location}, ${pkg.destination}`
+                      : `${pkg.title} photo ${i + 1}`
+                  }
+                  width={800}
+                  height={600}
+                  loading={priority && i === 0 ? 'eager' : 'lazy'}
+                  decoding={priority && i === 0 ? 'sync' : 'async'}
+                  fetchPriority={priority && i === 0 ? 'high' : 'low'}
                   className="aspect-[16/9] w-full shrink-0 object-cover sm:aspect-[4/3]"
                   draggable={false}
                 />

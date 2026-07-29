@@ -16,6 +16,7 @@ import { Wishlist } from './wishlist/entities/wishlist.entity';
 import { AppSetting } from './settings/entities/app-setting.entity';
 import { Review } from './reviews/entities/review.entity';
 import { ReviewsModule } from './reviews/reviews.module';
+import { SeoModule } from './seo/seo.module';
 import { UserActivity } from './users/entities/user-activity.entity';
 
 @Module({
@@ -59,6 +60,7 @@ import { UserActivity } from './users/entities/user-activity.entity';
     AuthModule,
     SettingsModule,
     ReviewsModule,
+    SeoModule,
   ],
 })
 export class AppModule {}

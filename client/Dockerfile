@@ -18,6 +18,21 @@ ENV VITE_STRIPE_PUBLISHABLE_KEY=$VITE_STRIPE_PUBLISHABLE_KEY
 
 RUN npm run build
 
-FROM caddy:2-alpine
-COPY --from=builder /app/dist /srv
-COPY Caddyfile /etc/caddy/Caddyfile
+# ── Runtime ──────────────────────────────────────────────────────────────────
+# The SPA is served by a zero-dependency Node edge server rather than a static
+# file server, because it rewrites each response's <head> for the requested URL.
+# That is what gives crawlers real titles, canonicals and Open Graph tags.
+FROM node:20-alpine
+WORKDIR /app
+ENV NODE_ENV=production
+
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/server.mjs ./server.mjs
+COPY --from=builder /app/shared ./shared
+
+# Only the API base needs to be known at runtime; everything else is baked in.
+ENV PORT=8080
+EXPOSE 8080
+
+USER node
+CMD ["node", "server.mjs"]

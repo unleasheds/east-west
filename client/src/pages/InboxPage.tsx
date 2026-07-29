@@ -1,4 +1,6 @@
 import { WHATSAPP_NUMBER } from '../data/packages';
+import Seo from '../components/seo/Seo';
+import { staticRouteMeta } from '../lib/seo';
 
 const CHANNELS = [
   {
@@ -71,6 +73,7 @@ const FAQ = [
 export default function InboxPage() {
   return (
     <div className="page-enter mx-auto max-w-7xl px-4 py-8 md:px-8 md:py-12">
+      <Seo {...staticRouteMeta('/contact')} />
 
       {/* Page header */}
       <div className="mb-8">

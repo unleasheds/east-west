@@ -9,6 +9,9 @@ import HeroSection from '../components/sections/HeroSection';
 import CategoryChips from '../components/ui/CategoryChips';
 import PackageCard from '../components/ui/PackageCard';
 import TrustSection from '../components/sections/TrustSection';
+import FaqSection from '../components/sections/FaqSection';
+import Seo from '../components/seo/Seo';
+import { itemListLd, staticRouteMeta } from '../lib/seo';
 
 export default function ExplorePage() {
   const { activeCategory, search } = useStore();
@@ -46,8 +49,19 @@ export default function ExplorePage() {
     });
   }, [allPackages, activeCategory, query]);
 
+  const homeMeta = staticRouteMeta('/');
+  const seoMeta = {
+    ...homeMeta,
+    jsonLd:
+      allPackages.length > 0
+        ? [...(homeMeta.jsonLd ?? []), itemListLd(allPackages, '/')]
+        : homeMeta.jsonLd,
+  };
+
   return (
     <div className="page-enter">
+      <Seo {...seoMeta} />
+
       <HeroSection />
       <CategoryChips />
 
@@ -91,8 +105,8 @@ export default function ExplorePage() {
           </div>
         ) : filtered.length > 0 ? (
           <div className="grid gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4">
-            {filtered.map((pkg) => (
-              <PackageCard key={pkg.id} pkg={pkg} />
+            {filtered.map((pkg, i) => (
+              <PackageCard key={pkg.id} pkg={pkg} priority={i < 4} />
             ))}
           </div>
         ) : (
@@ -113,6 +127,7 @@ export default function ExplorePage() {
       </div>
 
       <TrustSection />
+      <FaqSection />
 
       {/* Mobile sticky CTA */}
       <div className="fixed bottom-[68px] left-3 right-3 z-20 overflow-hidden rounded-2xl shadow-modal md:hidden" style={{background:'linear-gradient(135deg,#222 0%,#333 100%)'}}>

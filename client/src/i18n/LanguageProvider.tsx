@@ -24,6 +24,7 @@ const translations: Record<'ms' | 'ar', Record<string, string>> = {
     Wishlist: 'Senarai pilihan',
     Trips: 'Perjalanan',
     Inbox: 'Peti masuk',
+    Contact: 'Hubungi',
     Profile: 'Profil',
     Admin: 'Admin',
     WhatsApp: 'WhatsApp',
@@ -96,6 +97,7 @@ const translations: Record<'ms' | 'ar', Record<string, string>> = {
     Wishlist: 'المفضلة',
     Trips: 'الرحلات',
     Inbox: 'الرسائل',
+    Contact: 'اتصل بنا',
     Profile: 'الملف الشخصي',
     Admin: 'الإدارة',
     WhatsApp: 'واتساب',
@@ -208,6 +210,14 @@ function translateElement(element: Element, locale: Locale) {
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [locale, setLocaleState] = useState<Locale>(() => {
+    // `?lang=` wins over the stored preference: those are the URLs published in
+    // the hreflang annotations and the sitemap, so a visitor (or crawler)
+    // arriving on one must get that language regardless of past choices.
+    const requested = new URLSearchParams(window.location.search).get('lang');
+    if (requested === 'ms' || requested === 'ar' || requested === 'en') {
+      localStorage.setItem('eastwest-language', requested);
+      return requested;
+    }
     const saved = localStorage.getItem('eastwest-language');
     return saved === 'ms' || saved === 'ar' ? saved : 'en';
   });

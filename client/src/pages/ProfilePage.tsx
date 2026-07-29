@@ -3,6 +3,8 @@ import { useStore } from '../store/useStore';
 import { UserProfile } from '../types';
 import GoogleLoginButton from '../components/ui/GoogleLoginButton';
 import { LogOut, User as UserIcon, Luggage, Moon, ClipboardList, Lock, MessageCircle, Zap, ShieldCheck, CheckCircle } from 'lucide-react';
+import Seo from '../components/seo/Seo';
+import { staticRouteMeta } from '../lib/seo';
 
 function Completeness({ profile }: { profile: UserProfile }) {
   const fields = [profile.name, profile.phone, profile.email, profile.familySize, profile.budget, profile.preferences];
@@ -100,7 +102,14 @@ export default function ProfilePage() {
   const [form, setForm] = useState<UserProfile>({ ...profile });
 
   // If not signed in with Google, show sign-in screen
-  if (!user) return <SignInPanel />;
+  if (!user) {
+    return (
+      <>
+        <Seo {...staticRouteMeta('/profile')} />
+        <SignInPanel />
+      </>
+    );
+  }
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -110,6 +119,7 @@ export default function ProfilePage() {
 
   return (
     <div className="page-enter mx-auto max-w-7xl px-4 py-8 md:px-8 md:py-12">
+      <Seo {...staticRouteMeta('/profile')} />
 
       <div className="grid gap-8 lg:grid-cols-[0.85fr_1.15fr]">
 

@@ -70,11 +70,11 @@ export default function TrustSection() {
 
           <div className="relative">
             <p className="section-label text-white/40">Why choose EastWest</p>
-            <h3 className="mt-3 text-3xl font-black leading-[1.1] md:text-5xl">
+            <h2 className="mt-3 text-3xl font-black leading-[1.1] md:text-5xl">
               Make booking feel
               <br />
               <span className="text-brand">personal.</span>
-            </h3>
+            </h2>
             <p className="mt-5 leading-relaxed text-white/70">
               We turn browsing into a real trip plan. Share your dates on WhatsApp and
               get a tailored halal travel quote within hours — no forms, no wait.

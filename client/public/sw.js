@@ -1,4 +1,4 @@
-const CACHE_NAME = 'eastwest-app-v4';
+const CACHE_NAME = 'eastwest-app-v5';
 const APP_SHELL = [
   '/',
   '/manifest.webmanifest',
@@ -37,15 +37,33 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // Crawler-facing resources always come from the network — a cached copy goes
+  // stale the moment a package is published or edited.
+  if (url.pathname === '/robots.txt' || url.pathname.startsWith('/sitemap')) {
+    return;
+  }
+
+  // Navigations are network-first and cached *per URL*. Every HTML response now
+  // carries a <head> built for its own URL by the edge server, so the previous
+  // behaviour — storing one response under '/' and replaying it for every route
+  // — would serve the wrong title, canonical and Open Graph tags everywhere.
   if (request.mode === 'navigate') {
     event.respondWith(
       fetch(request)
         .then((response) => {
-          const copy = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put('/', copy));
+          if (response.ok) {
+            const copy = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+          }
           return response;
         })
-        .catch(() => caches.match('/')),
+        .catch(async () => {
+          // Offline: prefer this URL's own cached HTML, then the app shell.
+          const cached = await caches.match(request);
+          if (cached) return cached;
+          const shell = await caches.match('/');
+          return shell ?? Response.error();
+        }),
     );
     return;
   }

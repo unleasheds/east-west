@@ -11,6 +11,8 @@ import {
 import { useStore } from '../store/useStore';
 import { adminApi, settingsApi } from '../lib/api';
 import { CategoryItem, PICKABLE_ICONS, getIcon, autoIconName } from '../lib/iconRegistry';
+import Seo from '../components/seo/Seo';
+import { staticRouteMeta } from '../lib/seo';
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -479,12 +481,14 @@ function PackageForm({
   onCancel,
   packageTypes,
   destinations,
+  islands,
 }: {
   initial?: Partial<AdminPackage>;
   onSave: (data: object) => void;
   onCancel: () => void;
   packageTypes: string[];
   destinations: string[];
+  islands: string[];
 }) {
   const [step, setStep] = useState(0);
 
@@ -623,12 +627,41 @@ function PackageForm({
 
                 <label className="flex flex-col gap-1">
                   <span className="text-xs font-bold text-muted">Specific Locations</span>
+                  {/* Pick a saved island or type any location — a datalist gives
+                      the dropdown without locking the field to the list. */}
                   <input
                     value={basics.location}
                     onChange={(e) => setB('location', e.target.value)}
-                    placeholder="e.g. Kuala Lumpur · Putrajaya · Genting"
+                    list="admin-island-options"
+                    placeholder="Choose an island or type a location"
                     className="rounded-xl border border-border px-3 py-2.5 text-sm text-ink outline-none focus:border-brand"
                   />
+                  <datalist id="admin-island-options">
+                    {islands.map((island) => (
+                      <option key={island} value={island} />
+                    ))}
+                  </datalist>
+                  {islands.length > 0 && (
+                    <span className="flex flex-wrap gap-1.5 pt-1">
+                      {islands.map((island) => (
+                        <button
+                          key={island}
+                          type="button"
+                          onClick={() => setB('location', island)}
+                          className={`rounded-full px-2.5 py-1 text-[11px] font-semibold transition ${
+                            basics.location === island
+                              ? 'bg-brand text-white'
+                              : 'bg-soft text-muted hover:text-ink'
+                          }`}
+                        >
+                          {island}
+                        </button>
+                      ))}
+                    </span>
+                  )}
+                  <span className="text-[11px] text-muted/60">
+                    Manage the island list under Settings → Islands
+                  </span>
                 </label>
 
                 <label className="flex flex-col gap-1">
@@ -805,7 +838,7 @@ function PackageForm({
   );
 }
 
-function PackagesTab({ packageTypes, destinations }: { packageTypes: string[]; destinations: string[] }) {
+function PackagesTab({ packageTypes, destinations, islands }: { packageTypes: string[]; destinations: string[]; islands: string[] }) {
   const qc = useQueryClient();
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<AdminPackage | null>(null);
@@ -856,6 +889,7 @@ function PackagesTab({ packageTypes, destinations }: { packageTypes: string[]; d
           onCancel={() => setShowForm(false)}
           packageTypes={packageTypes}
           destinations={destinations}
+          islands={islands}
         />
       )}
 
@@ -866,6 +900,7 @@ function PackagesTab({ packageTypes, destinations }: { packageTypes: string[]; d
           onCancel={() => setEditing(null)}
           packageTypes={packageTypes}
           destinations={destinations}
+          islands={islands}
         />
       )}
 
@@ -1695,10 +1730,12 @@ export default function AdminPage() {
   });
   const packageTypes = allSettings?.package_types ?? ['Family', 'Private', 'Honeymoon', 'Ramadan', 'Island', 'City'];
   const destinations = allSettings?.destinations ?? ['Maldives', 'Malaysia', 'Indonesia', 'Dubai', 'Turkey', 'Morocco'];
+  const islands = allSettings?.islands ?? ['Himmafushi', 'Ukulhas'];
 
   if (!user) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center px-4">
+        <Seo {...staticRouteMeta('/admin')} />
         <div className="text-center">
           <p className="text-lg font-bold text-ink">Sign in required</p>
           <button onClick={() => navigate('/profile')} className="mt-4 btn-primary">Go to profile</button>
@@ -1721,6 +1758,8 @@ export default function AdminPage() {
 
   return (
     <div className="page-enter mx-auto max-w-7xl px-4 py-8 md:px-8 md:py-12">
+      <Seo {...staticRouteMeta('/admin')} />
+
       {/* Header */}
       <div className="mb-8 flex items-center gap-3">
         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-ink">
@@ -1749,7 +1788,7 @@ export default function AdminPage() {
       </div>
 
       {/* Content */}
-      {tab === 'packages' && <PackagesTab packageTypes={packageTypes} destinations={destinations} />}
+      {tab === 'packages' && <PackagesTab packageTypes={packageTypes} destinations={destinations} islands={islands} />}
       {tab === 'users'    && <UsersTab />}
       {tab === 'trips'    && <TripsTab />}
       {tab === 'settings' && <SettingsTab />}

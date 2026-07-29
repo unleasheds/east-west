@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import {
   ArrowLeft,
@@ -20,6 +20,8 @@ import { packagesApi, reviewsApi, tripsApi, usersApi } from '../lib/api';
 import { useStore } from '../store/useStore';
 import { BookingOrder, Package, ReviewSummary } from '../types';
 import CheckoutModal from '../components/ui/CheckoutModal';
+import Seo from '../components/seo/Seo';
+import { packageMeta, staticRouteMeta } from '../lib/seo';
 
 type Tab = 'overview' | 'itinerary' | 'includes';
 
@@ -75,8 +77,11 @@ export default function PackageDetailPage() {
   if (!pkg) {
     return (
       <div className="mx-auto max-w-2xl px-4 py-20 text-center">
+        {/* The edge server already answered 404 for this URL; this keeps the
+            client-side navigation case out of the index too. */}
+        <Seo {...staticRouteMeta('/__not-found')} />
         <Frown className="mx-auto h-12 w-12 text-muted" strokeWidth={1.8} />
-        <h2 className="mt-4 text-2xl font-black text-ink">Package not found</h2>
+        <h1 className="mt-4 text-2xl font-black text-ink">Package not found</h1>
         <button
           onClick={() => navigate('/')}
           className="mt-6 rounded-full bg-brand px-6 py-3 text-sm font-bold text-white"
@@ -155,16 +160,32 @@ export default function PackageDetailPage() {
 
   return (
     <div className="page-enter bg-sand pb-16">
-      {/* Breadcrumb */}
-      <div className="mx-auto max-w-7xl px-4 pt-6 md:px-8">
-        <button
-          onClick={() => navigate(-1)}
-          className="flex items-center gap-1.5 text-sm font-semibold text-muted transition hover:text-ink"
-        >
-          <ArrowLeft className="h-4 w-4" strokeWidth={2.2} />
-          Back to packages
-        </button>
-      </div>
+      <Seo {...packageMeta(pkg)} />
+
+      {/* Breadcrumb — crawlable links, mirroring the BreadcrumbList JSON-LD */}
+      <nav aria-label="Breadcrumb" className="mx-auto max-w-7xl px-4 pt-6 md:px-8">
+        <ol className="flex flex-wrap items-center gap-1.5 text-sm font-semibold text-muted">
+          <li>
+            <Link to="/" className="flex items-center gap-1.5 transition hover:text-ink">
+              <ArrowLeft className="h-4 w-4" strokeWidth={2.2} />
+              Halal packages
+            </Link>
+          </li>
+          <li aria-hidden className="text-muted/50">/</li>
+          <li>
+            <Link
+              to={`/?destination=${encodeURIComponent(pkg.destination)}`}
+              className="transition hover:text-ink"
+            >
+              {pkg.destination}
+            </Link>
+          </li>
+          <li aria-hidden className="text-muted/50">/</li>
+          <li aria-current="page" className="max-w-[60vw] truncate text-ink">
+            {pkg.title}
+          </li>
+        </ol>
+      </nav>
 
       <div className="mx-auto mt-4 max-w-7xl px-4 md:px-8">
         <div className="grid gap-8 lg:grid-cols-[1.15fr_.85fr] lg:items-start">
@@ -193,7 +214,17 @@ export default function PackageDetailPage() {
                       <img
                         key={i}
                         src={src}
-                        alt={`${pkg.title} ${i + 1}`}
+                        alt={
+                          i === 0
+                            ? `${pkg.title} — ${pkg.duration} halal package in ${pkg.location}, ${pkg.destination}`
+                            : `${pkg.title} — photo ${i + 1} of ${pkgImages.length}`
+                        }
+                        width={1200}
+                        height={840}
+                        // The first frame is this page's LCP element; the rest
+                        // of the carousel is off-screen until swiped.
+                        loading={i === 0 ? 'eager' : 'lazy'}
+                        decoding={i === 0 ? 'sync' : 'async'}
                         className="h-[280px] w-full shrink-0 object-cover md:h-[420px]"
                         draggable={false}
                       />
@@ -320,7 +351,7 @@ export default function PackageDetailPage() {
               <div className="space-y-5">
                 {/* Description */}
                 <div className="rounded-3xl bg-white p-6 shadow-card md:p-8">
-                  <h3 className="text-xl font-black text-ink">About this trip</h3>
+                  <h2 className="text-xl font-black text-ink">About this trip</h2>
                   <p className="mt-3 text-sm leading-relaxed text-muted">{pkg.description}</p>
                   <p className="mt-3 text-sm leading-relaxed text-muted">
                     All EastWest packages are curated specifically for Muslim families and couples.
@@ -337,7 +368,7 @@ export default function PackageDetailPage() {
 
                 {/* Highlights */}
                 <div className="rounded-3xl bg-white p-6 shadow-card md:p-8">
-                  <h3 className="text-xl font-black text-ink">Trip highlights</h3>
+                  <h2 className="text-xl font-black text-ink">Trip highlights</h2>
                   <ul className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
                     {pkgHighlights.map((h) => (
                       <li key={h} className="flex items-start gap-3 text-sm text-ink">
@@ -353,7 +384,7 @@ export default function PackageDetailPage() {
                 {/* Reviews */}
                 <div className="rounded-3xl bg-white p-6 shadow-card md:p-8">
                   <div className="flex items-center gap-3">
-                    <h3 className="text-xl font-black text-ink">Guest reviews</h3>
+                    <h2 className="text-xl font-black text-ink">Guest reviews</h2>
                     <div className="flex items-center gap-1 rounded-full bg-soft px-3 py-1 text-sm font-bold">
                       <Star className="h-4 w-4 fill-brand text-brand" strokeWidth={2.2} />
                       {verifiedReviewCount ? verifiedRating.toFixed(1) : 'New'}
@@ -400,7 +431,7 @@ export default function PackageDetailPage() {
             {/* ── ITINERARY TAB ── */}
             {tab === 'itinerary' && (
               <div className="rounded-3xl bg-white p-6 shadow-card md:p-8">
-                <h3 className="text-xl font-black text-ink">Day-by-Day Itinerary</h3>
+                <h2 className="text-xl font-black text-ink">Day-by-Day Itinerary</h2>
                 <p className="mt-1 text-xs text-muted">{pkg.duration}</p>
                 <div className="mt-5 space-y-2">
                   {pkgItinerary.map((day) => {
@@ -450,12 +481,12 @@ export default function PackageDetailPage() {
             {tab === 'includes' && (
               <div className="space-y-5">
                 <div className="rounded-3xl bg-white p-6 shadow-card md:p-8">
-                  <h3 className="flex items-center gap-2 text-xl font-black text-ink">
+                  <h2 className="flex items-center gap-2 text-xl font-black text-ink">
                     <span className="flex h-7 w-7 items-center justify-center rounded-full bg-halal-light text-halal text-sm">
                       <Check className="h-4 w-4" strokeWidth={2.6} />
                     </span>
                     Package Includes
-                  </h3>
+                  </h2>
                   <ul className="mt-4 space-y-3">
                     {pkgIncluded.map((item) => (
                       <li key={item} className="flex items-start gap-3 text-sm text-ink">
@@ -470,12 +501,12 @@ export default function PackageDetailPage() {
 
                 {pkgExcluded.length > 0 && (
                   <div className="rounded-3xl bg-white p-6 shadow-card md:p-8">
-                    <h3 className="flex items-center gap-2 text-xl font-black text-ink">
+                    <h2 className="flex items-center gap-2 text-xl font-black text-ink">
                       <span className="flex h-7 w-7 items-center justify-center rounded-full bg-red-50 text-red-400 text-sm">
                         <X className="h-4 w-4" strokeWidth={2.6} />
                       </span>
                       Not Included
-                    </h3>
+                    </h2>
                     <ul className="mt-4 space-y-3">
                       {pkgExcluded.map((item) => (
                         <li key={item} className="flex items-start gap-3 text-sm text-muted">

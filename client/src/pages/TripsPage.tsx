@@ -4,6 +4,8 @@ import { useStore } from '../store/useStore';
 import { TripRequest } from '../types';
 import { WHATSAPP_NUMBER } from '../data/packages';
 import { tripsApi } from '../lib/api';
+import Seo from '../components/seo/Seo';
+import { staticRouteMeta } from '../lib/seo';
 
 const STATUS_STYLES: Record<TripRequest['status'], string> = {
   pending:   'bg-brand-light text-brand',
@@ -163,6 +165,7 @@ export default function TripsPage() {
 
   return (
     <div className="page-enter mx-auto max-w-7xl overflow-x-hidden px-4 py-8 md:px-8 md:py-12">
+      <Seo {...staticRouteMeta('/trips')} />
 
       {/* Page header */}
       <div className="mb-8">
