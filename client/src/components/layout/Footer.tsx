@@ -1,13 +1,11 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { PACKAGES, WHATSAPP_NUMBER } from '../../data/packages';
+import { WHATSAPP_NUMBER } from '../../data/packages';
 import { useStore } from '../../store/useStore';
-import type { Package, PackageType } from '../../types';
+import type { Package } from '../../types';
 import { useQuery } from '@tanstack/react-query';
 import { packagesApi, settingsApi } from '../../lib/api';
 
 const YEAR = new Date().getFullYear();
-const FALLBACK_PACKAGE_TYPES: PackageType[] = ['Family', 'Private', 'Honeymoon', 'Ramadan', 'Island', 'City'];
-const PACKAGE_TYPES = Array.from(new Set(PACKAGES.map((pkg) => pkg.type)));
 
 function scrollToPackages() {
   // Scroll past the hero + category chips to the packages grid
@@ -23,12 +21,14 @@ export default function Footer() {
   const navigate = useNavigate();
   const location = useLocation();
   const { setSearch, setActiveCategory } = useStore();
-  const packageTypes = PACKAGE_TYPES.length > 0 ? PACKAGE_TYPES : FALLBACK_PACKAGE_TYPES;
   const { data: activePackages = [] } = useQuery<Package[]>({
     queryKey: ['packages'],
     queryFn: () => packagesApi.getAll(),
     staleTime: 5 * 60_000,
   });
+  const packageTypes = [
+    ...new Set(activePackages.map((pkg) => pkg.type).filter(Boolean)),
+  ];
   const { data: settings } = useQuery<Record<string, unknown[]>>({
     queryKey: ['settings'],
     queryFn: () => settingsApi.getAll(),
@@ -38,7 +38,15 @@ export default function Footer() {
     ...new Set(activePackages.map((pkg) => pkg.destination).filter(Boolean)),
   ];
   const islands = Array.isArray(settings?.islands)
-    ? settings.islands.filter((island): island is string => typeof island === 'string')
+    ? settings.islands
+        .filter((island): island is string => typeof island === 'string')
+        .filter((island) => {
+          const needle = island.toLowerCase();
+          return activePackages.some((pkg) =>
+            [pkg.destination, pkg.location, pkg.title]
+              .some((value) => value.toLowerCase().includes(needle)),
+          );
+        })
     : [];
 
   function goToDestination(dest: string) {

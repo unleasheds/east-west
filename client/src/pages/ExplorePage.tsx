@@ -29,7 +29,13 @@ export default function ExplorePage() {
 
   const filtered = useMemo(() => {
     return allPackages.filter((p) => {
-      const matchCat = activeCategory === 'All' || p.type === activeCategory || p.destination === activeCategory;
+      const category = activeCategory.toLowerCase();
+      const matchCat =
+        activeCategory === 'All' ||
+        p.type.toLowerCase() === category ||
+        p.destination.toLowerCase() === category ||
+        p.location.toLowerCase().includes(category) ||
+        p.title.toLowerCase().includes(category);
       const matchQuery =
         !query ||
         [p.title, p.destination, p.location, p.type]

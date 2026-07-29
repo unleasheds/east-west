@@ -1,16 +1,15 @@
-import { useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useStore } from '../../store/useStore';
-import { settingsApi } from '../../lib/api';
+import { packagesApi, settingsApi } from '../../lib/api';
 import { CategoryItem, getIcon, autoIconName } from '../../lib/iconRegistry';
+import { Package } from '../../types';
 
-const FALLBACK: CategoryItem[] = [
-  { label: 'All',      iconName: 'Globe'    },
-  { label: 'Maldives', iconName: 'Waves'    },
-  { label: 'Malaysia', iconName: 'TreePalm' },
-  { label: 'Family',   iconName: 'Users'    },
-  { label: 'Island',   iconName: 'Anchor'   },
-];
+function matchesIsland(pkg: Package, island: string) {
+  const needle = island.toLowerCase();
+  return [pkg.destination, pkg.location, pkg.title]
+    .some((value) => value.toLowerCase().includes(needle));
+}
 
 export default function CategoryChips() {
   const { activeCategory, setActiveCategory } = useStore();
@@ -21,16 +20,55 @@ export default function CategoryChips() {
     queryFn: () => settingsApi.getAll(),
     staleTime: 5 * 60_000,
   });
+  const { data: activePackages = [] } = useQuery<Package[]>({
+    queryKey: ['packages'],
+    queryFn: () => packagesApi.getAll(),
+    staleTime: 5 * 60_000,
+  });
 
   // Handle both old string[] format and new {label,iconName}[] format
   const raw: any[] = settings?.categories ?? [];
-  const categories: CategoryItem[] = raw.length > 0
-    ? raw.map((item) =>
+  const configured: CategoryItem[] = raw.map((item) =>
         typeof item === 'string'
           ? { label: item, iconName: autoIconName(item) }
           : { label: item.label, iconName: item.iconName ?? 'Globe' }
-      )
-    : FALLBACK;
+      );
+  const iconByLabel = new Map(
+    configured.map((item) => [item.label.toLowerCase(), item.iconName]),
+  );
+  const islands = Array.isArray(settings?.islands)
+    ? settings.islands.filter((item): item is string => typeof item === 'string')
+    : [];
+
+  const categories = useMemo(() => {
+    const labels = [
+      'All',
+      ...activePackages.map((pkg) => pkg.destination),
+      ...islands.filter((island) =>
+        activePackages.some((pkg) => matchesIsland(pkg, island)),
+      ),
+      ...activePackages.map((pkg) => pkg.type),
+    ];
+    const seen = new Set<string>();
+    return labels
+      .filter(Boolean)
+      .filter((label) => {
+        const key = label.toLowerCase();
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      })
+      .map((label) => ({
+        label,
+        iconName: iconByLabel.get(label.toLowerCase()) ?? autoIconName(label),
+      }));
+  }, [activePackages, islands, iconByLabel]);
+
+  useEffect(() => {
+    if (!categories.some((category) => category.label === activeCategory)) {
+      setActiveCategory('All');
+    }
+  }, [activeCategory, categories, setActiveCategory]);
 
   return (
     <div className="sticky top-[65px] z-30 border-b border-border bg-white/95 backdrop-blur-md">
