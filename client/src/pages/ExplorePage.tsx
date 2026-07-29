@@ -12,8 +12,10 @@ import TrustSection from '../components/sections/TrustSection';
 import FaqSection from '../components/sections/FaqSection';
 import Seo from '../components/seo/Seo';
 import { itemListLd, staticRouteMeta } from '../lib/seo';
+import { useLanguage } from '../i18n/LanguageProvider';
 
 export default function ExplorePage() {
+  const { locale } = useLanguage();
   const { activeCategory, search } = useStore();
   const query = search.destination.toLowerCase();
 
@@ -49,7 +51,7 @@ export default function ExplorePage() {
     });
   }, [allPackages, activeCategory, query]);
 
-  const homeMeta = staticRouteMeta('/');
+  const homeMeta = staticRouteMeta('/', locale);
   const seoMeta = {
     ...homeMeta,
     jsonLd:

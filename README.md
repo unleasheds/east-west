@@ -98,6 +98,36 @@ What is implemented:
 - `noindex` on account and admin routes; `www` → apex and trailing-slash 301s
 - `<noscript>` package content for crawlers that do not render JavaScript
 
+## Languages
+
+Three locales: English (source), Malay and Arabic. Two separate mechanisms,
+because two different kinds of text are involved.
+
+**Interface chrome** — buttons, labels, headings — is translated by the
+dictionary in `client/src/i18n/LanguageProvider.tsx`, which matches rendered
+text and swaps it in place. Every customer-facing string must have an entry in
+**both** `ms` and `ar`; a key present in only one used to render the literal
+text `undefined`, and now falls back to English instead.
+
+Two invariants the dictionary must keep:
+
+- **Parity** — the same key set in `ms` and `ar`.
+- **No duplicate values within a locale** — the reverse lookup maps a
+  translation back to its English key, so two keys sharing a translation make
+  switching back to English ambiguous.
+
+**Package content** — titles, descriptions, highlights, itineraries, includes —
+lives in the database in English and *cannot* be reached by that dictionary.
+This is why the itinerary stayed English when the language was switched. It is
+now translated per package via the `translations` JSON column, edited under
+**Admin → Packages → Languages**, and merged over the English source by
+`client/shared/localise.js`. Fields merge individually and itinerary days match
+by day number, so a partial translation renders a coherent page rather than an
+empty one — and the edge server applies the same merge, so `?lang=ar` serves
+Arabic metadata to crawlers.
+
+The admin panel itself is staff-only and deliberately stays English.
+
 ### Environment
 
 | Variable | Where | Purpose |

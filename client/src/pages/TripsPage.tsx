@@ -6,6 +6,7 @@ import { WHATSAPP_NUMBER } from '../data/packages';
 import { tripsApi } from '../lib/api';
 import Seo from '../components/seo/Seo';
 import { staticRouteMeta } from '../lib/seo';
+import { useLanguage } from '../i18n/LanguageProvider';
 
 const STATUS_STYLES: Record<TripRequest['status'], string> = {
   pending:   'bg-brand-light text-brand',
@@ -132,6 +133,7 @@ function TripDetailPanel({ trip, onClose }: { trip: TripRequest; onClose: () => 
 }
 
 export default function TripsPage() {
+  const { locale } = useLanguage();
   const { trips, addTrip, showToast, user } = useStore();
   const [selected, setSelected] = useState<TripRequest | null>(null);
   const [form, setForm] = useState({
@@ -165,7 +167,7 @@ export default function TripsPage() {
 
   return (
     <div className="page-enter mx-auto max-w-7xl overflow-x-hidden px-4 py-8 md:px-8 md:py-12">
-      <Seo {...staticRouteMeta('/trips')} />
+      <Seo {...staticRouteMeta('/trips', locale)} />
 
       {/* Page header */}
       <div className="mb-8">

@@ -47,8 +47,8 @@ export type Locale = (typeof LOCALES)[number];
 
 // The shared module is untyped JavaScript by design; these wrappers pin down
 // the signatures the app relies on so misuse is caught at compile time.
-const typedStaticRouteMeta = staticRouteMeta as (path: string) => PageMeta;
-const typedPackageMeta = packageMeta as (pkg: Package) => PageMeta;
+const typedStaticRouteMeta = staticRouteMeta as (path: string, locale?: string) => PageMeta;
+const typedPackageMeta = packageMeta as (pkg: Package, locale?: string) => PageMeta;
 const typedPackagePath = packagePath as (pkg: Package) => string;
 const typedRenderHeadTags = renderHeadTags as (meta: PageMeta) => string;
 const typedItemListLd = itemListLd as (

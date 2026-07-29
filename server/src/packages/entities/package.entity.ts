@@ -6,6 +6,21 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
+/** Locales the package copy can be translated into. English is the source. */
+export type PackageLocale = 'ms' | 'ar';
+
+/** Translatable subset of a package. Every field is optional — see `translations`. */
+export interface PackageTranslation {
+  title?: string;
+  location?: string;
+  duration?: string;
+  description?: string;
+  highlights?: string[];
+  itinerary?: { day: number; title: string; activities: string[] }[];
+  included?: string[];
+  excluded?: string[];
+}
+
 @Entity('packages')
 export class Package {
   @PrimaryGeneratedColumn('uuid')
@@ -68,6 +83,17 @@ export class Package {
 
   @Column({ name: 'review_count', default: 0 })
   reviewCount: number;
+
+  /**
+   * Per-locale overrides of the customer-facing text, keyed by locale
+   * ('ms', 'ar'). Any field left blank falls back to the English column above,
+   * so a partially translated package still renders coherently.
+   *
+   * The columns above remain the English source of truth — translations are
+   * additive, never a replacement.
+   */
+  @Column({ type: 'simple-json', default: '{}' })
+  translations: Partial<Record<PackageLocale, PackageTranslation>>;
 
   @Column({ name: 'is_halal_certified', default: true })
   isHalalCertified: boolean;

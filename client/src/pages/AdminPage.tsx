@@ -6,13 +6,14 @@ import {
   Trash2, ToggleLeft, ToggleRight, ShieldCheck, ShieldOff, Check, X, Settings,
   Star, CheckCircle2, XCircle, Calendar, CreditCard, Clock, Plane,
   Tag, Globe, FileText, AlertCircle, Layers, ChevronUp, ChevronDown,
-  Image as ImageIcon, Upload, Loader2,
+  Image as ImageIcon, Upload, Loader2, Languages,
 } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import { adminApi, settingsApi } from '../lib/api';
 import { CategoryItem, PICKABLE_ICONS, getIcon, autoIconName } from '../lib/iconRegistry';
 import Seo from '../components/seo/Seo';
 import { staticRouteMeta } from '../lib/seo';
+import { useLanguage } from '../i18n/LanguageProvider';
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -34,6 +35,8 @@ interface AdminPackage {
   itinerary?: { day: number; title: string; activities: string[] }[];
   included?: string[];
   excluded?: string[];
+  /** Per-locale copy overrides, keyed by locale code. */
+  translations?: Record<string, PackageTranslationDraft>;
   isActive: boolean;
   rating: number;
   reviewCount: number;
@@ -235,6 +238,202 @@ function PackageImageManager({
 // ── Packages Tab ─────────────────────────────────────────────────────────────
 
 // Reusable tag-list builder (highlights, included, excluded)
+// ── Translations ─────────────────────────────────────────────────────────────
+
+type TranslatableLocale = 'ms' | 'ar';
+
+interface PackageTranslationDraft {
+  title?: string;
+  location?: string;
+  duration?: string;
+  description?: string;
+  highlights?: string[];
+  itinerary?: { day: number; title: string; activities: string[] }[];
+  included?: string[];
+  excluded?: string[];
+}
+
+const TRANSLATABLE_LOCALES: { code: TranslatableLocale; label: string; native: string; rtl?: boolean }[] = [
+  { code: 'ms', label: 'Malay',  native: 'Bahasa Melayu' },
+  { code: 'ar', label: 'Arabic', native: 'العربية', rtl: true },
+];
+
+/** Newline-delimited editing for list fields — quicker to paste than per-row inputs. */
+function linesToList(value: string): string[] {
+  return value.split('\n').map((line) => line.trim()).filter(Boolean);
+}
+
+/**
+ * Per-locale overrides for a package's customer-facing copy.
+ *
+ * Only the translatable text is editable here — price, images and slug are
+ * shared across languages. Any field left blank falls back to the English
+ * value, so a partial translation is a valid, coherent state.
+ */
+function TranslationsEditor({
+  englishItinerary,
+  value,
+  onChange,
+}: {
+  englishItinerary: { day: number; title: string; activities: string[] }[];
+  value: Record<string, PackageTranslationDraft>;
+  onChange: (next: Record<string, PackageTranslationDraft>) => void;
+}) {
+  const [active, setActive] = useState<TranslatableLocale>('ms');
+  const current = value[active] ?? {};
+  const meta = TRANSLATABLE_LOCALES.find((l) => l.code === active)!;
+  const dir = meta.rtl ? 'rtl' : 'ltr';
+
+  function patch(field: keyof PackageTranslationDraft, fieldValue: unknown) {
+    onChange({ ...value, [active]: { ...current, [field]: fieldValue } });
+  }
+
+  function patchDay(day: number, field: 'title' | 'activities', fieldValue: unknown) {
+    const days = current.itinerary ?? [];
+    const existing = days.find((d) => d.day === day) ?? { day, title: '', activities: [] };
+    const updated = { ...existing, [field]: fieldValue };
+    patch('itinerary', [...days.filter((d) => d.day !== day), updated].sort((a, b) => a.day - b.day));
+  }
+
+  const filled = Object.entries(value).reduce<Record<string, number>>((acc, [locale, t]) => {
+    acc[locale] = [t.title, t.location, t.duration, t.description].filter(
+      (v) => typeof v === 'string' && v.trim(),
+    ).length
+      + (t.highlights?.length ? 1 : 0)
+      + (t.included?.length ? 1 : 0)
+      + (t.excluded?.length ? 1 : 0)
+      + (t.itinerary?.length ? 1 : 0);
+    return acc;
+  }, {});
+
+  const field = 'w-full rounded-xl border border-border px-3 py-2.5 text-sm text-ink outline-none focus:border-brand';
+
+  return (
+    <div className="rounded-2xl border border-border bg-white p-5">
+      <div className="mb-4 flex items-center gap-2">
+        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-brand text-white">
+          <Languages className="h-4 w-4" />
+        </span>
+        <div>
+          <p className="text-sm font-black text-ink">Translations</p>
+          <p className="text-xs text-muted">
+            Blank fields fall back to English — translate as much or as little as you like
+          </p>
+        </div>
+      </div>
+
+      {/* Locale switcher */}
+      <div className="mb-5 flex gap-1 rounded-xl border border-border bg-soft/50 p-1 w-fit">
+        {TRANSLATABLE_LOCALES.map((l) => (
+          <button
+            key={l.code}
+            type="button"
+            onClick={() => setActive(l.code)}
+            className={`flex items-center gap-2 rounded-lg px-3.5 py-1.5 text-sm font-bold transition ${
+              active === l.code ? 'bg-white shadow-card text-ink' : 'text-muted hover:text-ink'
+            }`}
+          >
+            {l.label}
+            {filled[l.code] > 0 && (
+              <span className="rounded-full bg-halal-light px-1.5 text-[10px] font-black text-halal">
+                {filled[l.code]}
+              </span>
+            )}
+          </button>
+        ))}
+      </div>
+
+      <div className="space-y-4" dir={dir}>
+        <label className="flex flex-col gap-1">
+          <span className="text-xs font-bold text-muted">Title ({meta.native})</span>
+          <input
+            value={current.title ?? ''}
+            onChange={(e) => patch('title', e.target.value)}
+            className={field}
+          />
+        </label>
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          <label className="flex flex-col gap-1">
+            <span className="text-xs font-bold text-muted">Specific Locations</span>
+            <input
+              value={current.location ?? ''}
+              onChange={(e) => patch('location', e.target.value)}
+              className={field}
+            />
+          </label>
+          <label className="flex flex-col gap-1">
+            <span className="text-xs font-bold text-muted">Duration</span>
+            <input
+              value={current.duration ?? ''}
+              onChange={(e) => patch('duration', e.target.value)}
+              className={field}
+            />
+          </label>
+        </div>
+
+        <label className="flex flex-col gap-1">
+          <span className="text-xs font-bold text-muted">Description</span>
+          <textarea
+            rows={4}
+            value={current.description ?? ''}
+            onChange={(e) => patch('description', e.target.value)}
+            className={field}
+          />
+        </label>
+
+        {([
+          ['highlights', 'Trip Highlights'],
+          ['included', 'Package Includes'],
+          ['excluded', 'Not Included'],
+        ] as const).map(([key, label]) => (
+          <label key={key} className="flex flex-col gap-1">
+            <span className="text-xs font-bold text-muted">{label} — one per line</span>
+            <textarea
+              rows={4}
+              value={(current[key] ?? []).join('\n')}
+              onChange={(e) => patch(key, linesToList(e.target.value))}
+              className={field}
+            />
+          </label>
+        ))}
+
+        {/* Itinerary — matched to the English days by day number */}
+        {englishItinerary.length > 0 && (
+          <div className="rounded-xl border border-border p-4">
+            <p className="text-xs font-bold text-muted">Itinerary</p>
+            <div className="mt-3 space-y-4">
+              {englishItinerary.map((day) => {
+                const t = (current.itinerary ?? []).find((d) => d.day === day.day);
+                return (
+                  <div key={day.day} className="space-y-2">
+                    <p className="text-[11px] font-bold text-muted/70" dir="ltr">
+                      Day {day.day} — {day.title || 'Untitled'}
+                    </p>
+                    <input
+                      value={t?.title ?? ''}
+                      onChange={(e) => patchDay(day.day, 'title', e.target.value)}
+                      placeholder="Day title"
+                      className={field}
+                    />
+                    <textarea
+                      rows={3}
+                      value={(t?.activities ?? []).join('\n')}
+                      onChange={(e) => patchDay(day.day, 'activities', linesToList(e.target.value))}
+                      placeholder="Activities — one per line"
+                      className={field}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function ListBuilder({
   label,
   hint,
@@ -513,6 +712,9 @@ function PackageForm({
   );
   const [included, setIncluded] = useState<string[]>(initial?.included ?? []);
   const [excluded, setExcluded] = useState<string[]>(initial?.excluded ?? []);
+  const [translations, setTranslations] = useState<Record<string, PackageTranslationDraft>>(
+    (initial?.translations as Record<string, PackageTranslationDraft>) ?? {},
+  );
 
   function setB(k: string, v: string | number) {
     setBasics((p) => ({ ...p, [k]: v }));
@@ -531,6 +733,15 @@ function PackageForm({
       })),
       included,
       excluded,
+      // Locales the admin opened but left blank are dropped, so `translations`
+      // never accumulates empty objects that would read as "translated".
+      translations: Object.fromEntries(
+        Object.entries(translations).filter(([, t]) =>
+          Object.values(t).some((v) =>
+            Array.isArray(v) ? v.length > 0 : typeof v === 'string' && v.trim(),
+          ),
+        ),
+      ),
     });
   }
 
@@ -540,6 +751,7 @@ function PackageForm({
     { label: 'Highlights', Icon: Star          },
     { label: 'Itinerary',  Icon: Calendar      },
     { label: 'Includes',   Icon: CheckCircle2  },
+    { label: 'Languages',  Icon: Languages     },
   ];
 
   return (
@@ -780,6 +992,15 @@ function PackageForm({
               onChange={setExcluded}
             />
           </div>
+        )}
+
+        {/* ── Step 5: Translations ── */}
+        {step === 5 && (
+          <TranslationsEditor
+            englishItinerary={itinerary}
+            value={translations}
+            onChange={setTranslations}
+          />
         )}
       </div>
 
@@ -1720,6 +1941,7 @@ const TABS: { key: Tab; label: string; Icon: React.ElementType }[] = [
 ];
 
 export default function AdminPage() {
+  const { locale } = useLanguage();
   const navigate = useNavigate();
   const { user } = useStore();
   const [tab, setTab] = useState<Tab>('packages');
@@ -1735,7 +1957,7 @@ export default function AdminPage() {
   if (!user) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center px-4">
-        <Seo {...staticRouteMeta('/admin')} />
+        <Seo {...staticRouteMeta('/admin', locale)} />
         <div className="text-center">
           <p className="text-lg font-bold text-ink">Sign in required</p>
           <button onClick={() => navigate('/profile')} className="mt-4 btn-primary">Go to profile</button>
@@ -1758,7 +1980,7 @@ export default function AdminPage() {
 
   return (
     <div className="page-enter mx-auto max-w-7xl px-4 py-8 md:px-8 md:py-12">
-      <Seo {...staticRouteMeta('/admin')} />
+      <Seo {...staticRouteMeta('/admin', locale)} />
 
       {/* Header */}
       <div className="mb-8 flex items-center gap-3">

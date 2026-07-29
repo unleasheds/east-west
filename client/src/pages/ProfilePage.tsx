@@ -5,6 +5,7 @@ import GoogleLoginButton from '../components/ui/GoogleLoginButton';
 import { LogOut, User as UserIcon, Luggage, Moon, ClipboardList, Lock, MessageCircle, Zap, ShieldCheck, CheckCircle } from 'lucide-react';
 import Seo from '../components/seo/Seo';
 import { staticRouteMeta } from '../lib/seo';
+import { useLanguage } from '../i18n/LanguageProvider';
 
 function Completeness({ profile }: { profile: UserProfile }) {
   const fields = [profile.name, profile.phone, profile.email, profile.familySize, profile.budget, profile.preferences];
@@ -98,6 +99,7 @@ function SignInPanel() {
 }
 
 export default function ProfilePage() {
+  const { locale } = useLanguage();
   const { profile, setProfile, showToast, user, logout } = useStore();
   const [form, setForm] = useState<UserProfile>({ ...profile });
 
@@ -105,7 +107,7 @@ export default function ProfilePage() {
   if (!user) {
     return (
       <>
-        <Seo {...staticRouteMeta('/profile')} />
+        <Seo {...staticRouteMeta('/profile', locale)} />
         <SignInPanel />
       </>
     );
@@ -119,7 +121,7 @@ export default function ProfilePage() {
 
   return (
     <div className="page-enter mx-auto max-w-7xl px-4 py-8 md:px-8 md:py-12">
-      <Seo {...staticRouteMeta('/profile')} />
+      <Seo {...staticRouteMeta('/profile', locale)} />
 
       <div className="grid gap-8 lg:grid-cols-[0.85fr_1.15fr]">
 

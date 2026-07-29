@@ -35,7 +35,7 @@ const translations: Record<'ms' | 'ar', Record<string, string>> = {
     Where: 'Lokasi',
     When: 'Tarikh',
     Who: 'Tetamu',
-    Destination: 'Destinasi',
+    Destination: 'Destinasi tujuan',
     Search: 'Cari',
     Cancel: 'Batal',
     'Muslim-friendly · Halal-verified · Private tours': 'Mesra Muslim · Disahkan halal · Lawatan peribadi',
@@ -91,13 +91,69 @@ const translations: Record<'ms' | 'ar', Record<string, string>> = {
     'Number of travellers': 'Bilangan pelancong',
     'Book & Pay': 'Tempah & Bayar',
     'Enquire on WhatsApp': 'Tanya melalui WhatsApp',
+    // ── Package detail ──────────────────────────────────────────────────────
+    'About this trip': 'Tentang perjalanan ini',
+    'Day-by-Day Itinerary': 'Jadual Perjalanan Harian',
+    'Package not found': 'Pakej tidak ditemui',
+    'per person': 'setiap orang',
+    '/ person': '/ orang',
+    'Service fee': 'Yuran perkhidmatan',
+    Total: 'Jumlah',
+    Booking: 'Ringkasan tempahan',
+    'Booking confirmed!': 'Tempahan disahkan!',
+    'Not provided': 'Tidak dinyatakan',
+    // ── Trips, wishlist, profile ────────────────────────────────────────────
+    'My Trips': 'Perjalanan Saya',
+    'Plan your halal trip': 'Rancang perjalanan halal anda',
+    'Trip request': 'Permintaan perjalanan',
+    'Special requests': 'Permintaan khas',
+    'No trip requests yet': 'Belum ada permintaan perjalanan',
+    'Your saved trips': 'Perjalanan disimpan anda',
+    'No saved trips yet': 'Belum ada perjalanan disimpan',
+    'Tip:': 'Petua:',
+    'Sign in to EastWest': 'Log masuk ke EastWest',
+    'Profile completeness': 'Kelengkapan profil',
+    'Your details': 'Butiran anda',
+    'Travel preferences': 'Keutamaan perjalanan',
+    'Halal requirements & preferences': 'Keperluan & keutamaan halal',
+    'Save profile': 'Simpan profil',
+    'Changes are stored locally on this device.': 'Perubahan disimpan pada peranti ini.',
+    // ── Contact ─────────────────────────────────────────────────────────────
+    'Contact us': 'Hubungi kami',
+    'Get in touch': 'Berhubung',
+    'Business hours': 'Waktu operasi',
+    'All times are Gulf Standard Time (GST / UTC+4)': 'Semua waktu adalah Waktu Standard Teluk (GST / UTC+4)',
+    'Frequently asked questions': 'Soalan lazim',
+    // ── Footer & misc ───────────────────────────────────────────────────────
+    'Quick links': 'Pautan pantas',
+    Islands: 'Pulau',
+    International: 'Antarabangsa',
+    'Privacy policy': 'Dasar privasi',
+    'Terms of service': 'Terma perkhidmatan',
+    'Cookie settings': 'Tetapan kuki',
+    'Weekly tips, destination guides and exclusive deals.': 'Petua mingguan, panduan destinasi dan tawaran eksklusif.',
+    'No destinations found': 'Tiada destinasi ditemui',
+    'This page has moved on': 'Halaman ini tiada lagi',
+    // ── Homepage FAQ ────────────────────────────────────────────────────────
+    'Good to know': 'Perkara berguna',
+    'Halal travel questions, answered': 'Soalan pelancongan halal, dijawab',
+    'Are EastWest holiday packages fully halal?': 'Adakah pakej percutian EastWest sepenuhnya halal?',
+    'Yes. Every package is checked for halal-certified or Muslim-owned dining, prayer-friendly scheduling, alcohol-free accommodation options and family-appropriate activities before it is listed.': 'Ya. Setiap pakej disemak untuk restoran bersijil halal atau milik Muslim, jadual mesra solat, penginapan tanpa alkohol dan aktiviti sesuai keluarga sebelum disenaraikan.',
+    'Do you arrange private and family-only tours?': 'Adakah anda mengaturkan lawatan peribadi dan khusus keluarga?',
+    'We do. Private transfers, women-only or family-only excursions and privacy-conscious island resorts can be arranged for any package on request.': 'Ya. Pengangkutan peribadi, lawatan khusus wanita atau keluarga dan resort pulau yang menjaga privasi boleh diatur untuk mana-mana pakej atas permintaan.',
+    'How quickly will I get a trip plan?': 'Berapa cepat saya akan menerima pelan perjalanan?',
+    'Send your destination, dates and budget and our team replies on WhatsApp with a free Muslim-friendly trip plan, usually within two hours.': 'Hantar destinasi, tarikh dan bajet anda dan pasukan kami akan membalas melalui WhatsApp dengan pelan perjalanan mesra Muslim percuma, biasanya dalam dua jam.',
+    'Which destinations do you cover?': 'Destinasi manakah yang anda tawarkan?',
+    'The Maldives, Malaysia, Indonesia, Dubai, Turkey and Morocco, with new halal-verified destinations added regularly.': 'Maldives, Malaysia, Indonesia, Dubai, Turki dan Maghribi, dengan destinasi baharu yang disahkan halal ditambah secara berkala.',
+    'Can I pay online?': 'Bolehkah saya membayar dalam talian?',
+    'Yes. Packages with published pricing can be booked and paid for securely by card on the site, or you can pay after confirming details on WhatsApp.': 'Ya. Pakej dengan harga yang tertera boleh ditempah dan dibayar dengan selamat menggunakan kad di laman ini, atau anda boleh membayar selepas mengesahkan butiran melalui WhatsApp.',
   },
   ar: {
     Explore: 'استكشاف',
     Wishlist: 'المفضلة',
     Trips: 'الرحلات',
     Inbox: 'الرسائل',
-    Contact: 'اتصل بنا',
+    Contact: 'تواصل',
     Profile: 'الملف الشخصي',
     Admin: 'الإدارة',
     WhatsApp: 'واتساب',
@@ -105,7 +161,7 @@ const translations: Record<'ms' | 'ar', Record<string, string>> = {
     'Any week': 'أي وقت',
     'Add guests': 'إضافة ضيوف',
     'Search destinations': 'ابحث عن وجهة',
-    Where: 'الوجهة',
+    Where: 'إلى أين',
     When: 'التاريخ',
     Who: 'الضيوف',
     Destination: 'الوجهة',
@@ -164,18 +220,96 @@ const translations: Record<'ms' | 'ar', Record<string, string>> = {
     'Number of travellers': 'عدد المسافرين',
     'Book & Pay': 'احجز وادفع',
     'Enquire on WhatsApp': 'استفسر عبر واتساب',
+    // ── Package detail ──────────────────────────────────────────────────────
+    'About this trip': 'عن هذه الرحلة',
+    'Day-by-Day Itinerary': 'برنامج الرحلة يوماً بيوم',
+    'Package not found': 'الباقة غير موجودة',
+    'per person': 'للشخص الواحد',
+    '/ person': '/ للشخص',
+    'Service fee': 'رسوم الخدمة',
+    Total: 'الإجمالي',
+    Booking: 'ملخص الحجز',
+    'Booking confirmed!': 'تم تأكيد الحجز!',
+    'Not provided': 'غير محدد',
+    // ── Trips, wishlist, profile ────────────────────────────────────────────
+    'My Trips': 'رحلاتي',
+    'Plan your halal trip': 'خطط لرحلتك الحلال',
+    'Trip request': 'طلب رحلة',
+    'Special requests': 'طلبات خاصة',
+    'No trip requests yet': 'لا توجد طلبات رحلات بعد',
+    'Your saved trips': 'رحلاتك المحفوظة',
+    'No saved trips yet': 'لا توجد رحلات محفوظة بعد',
+    'Tip:': 'نصيحة:',
+    'Sign in to EastWest': 'تسجيل الدخول إلى إيست ويست',
+    'Profile completeness': 'اكتمال الملف الشخصي',
+    'Your details': 'بياناتك',
+    'Travel preferences': 'تفضيلات السفر',
+    'Halal requirements & preferences': 'المتطلبات والتفضيلات الحلال',
+    'Save profile': 'حفظ الملف الشخصي',
+    'Changes are stored locally on this device.': 'يتم حفظ التغييرات على هذا الجهاز.',
+    // ── Contact ─────────────────────────────────────────────────────────────
+    'Contact us': 'اتصل بنا',
+    'Get in touch': 'ابقَ على تواصل',
+    'Business hours': 'ساعات العمل',
+    'All times are Gulf Standard Time (GST / UTC+4)': 'جميع الأوقات بتوقيت الخليج (GST / UTC+4)',
+    'Frequently asked questions': 'الأسئلة الشائعة',
+    // ── Footer & misc ───────────────────────────────────────────────────────
+    'Quick links': 'روابط سريعة',
+    Islands: 'الجزر',
+    International: 'دولي',
+    'Privacy policy': 'سياسة الخصوصية',
+    'Terms of service': 'شروط الخدمة',
+    'Cookie settings': 'إعدادات ملفات تعريف الارتباط',
+    'Weekly tips, destination guides and exclusive deals.': 'نصائح أسبوعية وأدلة وجهات وعروض حصرية.',
+    'No destinations found': 'لم يتم العثور على وجهات',
+    'This page has moved on': 'هذه الصفحة لم تعد متاحة',
+    // ── Homepage FAQ ────────────────────────────────────────────────────────
+    'Good to know': 'معلومات مفيدة',
+    'Halal travel questions, answered': 'أسئلة السفر الحلال، مُجابة',
+    'Are EastWest holiday packages fully halal?': 'هل باقات إيست ويست حلال بالكامل؟',
+    'Yes. Every package is checked for halal-certified or Muslim-owned dining, prayer-friendly scheduling, alcohol-free accommodation options and family-appropriate activities before it is listed.': 'نعم. تخضع كل باقة للفحص من حيث المطاعم الحاصلة على شهادة حلال أو المملوكة لمسلمين، والجدولة التي تراعي أوقات الصلاة، وخيارات الإقامة الخالية من الكحول، والأنشطة المناسبة للعائلات قبل إدراجها.',
+    'Do you arrange private and family-only tours?': 'هل تنظمون جولات خاصة وعائلية فقط؟',
+    'We do. Private transfers, women-only or family-only excursions and privacy-conscious island resorts can be arranged for any package on request.': 'بالتأكيد. يمكن ترتيب وسائل نقل خاصة، ورحلات للنساء فقط أو للعائلات فقط، ومنتجعات جزرية تراعي الخصوصية لأي باقة عند الطلب.',
+    'How quickly will I get a trip plan?': 'كم من الوقت أحتاج للحصول على خطة الرحلة؟',
+    'Send your destination, dates and budget and our team replies on WhatsApp with a free Muslim-friendly trip plan, usually within two hours.': 'أرسل وجهتك وتواريخك وميزانيتك وسيرد فريقنا عبر واتساب بخطة رحلة مجانية مناسبة للمسلمين، عادةً خلال ساعتين.',
+    'Which destinations do you cover?': 'ما الوجهات التي تغطونها؟',
+    'The Maldives, Malaysia, Indonesia, Dubai, Turkey and Morocco, with new halal-verified destinations added regularly.': 'المالديف وماليزيا وإندونيسيا ودبي وتركيا والمغرب، مع إضافة وجهات جديدة موثّقة الحلال بانتظام.',
+    'Can I pay online?': 'هل يمكنني الدفع عبر الإنترنت؟',
+    'Yes. Packages with published pricing can be booked and paid for securely by card on the site, or you can pay after confirming details on WhatsApp.': 'نعم. يمكن حجز الباقات ذات الأسعار المعلنة ودفع قيمتها بأمان بالبطاقة عبر الموقع، أو يمكنك الدفع بعد تأكيد التفاصيل عبر واتساب.',
   },
 };
 
+/**
+ * Reverse index from every known rendering of a string (English key, Malay
+ * value, Arabic value) back to its English key.
+ *
+ * Built once instead of scanning ~120 keys per text node: the observer calls
+ * this for every text node in every mutation batch, so the previous linear
+ * `find` was O(nodes × dictionary) on each render.
+ */
+const SOURCE_BY_TEXT: Record<string, string> = (() => {
+  const index: Record<string, string> = {};
+  for (const key of Object.keys(translations.ms)) {
+    // First writer wins, so a value shared by two keys resolves consistently
+    // rather than depending on iteration order at lookup time.
+    index[key] ??= key;
+    const ms = translations.ms[key];
+    const ar = translations.ar[key];
+    if (ms) index[ms] ??= key;
+    if (ar) index[ar] ??= key;
+  }
+  return index;
+})();
+
 function translateExact(text: string, locale: Locale) {
-  const source = Object.keys(translations.ms).find(
-    (key) =>
-      key === text ||
-      translations.ms[key] === text ||
-      translations.ar[key] === text,
-  );
+  const source = SOURCE_BY_TEXT[text];
   if (!source) return text;
-  return locale === 'en' ? source : translations[locale][source];
+  if (locale === 'en') return source;
+
+  // A key present in one dictionary but not the other used to yield `undefined`,
+  // which was then written into the DOM as the literal text "undefined".
+  // Falling back to English is the correct degradation for a missing string.
+  return translations[locale][source] ?? source;
 }
 
 function translateNode(node: Text, locale: Locale) {

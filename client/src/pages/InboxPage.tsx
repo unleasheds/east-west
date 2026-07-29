@@ -1,6 +1,7 @@
 import { WHATSAPP_NUMBER } from '../data/packages';
 import Seo from '../components/seo/Seo';
 import { staticRouteMeta } from '../lib/seo';
+import { useLanguage } from '../i18n/LanguageProvider';
 
 const CHANNELS = [
   {
@@ -71,9 +72,10 @@ const FAQ = [
 ];
 
 export default function InboxPage() {
+  const { locale } = useLanguage();
   return (
     <div className="page-enter mx-auto max-w-7xl px-4 py-8 md:px-8 md:py-12">
-      <Seo {...staticRouteMeta('/contact')} />
+      <Seo {...staticRouteMeta('/contact', locale)} />
 
       {/* Page header */}
       <div className="mb-8">

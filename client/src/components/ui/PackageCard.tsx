@@ -4,6 +4,8 @@ import { Star } from 'lucide-react';
 import { Package } from '../../types';
 import { useStore } from '../../store/useStore';
 import { WHATSAPP_NUMBER } from '../../data/packages';
+import { localisePackage } from '../../lib/localisePackage';
+import { useLanguage } from '../../i18n/LanguageProvider';
 
 interface Props {
   pkg: Package;
@@ -24,8 +26,12 @@ function StarRating({ value }: { value: number }) {
   );
 }
 
-export default function PackageCard({ pkg, priority = false }: Props) {
+export default function PackageCard({ pkg: sourcePkg, priority = false }: Props) {
   const navigate = useNavigate();
+  const { locale } = useLanguage();
+  // Card copy is database content, so it needs the same locale merge the
+  // detail page uses — otherwise titles stay English inside a translated grid.
+  const pkg = localisePackage(sourcePkg, locale);
   const { isSaved, toggleSave } = useStore();
   const pkgKey = pkg.slug ?? pkg.id;   // slug for API data; id for static fallback
   const saved = isSaved(pkgKey);

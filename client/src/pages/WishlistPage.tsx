@@ -7,8 +7,10 @@ import { Package } from '../types';
 import PackageCard from '../components/ui/PackageCard';
 import Seo from '../components/seo/Seo';
 import { staticRouteMeta } from '../lib/seo';
+import { useLanguage } from '../i18n/LanguageProvider';
 
 export default function WishlistPage() {
+  const { locale } = useLanguage();
   const navigate = useNavigate();
   const { savedIds } = useStore();
 
@@ -23,7 +25,7 @@ export default function WishlistPage() {
 
   return (
     <div className="page-enter mx-auto max-w-7xl px-4 py-8 md:px-8 md:py-12">
-      <Seo {...staticRouteMeta('/wishlist')} />
+      <Seo {...staticRouteMeta('/wishlist', locale)} />
 
       {/* Header */}
       <div className="mb-8 flex items-end justify-between">

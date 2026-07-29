@@ -15,6 +15,18 @@ export interface ItineraryDay {
   activities: string[];
 }
 
+/** Per-locale overrides for a package's customer-facing copy. */
+export interface PackageTranslation {
+  title?: string;
+  location?: string;
+  duration?: string;
+  description?: string;
+  highlights?: string[];
+  itinerary?: ItineraryDay[];
+  included?: string[];
+  excluded?: string[];
+}
+
 export interface Package {
   id: string;
   slug?: string;          // present when data comes from API
@@ -36,6 +48,8 @@ export interface Package {
   rating: number;
   reviewCount: number;
   isHalalCertified: boolean;
+  /** Keyed by locale ('ms' | 'ar'); English lives in the fields above. */
+  translations?: Record<string, PackageTranslation>;
 }
 
 export interface TripRequest {

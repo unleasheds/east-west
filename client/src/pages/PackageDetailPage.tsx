@@ -22,6 +22,8 @@ import { BookingOrder, Package, ReviewSummary } from '../types';
 import CheckoutModal from '../components/ui/CheckoutModal';
 import Seo from '../components/seo/Seo';
 import { packageMeta, staticRouteMeta } from '../lib/seo';
+import { localisePackage } from '../lib/localisePackage';
+import { useLanguage } from '../i18n/LanguageProvider';
 
 type Tab = 'overview' | 'itinerary' | 'includes';
 
@@ -29,6 +31,7 @@ export default function PackageDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { isSaved, toggleSave, addTrip, user, showToast } = useStore();
+  const { locale } = useLanguage();
 
   // Try API first (by slug = id param); fall back to static data
   const { data: apiPkg, isLoading } = useQuery<Package>({
@@ -38,7 +41,11 @@ export default function PackageDetailPage() {
     staleTime: 5 * 60_000,
     retry: 1,
   });
-  const pkg = apiPkg ?? PACKAGES.find((p) => p.id === id);
+  // Package copy comes from the database in English; `localisePackage` layers
+  // the per-locale overrides on top so the title, description, highlights and
+  // itinerary switch language along with the interface chrome.
+  const sourcePkg = apiPkg ?? PACKAGES.find((p) => p.id === id);
+  const pkg = sourcePkg ? localisePackage(sourcePkg, locale) : undefined;
   const { data: reviewSummary } = useQuery<ReviewSummary>({
     queryKey: ['reviews', apiPkg?.id],
     queryFn: () => reviewsApi.getForPackage(apiPkg!.id),
@@ -79,7 +86,7 @@ export default function PackageDetailPage() {
       <div className="mx-auto max-w-2xl px-4 py-20 text-center">
         {/* The edge server already answered 404 for this URL; this keeps the
             client-side navigation case out of the index too. */}
-        <Seo {...staticRouteMeta('/__not-found')} />
+        <Seo {...staticRouteMeta('/__not-found', locale)} />
         <Frown className="mx-auto h-12 w-12 text-muted" strokeWidth={1.8} />
         <h1 className="mt-4 text-2xl font-black text-ink">Package not found</h1>
         <button
@@ -160,7 +167,7 @@ export default function PackageDetailPage() {
 
   return (
     <div className="page-enter bg-sand pb-16">
-      <Seo {...packageMeta(pkg)} />
+      <Seo {...packageMeta(pkg, locale)} />
 
       {/* Breadcrumb — crawlable links, mirroring the BreadcrumbList JSON-LD */}
       <nav aria-label="Breadcrumb" className="mx-auto max-w-7xl px-4 pt-6 md:px-8">

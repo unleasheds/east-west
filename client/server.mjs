@@ -29,6 +29,7 @@ import {
   LOCALES,
   DEFAULT_LOCALE,
 } from './shared/seo.js';
+import { localisePackage } from './shared/localise.js';
 
 const brotliAsync = promisify(brotliCompress);
 const gzipAsync = promisify(gzip);
@@ -239,11 +240,13 @@ async function renderPage(pathname, searchParams) {
   const packageMatch = PACKAGE_ROUTE.exec(path);
   if (packageMatch) {
     const result = await loadPackage(decodeURIComponent(packageMatch[1]));
-    pkg = result.pkg;
+    // Serve the requested language's copy, so a crawler indexing `?lang=ar`
+    // sees the Arabic title and description rather than the English source.
+    pkg = result.pkg ? localisePackage(result.pkg, locale) : null;
     if (pkg) {
-      meta = packageMeta(pkg);
+      meta = packageMeta(pkg, locale);
     } else if (result.missing) {
-      meta = staticRouteMeta('/__not-found');
+      meta = staticRouteMeta('/__not-found', locale);
       status = 404;
     } else {
       // The API is unreachable. The SPA still renders and can retry, but the
@@ -261,9 +264,9 @@ async function renderPage(pathname, searchParams) {
       status = 503;
     }
   } else if (KNOWN_ROUTES.has(path)) {
-    meta = staticRouteMeta(path);
+    meta = staticRouteMeta(path, locale);
   } else {
-    meta = staticRouteMeta('/__not-found');
+    meta = staticRouteMeta('/__not-found', locale);
     status = 404;
   }
 

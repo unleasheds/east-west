@@ -105,6 +105,47 @@ export function alternateLinks(path) {
 /** Routes that must never enter the index: personal, transactional or admin. */
 export const PRIVATE_ROUTES = ['/wishlist', '/trips', '/profile', '/admin'];
 
+/**
+ * Locale-specific copy for the indexable routes.
+ *
+ * `hreflang` promises that `?lang=ms` serves Malay. If those URLs returned the
+ * English title and description, the annotation would be a false claim — so the
+ * generated metadata is translated here, not only the package data.
+ */
+const STATIC_ROUTES_I18N = {
+  ms: {
+    '/': {
+      title: `Pakej Pelancongan Halal & Lawatan Mesra Muslim | ${SITE.name}`,
+      description:
+        'Tempah pakej percutian halal yang disahkan — percutian pulau Maldives, lawatan keluarga Malaysia dan perjalanan peribadi mesra Muslim dengan jadual mesra solat dan makanan halal sepanjang perjalanan.',
+    },
+    '/contact': {
+      title: `Hubungi EastWest Halal Travel — WhatsApp, E-mel & Pejabat`,
+      description:
+        'Berbual dengan pakar pelancongan halal. Balasan WhatsApp dalam dua jam, pejabat di Malé, Maldives dan Sharjah, UAE, serta perancangan perjalanan mesra Muslim secara percuma.',
+    },
+  },
+  ar: {
+    '/': {
+      title: `باقات السفر الحلال وجولات مناسبة للمسلمين | ${SITE.name}`,
+      description:
+        'احجز باقات عطلات حلال موثّقة — رحلات جزر المالديف وجولات عائلية في ماليزيا ورحلات خاصة مناسبة للمسلمين مع برامج تراعي أوقات الصلاة وطعام حلال طوال الرحلة.',
+    },
+    '/contact': {
+      title: `اتصل بـ EastWest Halal Travel — واتساب وبريد ومكاتب`,
+      description:
+        'تحدث إلى خبير سفر حلال. نرد عبر واتساب خلال ساعتين، ولدينا مكاتب في ماليه بالمالديف والشارقة بالإمارات، وتخطيط رحلات مناسب للمسلمين مجاناً.',
+    },
+  },
+};
+
+/** Connective wording used to assemble a package description per locale. */
+const PACKAGE_COPY = {
+  en: { halal: 'Halal-certified ', in: 'in', from: 'from', perPerson: 'per person', comma: ',' },
+  ms: { halal: 'Disahkan halal — ', in: 'di', from: 'dari', perPerson: 'setiap orang', comma: ',' },
+  ar: { halal: 'معتمد حلال — ', in: 'في', from: 'ابتداءً من', perPerson: 'للشخص الواحد', comma: '،' },
+};
+
 /** @type {Record<string, { title: string, description: string, noindex?: boolean }>} */
 const STATIC_ROUTES = {
   '/': {
@@ -143,11 +184,12 @@ const STATIC_ROUTES = {
 /**
  * Metadata for a non-package route.
  * @param {string} path
+ * @param {string} [locale]
  * @returns {PageMeta}
  */
-export function staticRouteMeta(path) {
+export function staticRouteMeta(path, locale = DEFAULT_LOCALE) {
   const key = canonicalPath(path);
-  const route = STATIC_ROUTES[key];
+  const route = STATIC_ROUTES_I18N[locale]?.[key] ?? STATIC_ROUTES[key];
 
   if (!route) {
     return {
@@ -183,6 +225,7 @@ export function staticRouteMeta(path) {
     title: route.title,
     description: route.description,
     path: key,
+    locale,
     noindex,
     type: 'website',
     image: SITE.defaultImage,
@@ -255,18 +298,20 @@ function buildPackageTitle(pkg) {
  * @param {SeoPackage} pkg
  * @returns {PageMeta}
  */
-export function packageMeta(pkg) {
+export function packageMeta(pkg, locale = DEFAULT_LOCALE) {
   const path = packagePath(pkg);
-  const halal = pkg.isHalalCertified === false ? '' : 'Halal-certified ';
+  const copy = PACKAGE_COPY[locale] ?? PACKAGE_COPY[DEFAULT_LOCALE];
+  const halal = pkg.isHalalCertified === false ? '' : copy.halal;
 
   const title = buildPackageTitle(pkg);
 
   // Package titles frequently already carry the duration, so the description
   // leads with the facts a searcher scans for — where, how long, how much —
-  // and only then the highlights that differentiate it.
+  // and only then the highlights that differentiate it. The connectives come
+  // from the locale table so a translated page reads in one language.
   const lead =
-    `${halal}${pkg.duration} in ${pkg.location}, ${pkg.destination}` +
-    (pkg.price ? ` from ${pkg.price} per person` : '');
+    `${halal}${pkg.duration} ${copy.in} ${pkg.location}${copy.comma} ${pkg.destination}` +
+    (pkg.price ? ` ${copy.from} ${pkg.price} ${copy.perPerson}` : '');
   const highlights = (Array.isArray(pkg.highlights) ? pkg.highlights : [])
     .slice(0, 2)
     .join(', ');
@@ -292,6 +337,7 @@ export function packageMeta(pkg) {
       `halal ${pkg.type ?? 'holiday'} ${pkg.destination}`,
       pkg.location,
     ].join(', '),
+    locale,
     noindex: false,
     jsonLd: [
       organizationLd(),

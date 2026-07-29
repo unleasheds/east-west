@@ -2,13 +2,15 @@ import { Link } from 'react-router-dom';
 import { Compass } from 'lucide-react';
 import Seo from '../components/seo/Seo';
 import { staticRouteMeta } from '../lib/seo';
+import { useLanguage } from '../i18n/LanguageProvider';
 
 /**
  * Genuine 404. The edge server already returned a 404 status for this URL;
  * this only supplies the visible page and its noindex metadata.
  */
 export default function NotFoundPage() {
-  const meta = staticRouteMeta('/__not-found');
+  const { locale } = useLanguage();
+  const meta = staticRouteMeta('/__not-found', locale);
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-24 text-center">
