@@ -6,6 +6,7 @@ import { AppSetting } from './entities/app-setting.entity';
 export const SETTING_KEYS = {
   PACKAGE_TYPES:  'package_types',
   DESTINATIONS:   'destinations',
+  ISLANDS:        'islands',
   CATEGORIES:     'categories',
   FEATURED_PACKAGE: 'featured_package_id',
 } as const;
@@ -13,6 +14,7 @@ export const SETTING_KEYS = {
 const DEFAULTS: Record<string, unknown[]> = {
   [SETTING_KEYS.PACKAGE_TYPES]: ['Family', 'Private', 'Honeymoon', 'Ramadan', 'Island', 'City'],
   [SETTING_KEYS.DESTINATIONS]:  ['Maldives', 'Malaysia', 'Indonesia', 'Dubai', 'Turkey', 'Morocco'],
+  [SETTING_KEYS.ISLANDS]:       ['Himmafushi', 'Ukulhas'],
   [SETTING_KEYS.CATEGORIES]: [
     { label: 'All',      iconName: 'Globe'    },
     { label: 'Maldives', iconName: 'Waves'    },
@@ -31,7 +33,9 @@ export class SettingsService {
 
   async getAll(): Promise<Record<string, unknown[]>> {
     const rows = await this.repo.find();
-    const result: Record<string, unknown[]> = {};
+    const result: Record<string, unknown[]> = Object.fromEntries(
+      Object.entries(DEFAULTS).map(([key, values]) => [key, [...values]]),
+    );
     for (const row of rows) result[row.key] = row.values;
     return result;
   }

@@ -197,8 +197,6 @@ export default function Header() {
             </button>
           )}
 
-          <LanguageSelector />
-
           {/* WhatsApp */}
           <a
             href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent('Hi EastWest Halal Travel, I want help planning a halal-friendly trip.')}`}
@@ -221,6 +219,9 @@ export default function Header() {
               <span className="hidden sm:inline">Admin</span>
             </Link>
           )}
+
+          {/* Language — anchored beside profile */}
+          <LanguageSelector />
 
           {/* User avatar / sign-in button */}
           <Link

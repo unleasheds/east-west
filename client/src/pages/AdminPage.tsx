@@ -1517,6 +1517,14 @@ function SettingsTab() {
           iconBg="bg-blue-100 text-blue-600"
           badge="destinations"
         />
+        <SettingsList
+          settingKey="islands"
+          label="Islands"
+          description="Managed separately for the Islands section in the website footer"
+          icon={<Globe className="h-4 w-4" />}
+          iconBg="bg-cyan-100 text-cyan-700"
+          badge="islands"
+        />
         <CategoryList />
       </div>
     </div>

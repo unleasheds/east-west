@@ -1,7 +1,9 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { PACKAGES, WHATSAPP_NUMBER } from '../../data/packages';
 import { useStore } from '../../store/useStore';
-import type { PackageType } from '../../types';
+import type { Package, PackageType } from '../../types';
+import { useQuery } from '@tanstack/react-query';
+import { packagesApi, settingsApi } from '../../lib/api';
 
 const YEAR = new Date().getFullYear();
 const FALLBACK_PACKAGE_TYPES: PackageType[] = ['Family', 'Private', 'Honeymoon', 'Ramadan', 'Island', 'City'];
@@ -22,6 +24,22 @@ export default function Footer() {
   const location = useLocation();
   const { setSearch, setActiveCategory } = useStore();
   const packageTypes = PACKAGE_TYPES.length > 0 ? PACKAGE_TYPES : FALLBACK_PACKAGE_TYPES;
+  const { data: activePackages = [] } = useQuery<Package[]>({
+    queryKey: ['packages'],
+    queryFn: () => packagesApi.getAll(),
+    staleTime: 5 * 60_000,
+  });
+  const { data: settings } = useQuery<Record<string, unknown[]>>({
+    queryKey: ['settings'],
+    queryFn: () => settingsApi.getAll(),
+    staleTime: 5 * 60_000,
+  });
+  const activeDestinations = [
+    ...new Set(activePackages.map((pkg) => pkg.destination).filter(Boolean)),
+  ];
+  const islands = Array.isArray(settings?.islands)
+    ? settings.islands.filter((island): island is string => typeof island === 'string')
+    : [];
 
   function goToDestination(dest: string) {
     setSearch({ destination: dest });
@@ -172,7 +190,7 @@ export default function Footer() {
           <div>
             <h4 className="section-label mb-4">Destinations</h4>
             <ul className="space-y-2.5 text-sm">
-              {['Maldives', 'Malaysia', 'Indonesia', 'Dubai', 'China', 'Vietnam'].map((d) => (
+              {activeDestinations.map((d) => (
                 <li key={d}>
                   <button
                     onClick={() => goToDestination(d)}
@@ -183,6 +201,23 @@ export default function Footer() {
                 </li>
               ))}
             </ul>
+            {islands.length > 0 && (
+              <>
+                <h4 className="section-label mb-4 mt-8">Islands</h4>
+                <ul className="space-y-2.5 text-sm">
+                  {islands.map((island) => (
+                    <li key={island}>
+                      <button
+                        onClick={() => goToDestination(island)}
+                        className="text-muted transition hover:text-ink"
+                      >
+                        {island}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
           </div>
 
           {/* Package Types */}
