@@ -84,6 +84,23 @@
   animation: shimmer 1.4s infinite;
 }
 
+/* International phone input overrides */
+.phone-input .PhoneInputInput {
+  color: #222222;
+  background: transparent;
+  border: 0;
+  outline: 0;
+}
+.phone-input .PhoneInputInput::placeholder {
+  color: #8a8a8a;
+}
+.phone-input .PhoneInputCountryIcon {
+  box-shadow: none;
+}
+.phone-input .PhoneInputCountrySelect {
+  color: #222222;
+}
+
 /* Number counter fade */
 .stat-num { font-variant-numeric: tabular-nums; }
 
