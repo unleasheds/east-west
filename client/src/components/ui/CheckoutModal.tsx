@@ -31,7 +31,7 @@ const STRIPE_ELEMENT_STYLE = {
 // ─── Inner form (needs Elements context) ───────────────────────────────────
 interface FormProps {
   order: BookingOrder;
-  onSuccess: () => void;
+  onSuccess: (payload: { paymentIntentId?: string }) => void;
   onClose: () => void;
 }
 
@@ -40,10 +40,26 @@ function CheckoutForm({ order, onSuccess, onClose }: FormProps) {
   const elements = useElements();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [cardholderName, setCardholderName] = useState(order.name || '');
+  const [cardNumberComplete, setCardNumberComplete] = useState(false);
+  const [cardExpiryComplete, setCardExpiryComplete] = useState(false);
+  const [cardCvcComplete, setCardCvcComplete] = useState(false);
+
+  const canPay =
+    Boolean(stripe) &&
+    !loading &&
+    cardholderName.trim().length > 0 &&
+    cardNumberComplete &&
+    cardExpiryComplete &&
+    cardCvcComplete;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!stripe || !elements) return;
+    if (!cardholderName.trim()) {
+      setError('Cardholder name is required');
+      return;
+    }
 
     setLoading(true);
     setError('');
@@ -71,14 +87,14 @@ function CheckoutForm({ order, onSuccess, onClose }: FormProps) {
       const result = await stripe.confirmCardPayment(clientSecret, {
         payment_method: {
           card: cardNumber,
-          billing_details: { name: order.name, email: order.email },
+          billing_details: { name: cardholderName.trim(), email: order.email },
         },
       });
 
       if (result.error) {
         setError(result.error.message ?? 'Payment failed');
       } else if (result.paymentIntent?.status === 'succeeded') {
-        onSuccess();
+        onSuccess({ paymentIntentId: result.paymentIntent.id });
       }
     } catch (err: unknown) {
       // Axios reports non-2xx as "Request failed with status code 400"; the
@@ -139,10 +155,29 @@ function CheckoutForm({ order, onSuccess, onClose }: FormProps) {
       {/* Card fields */}
       <div className="flex flex-col gap-1">
         <label className="text-[11px] font-bold uppercase tracking-wider text-muted">
+          Cardholder name
+        </label>
+        <input
+          value={cardholderName}
+          onChange={(e) => setCardholderName(e.target.value)}
+          placeholder="Name on card"
+          className="rounded-xl border border-border bg-white px-4 py-3 text-sm font-semibold text-ink outline-none placeholder:text-muted focus:border-brand focus:ring-1 focus:ring-brand"
+          required
+        />
+      </div>
+
+      <div className="flex flex-col gap-1">
+        <label className="text-[11px] font-bold uppercase tracking-wider text-muted">
           Card number
         </label>
         <div className="rounded-xl border border-border bg-white px-4 py-3.5">
-          <CardNumberElement options={STRIPE_ELEMENT_STYLE} />
+          <CardNumberElement
+            options={STRIPE_ELEMENT_STYLE}
+            onChange={(event) => {
+              setCardNumberComplete(event.complete);
+              if (event.error) setError(event.error.message ?? 'Card number is invalid');
+            }}
+          />
         </div>
       </div>
 
@@ -152,7 +187,13 @@ function CheckoutForm({ order, onSuccess, onClose }: FormProps) {
             Expiry
           </label>
           <div className="rounded-xl border border-border bg-white px-4 py-3.5">
-            <CardExpiryElement options={STRIPE_ELEMENT_STYLE} />
+            <CardExpiryElement
+              options={STRIPE_ELEMENT_STYLE}
+              onChange={(event) => {
+                setCardExpiryComplete(event.complete);
+                if (event.error) setError(event.error.message ?? 'Expiry date is invalid');
+              }}
+            />
           </div>
         </div>
         <div className="flex flex-col gap-1">
@@ -160,7 +201,13 @@ function CheckoutForm({ order, onSuccess, onClose }: FormProps) {
             CVC
           </label>
           <div className="rounded-xl border border-border bg-white px-4 py-3.5">
-            <CardCvcElement options={STRIPE_ELEMENT_STYLE} />
+            <CardCvcElement
+              options={STRIPE_ELEMENT_STYLE}
+              onChange={(event) => {
+                setCardCvcComplete(event.complete);
+                if (event.error) setError(event.error.message ?? 'CVC is invalid');
+              }}
+            />
           </div>
         </div>
       </div>
@@ -174,7 +221,7 @@ function CheckoutForm({ order, onSuccess, onClose }: FormProps) {
       <div className="flex flex-col gap-2 pt-1 sm:flex-row">
         <button
           type="submit"
-          disabled={loading || !stripe}
+          disabled={!canPay}
           className="flex flex-1 items-center justify-center gap-2 rounded-full bg-brand py-4 text-sm font-bold text-white transition hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-60"
         >
           {loading ? (
@@ -230,7 +277,7 @@ function SuccessScreen({ onClose }: { onClose: () => void }) {
 interface Props {
   order: BookingOrder;
   onClose: () => void;
-  onSuccess?: () => void | Promise<void>;
+  onSuccess?: (payload: { paymentIntentId?: string }) => void | Promise<void>;
 }
 
 export default function CheckoutModal({ order, onClose, onSuccess }: Props) {
@@ -264,9 +311,9 @@ export default function CheckoutModal({ order, onClose, onSuccess }: Props) {
           <Elements stripe={stripePromise}>
             <CheckoutForm
               order={order}
-              onSuccess={() => {
+              onSuccess={(payload) => {
                 setPaid(true);
-                void onSuccess?.();
+                void onSuccess?.(payload);
               }}
               onClose={onClose}
             />

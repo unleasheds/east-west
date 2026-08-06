@@ -63,6 +63,11 @@ export default function PackageDetailPage() {
   const [showCheckout, setShowCheckout] = useState(false);
   const [checkoutOrder, setCheckoutOrder] = useState<BookingOrder | null>(null);
 
+  const isBookingFormValid =
+    bookingForm.name.trim().length > 0 &&
+    bookingForm.email.trim().length > 0 &&
+    bookingForm.phone.trim().length > 0;
+
   useEffect(() => {
     if (!user?.id || !apiPkg?.id) return;
     void usersApi.trackPackageView(apiPkg.id).catch(() => {
@@ -113,6 +118,10 @@ export default function PackageDetailPage() {
 
   function openCheckout() {
     if (!pkg) return;
+    if (!isBookingFormValid) {
+      showToast('Please fill Name, Email, and Phone before payment.', 'error');
+      return;
+    }
     const order: BookingOrder = {
       packageId: pkg.id,
       packageTitle: pkg.title,
@@ -128,7 +137,15 @@ export default function PackageDetailPage() {
     setShowCheckout(true);
   }
 
-  async function recordSuccessfulBooking() {
+  function openWhatsAppWithBookingDetails(paymentIntentId?: string) {
+    if (!pkg) return;
+    const msg = encodeURIComponent(
+      `Hi EastWest Halal Travel, my payment was successful.\n\nPackage: ${pkg.title}\nDestination: ${pkg.destination}\nTravellers: ${travellers}\nPrice per person: ${pkg.price}\nTotal: $${(pkg.priceValue * travellers).toLocaleString()}\n\nGuest Name: ${bookingForm.name}\nEmail: ${bookingForm.email}\nPhone: ${bookingForm.phone}\nSpecial requests: ${bookingForm.requests || 'None'}\nPayment Reference: ${paymentIntentId || 'N/A'}`,
+    );
+    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`, '_blank');
+  }
+
+  async function recordSuccessfulBooking(payload?: { paymentIntentId?: string }) {
     if (!pkg) return;
     const trip = {
       destination: pkg.title,
@@ -150,6 +167,10 @@ export default function PackageDetailPage() {
         showToast('Payment succeeded, but the booking record needs staff confirmation.', 'error');
       }
     }
+
+    // WhatsApp can be auto-opened with a prefilled message, but WhatsApp itself
+    // does not allow fully automatic sending without user confirmation.
+    openWhatsAppWithBookingDetails(payload?.paymentIntentId);
   }
 
   function handleWhatsApp() {
@@ -612,6 +633,7 @@ export default function PackageDetailPage() {
                       value={bookingForm[key]}
                       onChange={(e) => setBookingForm((p) => ({ ...p, [key]: e.target.value }))}
                       placeholder={placeholder}
+                      required
                       className="rounded-xl border border-border bg-soft px-4 py-3 text-sm font-semibold text-ink outline-none placeholder:text-muted focus:border-brand focus:ring-1 focus:ring-brand"
                     />
                   </label>
@@ -658,7 +680,8 @@ export default function PackageDetailPage() {
                 {pkg.priceValue > 0 ? (
                   <button
                     onClick={openCheckout}
-                    className="flex w-full items-center justify-center gap-2 rounded-full bg-brand py-4 text-sm font-bold text-white transition hover:bg-brand-dark"
+                    disabled={!isBookingFormValid}
+                    className="flex w-full items-center justify-center gap-2 rounded-full bg-brand py-4 text-sm font-bold text-white transition hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     <Lock className="h-4 w-4" strokeWidth={2.2} />
                     Book &amp; Pay — ${(pkg.priceValue * travellers).toLocaleString()}
@@ -716,7 +739,9 @@ export default function PackageDetailPage() {
         <CheckoutModal
           order={checkoutOrder}
           onClose={() => setShowCheckout(false)}
-          onSuccess={recordSuccessfulBooking}
+          onSuccess={(payload) => {
+            void recordSuccessfulBooking(payload);
+          }}
         />
       )}
     </div>
