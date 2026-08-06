@@ -137,17 +137,21 @@ export default function TripsPage() {
   const { trips, addTrip, showToast, user } = useStore();
   const [selected, setSelected] = useState<TripRequest | null>(null);
   const [form, setForm] = useState({
-    destination: '',
-    dates: '',
-    travellers: '',
-    budget: '',
-    needs: '',
+    guestName: '',
+    adults: '',
+    children: '',
+    childrenAges: '',
+    roomType: '',
+    checkIn: '',
+    checkOut: '',
+    mealPlan: '',
+    excursions: '',
   });
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const msg = encodeURIComponent(
-      `Hi EastWest Halal Travel, I want a halal travel plan.\n\nDestination: ${form.destination}\nDates: ${form.dates}\nTravellers: ${form.travellers}\nBudget: ${form.budget}\nSpecial needs: ${form.needs}`
+      `Hi EastWest Halal Travel, I'd like to make a booking enquiry.\n\nGuest Name: ${form.guestName}\n\nTotal Number of Guests (Pax): ${(parseInt(form.adults || '0') + parseInt(form.children || '0')) || ''}\nAdults: ${form.adults}\nChildren (if any): ${form.children}\nAges of Children: ${form.childrenAges}\n\nRoom Type: ${form.roomType}\n\nCheck-in Date: ${form.checkIn}\nCheck-out Date: ${form.checkOut}\n\nMeal Plan: ${form.mealPlan}\n\nExcursions (Optional): ${form.excursions || 'None'}`
     );
 
     // Open WhatsApp directly from the submit event. Waiting for the API request
@@ -161,10 +165,9 @@ export default function TripsPage() {
     } catch {
       // silently ignore — trip is still saved locally
     }
-    setForm({ destination: '', dates: '', travellers: '', budget: '', needs: '' });
+    setForm({ guestName: '', adults: '', children: '', childrenAges: '', roomType: '', checkIn: '', checkOut: '', mealPlan: '', excursions: '' });
     showToast('Trip request sent!', 'success');
   }
-
   return (
     <div className="page-enter mx-auto max-w-7xl overflow-x-hidden px-4 py-8 md:px-8 md:py-12">
       <Seo {...staticRouteMeta('/trips', locale)} />
@@ -216,34 +219,101 @@ export default function TripsPage() {
           </p>
 
           <div className="mt-6 grid gap-3 md:grid-cols-2">
-            {([
-              { key: 'destination', placeholder: 'e.g. Maldives, Malaysia, Dubai',   label: 'Destination'   },
-              { key: 'dates',       placeholder: 'e.g. July 2026, 2 weeks in August', label: 'Travel dates'  },
-              { key: 'travellers',  placeholder: 'e.g. 2 adults, 2 children',         label: 'Travellers'    },
-              { key: 'budget',      placeholder: 'e.g. $1,000–$2,000 per person',     label: 'Budget range'  },
-            ] as const).map(({ key, placeholder, label }) => (
-              <label key={key} className="min-w-0 flex flex-col gap-1">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-muted">
-                  {label}
-                </span>
-                <input
-                  value={form[key]}
-                  onChange={(e) => setForm((p) => ({ ...p, [key]: e.target.value }))}
-                  className="min-w-0 rounded-xl bg-soft px-4 py-3.5 text-sm font-semibold text-ink outline-none placeholder:text-muted focus:ring-2 focus:ring-brand"
-                  placeholder={placeholder}
-                />
-              </label>
-            ))}
-
+            {/* Guest Name */}
             <label className="min-w-0 flex flex-col gap-1 md:col-span-2">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-muted">
-                Special needs
-              </span>
-              <textarea
-                value={form.needs}
-                onChange={(e) => setForm((p) => ({ ...p, needs: e.target.value }))}
-                className="min-h-[100px] min-w-0 resize-none rounded-xl bg-soft px-4 py-3.5 text-sm font-semibold text-ink outline-none placeholder:text-muted focus:ring-2 focus:ring-brand"
-                placeholder="Halal food only, private tour, baby seat, prayer-friendly hotels, mobility needs…"
+              <span className="text-[11px] font-bold uppercase tracking-wider text-muted">Guest Name</span>
+              <input
+                value={form.guestName}
+                onChange={(e) => setForm((p) => ({ ...p, guestName: e.target.value }))}
+                className="min-w-0 rounded-xl bg-soft px-4 py-3.5 text-sm font-semibold text-ink outline-none placeholder:text-muted focus:ring-2 focus:ring-brand"
+                placeholder="Full name"
+              />
+            </label>
+
+            {/* Adults */}
+            <label className="min-w-0 flex flex-col gap-1">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-muted">Adults</span>
+              <input
+                value={form.adults}
+                onChange={(e) => setForm((p) => ({ ...p, adults: e.target.value }))}
+                className="min-w-0 rounded-xl bg-soft px-4 py-3.5 text-sm font-semibold text-ink outline-none placeholder:text-muted focus:ring-2 focus:ring-brand"
+                placeholder="e.g. 2"
+              />
+            </label>
+
+            {/* Children */}
+            <label className="min-w-0 flex flex-col gap-1">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-muted">Children (if any)</span>
+              <input
+                value={form.children}
+                onChange={(e) => setForm((p) => ({ ...p, children: e.target.value }))}
+                className="min-w-0 rounded-xl bg-soft px-4 py-3.5 text-sm font-semibold text-ink outline-none placeholder:text-muted focus:ring-2 focus:ring-brand"
+                placeholder="e.g. 2"
+              />
+            </label>
+
+            {/* Ages of children */}
+            <label className="min-w-0 flex flex-col gap-1 md:col-span-2">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-muted">Ages of Children</span>
+              <input
+                value={form.childrenAges}
+                onChange={(e) => setForm((p) => ({ ...p, childrenAges: e.target.value }))}
+                className="min-w-0 rounded-xl bg-soft px-4 py-3.5 text-sm font-semibold text-ink outline-none placeholder:text-muted focus:ring-2 focus:ring-brand"
+                placeholder="e.g. 5, 8"
+              />
+            </label>
+
+            {/* Room Type */}
+            <label className="min-w-0 flex flex-col gap-1 md:col-span-2">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-muted">Room Type</span>
+              <input
+                value={form.roomType}
+                onChange={(e) => setForm((p) => ({ ...p, roomType: e.target.value }))}
+                className="min-w-0 rounded-xl bg-soft px-4 py-3.5 text-sm font-semibold text-ink outline-none placeholder:text-muted focus:ring-2 focus:ring-brand"
+                placeholder="e.g. Double | Triple | Family"
+              />
+            </label>
+
+            {/* Check-in / Check-out */}
+            <label className="min-w-0 flex flex-col gap-1">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-muted">Check-in Date</span>
+              <input
+                type="date"
+                value={form.checkIn}
+                onChange={(e) => setForm((p) => ({ ...p, checkIn: e.target.value }))}
+                className="min-w-0 rounded-xl bg-soft px-4 py-3.5 text-sm font-semibold text-ink outline-none focus:ring-2 focus:ring-brand"
+              />
+            </label>
+
+            <label className="min-w-0 flex flex-col gap-1">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-muted">Check-out Date</span>
+              <input
+                type="date"
+                value={form.checkOut}
+                onChange={(e) => setForm((p) => ({ ...p, checkOut: e.target.value }))}
+                className="min-w-0 rounded-xl bg-soft px-4 py-3.5 text-sm font-semibold text-ink outline-none focus:ring-2 focus:ring-brand"
+              />
+            </label>
+
+            {/* Meal Plan */}
+            <label className="min-w-0 flex flex-col gap-1 md:col-span-2">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-muted">Meal Plan</span>
+              <input
+                value={form.mealPlan}
+                onChange={(e) => setForm((p) => ({ ...p, mealPlan: e.target.value }))}
+                className="min-w-0 rounded-xl bg-soft px-4 py-3.5 text-sm font-semibold text-ink outline-none placeholder:text-muted focus:ring-2 focus:ring-brand"
+                placeholder="e.g. Breakfast Only | Half Board | Full Board"
+              />
+            </label>
+
+            {/* Excursions */}
+            <label className="min-w-0 flex flex-col gap-1 md:col-span-2">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-muted">Excursions (Optional)</span>
+              <input
+                value={form.excursions}
+                onChange={(e) => setForm((p) => ({ ...p, excursions: e.target.value }))}
+                className="min-w-0 rounded-xl bg-soft px-4 py-3.5 text-sm font-semibold text-ink outline-none placeholder:text-muted focus:ring-2 focus:ring-brand"
+                placeholder="e.g. Snorkeling, Sandbank Visit, Island Hopping"
               />
             </label>
           </div>

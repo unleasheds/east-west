@@ -54,11 +54,20 @@ export interface Package {
 
 export interface TripRequest {
   id: string;
-  destination: string;
-  dates: string;
-  travellers: string;
-  budget: string;
-  needs: string;
+  destination?: string;
+  dates?: string;
+  travellers?: string;
+  budget?: string;
+  needs?: string;
+  guestName?: string;
+  adults?: string;
+  children?: string;
+  childrenAges?: string;
+  roomType?: string;
+  checkIn?: string;
+  checkOut?: string;
+  mealPlan?: string;
+  excursions?: string;
   createdAt: string;
   status: 'pending' | 'confirmed' | 'completed';
 }
