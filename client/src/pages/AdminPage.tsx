@@ -1108,23 +1108,24 @@ function PackageForm({
             ))}
           </div>
 
-          {step < STEPS.length - 1 ? (
+          {/* Every step is optional past Basic Info, so Save is always reachable
+              — the wizard is a guide, not a gate. */}
+          {step < STEPS.length - 1 && (
             <button
               type="button"
               onClick={() => setStep(step + 1)}
-              className="rounded-full gradient-brand px-6 py-2 text-sm font-bold text-white shadow transition hover:opacity-90"
+              className="rounded-full border border-brand px-6 py-2 text-sm font-bold text-brand transition hover:bg-brand/5"
             >
               Next →
             </button>
-          ) : (
-            <button
-              type="button"
-              onClick={handleSave}
-              className="flex items-center gap-2 rounded-full gradient-brand px-6 py-2 text-sm font-bold text-white shadow transition hover:opacity-90"
-            >
-              <Check className="h-4 w-4" /> Save Package
-            </button>
           )}
+          <button
+            type="button"
+            onClick={handleSave}
+            className="flex items-center gap-2 rounded-full gradient-brand px-6 py-2 text-sm font-bold text-white shadow transition hover:opacity-90"
+          >
+            <Check className="h-4 w-4" /> Save Package
+          </button>
         </div>
       </div>
     </div>
