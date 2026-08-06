@@ -1,6 +1,9 @@
 import { useEffect, useState, useRef } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import PhoneInput from 'react-phone-number-input';
+import { isValidPhoneNumber } from 'react-phone-number-input';
+import 'react-phone-number-input/style.css';
 import {
   ArrowLeft,
   Baby,
@@ -63,10 +66,11 @@ export default function PackageDetailPage() {
   const [showCheckout, setShowCheckout] = useState(false);
   const [checkoutOrder, setCheckoutOrder] = useState<BookingOrder | null>(null);
 
+  const hasValidPhone = bookingForm.phone ? isValidPhoneNumber(bookingForm.phone) : false;
   const isBookingFormValid =
     bookingForm.name.trim().length > 0 &&
     bookingForm.email.trim().length > 0 &&
-    bookingForm.phone.trim().length > 0;
+    hasValidPhone;
 
   useEffect(() => {
     if (!user?.id || !apiPkg?.id) return;
@@ -622,7 +626,6 @@ export default function PackageDetailPage() {
                   [
                     { key: 'name', placeholder: 'Full name', label: 'Name' },
                     { key: 'email', placeholder: 'Email address', label: 'Email' },
-                    { key: 'phone', placeholder: 'WhatsApp number', label: 'Phone' },
                   ] as const
                 ).map(({ key, placeholder, label }) => (
                   <label key={key} className="flex flex-col gap-1">
@@ -638,6 +641,22 @@ export default function PackageDetailPage() {
                     />
                   </label>
                 ))}
+                <label className="flex flex-col gap-1">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-muted">
+                    Phone
+                  </span>
+                  <PhoneInput
+                    international
+                    defaultCountry="US"
+                    countryCallingCodeEditable={false}
+                    value={bookingForm.phone || undefined}
+                    onChange={(value) => setBookingForm((p) => ({ ...p, phone: value ?? '' }))}
+                    className="phone-input rounded-xl border border-border bg-soft px-4 py-3 text-sm font-semibold text-ink outline-none focus-within:border-brand focus-within:ring-1 focus-within:ring-brand"
+                  />
+                  {bookingForm.phone && !hasValidPhone && (
+                    <span className="text-xs font-semibold text-red-600">Enter a valid phone number.</span>
+                  )}
+                </label>
                 <label className="flex flex-col gap-1">
                   <span className="text-[11px] font-bold uppercase tracking-wider text-muted">
                     Special requests
