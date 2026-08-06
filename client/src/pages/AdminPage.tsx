@@ -9,7 +9,7 @@ import {
   Image as ImageIcon, Upload, Loader2, Languages, Sparkles,
 } from 'lucide-react';
 import { useStore } from '../store/useStore';
-import { adminApi, settingsApi } from '../lib/api';
+import { adminApi, settingsApi, tripsApi } from '../lib/api';
 import { CategoryItem, PICKABLE_ICONS, getIcon, autoIconName } from '../lib/iconRegistry';
 import RichTextEditor from '../components/admin/RichTextEditor';
 import Seo from '../components/seo/Seo';
@@ -1411,7 +1411,7 @@ function TripsTab() {
 
   const { data: trips = [], isLoading } = useQuery<AdminTrip[]>({
     queryKey: ['admin-trips'],
-    queryFn: () => fetch('/api/trips').then((r) => r.json()),
+    queryFn: () => tripsApi.getAll(),
   });
 
   const statusMut = useMutation({

@@ -47,6 +47,16 @@ export const tripsApi = {
     ).then((r) => r.data),
 };
 
+export const paymentsApi = {
+  createIntent: (payload: {
+    amount: number;
+    currency?: string;
+    description?: string;
+    metadata?: Record<string, string>;
+  }) =>
+    api.post<{ clientSecret: string }>('/payments/create-intent', payload).then((r) => r.data),
+};
+
 export const reviewsApi = {
   getForPackage: (packageId: string) =>
     api.get<import('../types').ReviewSummary>(`/reviews/package/${packageId}`).then((r) => r.data),

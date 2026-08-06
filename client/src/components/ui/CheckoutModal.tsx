@@ -10,6 +10,7 @@ import {
 } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 import { BookingOrder } from '../../types';
+import { paymentsApi } from '../../lib/api';
 
 const stripePromise = loadStripe(
   import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY ?? 'pk_test_placeholder'
@@ -48,28 +49,20 @@ function CheckoutForm({ order, onSuccess, onClose }: FormProps) {
     setError('');
 
     try {
-      // 1. Create PaymentIntent via our NestJS API
-      const res = await fetch('/api/payments/create-intent', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          amount: order.totalAmount,
-          currency: 'usd',
-          description: `${order.packageTitle} — ${order.travellers} traveller(s)`,
-          metadata: {
-            packageId: order.packageId,
-            customerName: order.name,
-            customerEmail: order.email,
-          },
-        }),
+      // 1. Create PaymentIntent via our NestJS API.
+      // Must go through the shared client: in production the API lives on a
+      // separate origin, and a relative '/api' path hits the static frontend
+      // server instead — which never reaches Stripe.
+      const { clientSecret } = await paymentsApi.createIntent({
+        amount: order.totalAmount,
+        currency: 'usd',
+        description: `${order.packageTitle} — ${order.travellers} traveller(s)`,
+        metadata: {
+          packageId: order.packageId,
+          customerName: order.name,
+          customerEmail: order.email,
+        },
       });
-
-      if (!res.ok) {
-        const body = await res.json();
-        throw new Error(body.message ?? 'Payment setup failed');
-      }
-
-      const { clientSecret } = await res.json();
 
       // 2. Confirm card payment
       const cardNumber = elements.getElement(CardNumberElement);
@@ -88,7 +81,14 @@ function CheckoutForm({ order, onSuccess, onClose }: FormProps) {
         onSuccess();
       }
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Something went wrong');
+      // Axios reports non-2xx as "Request failed with status code 400"; the
+      // reason the customer needs is in the API's response body.
+      const apiMessage = (err as { response?: { data?: { message?: string | string[] } } })
+        ?.response?.data?.message;
+      setError(
+        (Array.isArray(apiMessage) ? apiMessage.join(', ') : apiMessage) ??
+          (err instanceof Error ? err.message : 'Something went wrong'),
+      );
     } finally {
       setLoading(false);
     }
