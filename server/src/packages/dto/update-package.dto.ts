@@ -8,6 +8,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
+import { PackageTranslationsDto } from './create-package.dto';
 
 class ItineraryDayDto {
   @IsNumber()
@@ -42,4 +43,5 @@ export class UpdatePackageDto {
   @IsNumber() @IsOptional() reviewCount?: number;
   @IsBoolean() @IsOptional() isHalalCertified?: boolean;
   @IsBoolean() @IsOptional() isActive?: boolean;
+  @ValidateNested() @Type(() => PackageTranslationsDto) @IsOptional() translations?: PackageTranslationsDto;
 }

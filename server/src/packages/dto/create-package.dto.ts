@@ -66,7 +66,7 @@ class PackageTranslationDto {
  * ValidationPipe runs with `forbidNonWhitelisted`, so an open map would reject
  * every payload. Adding a language means adding a field here.
  */
-class PackageTranslationsDto {
+export class PackageTranslationsDto {
   @ValidateNested()
   @Type(() => PackageTranslationDto)
   @IsOptional()
